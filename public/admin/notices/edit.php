@@ -4,8 +4,13 @@ require_once __DIR__ . '/../../../src/config/database.php';
 require_once __DIR__ . '/../../../src/config/roles.php';
 require_once __DIR__ . '/../../../src/middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../src/middleware/CsrfMiddleware.php';
+require_once __DIR__ . '/../../../src/Repositories/NoticeRepository.php';
+require_once __DIR__ . '/../../../src/Services/NoticeService.php';
 
 requireRole(ROLE_ADMIN);
+
+$repository = new \App\Repositories\NoticeRepository($db);
+$service = new \App\Services\NoticeService($repository);
 
 $successMessage = $_SESSION['success_message'] ?? '';
 $errorMessage = $_SESSION['error_message'] ?? '';
@@ -19,9 +24,7 @@ if (!$id) {
 }
 
 // Fetch Notice
-$stmt = $db->prepare("SELECT * FROM notices WHERE id = ?");
-$stmt->execute([$id]);
-$notice = $stmt->fetch(PDO::FETCH_ASSOC);
+$notice = $service->getNoticeDetails($id);
 
 if (!$notice) {
     $_SESSION['error_message'] = "Notice not found.";
@@ -33,36 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         validateCsrfToken($_POST['csrf_token'] ?? '');
 
-        $title = trim($_POST['title'] ?? '');
-        $content = trim($_POST['content'] ?? '');
-        $status = $_POST['status'] === 'inactive' ? 'inactive' : 'active';
-        
-        $audienceStudent = !empty($_POST['audience_student']);
-        $audienceTeacher = !empty($_POST['audience_teacher']);
-        
-        if (empty($title) || empty($content)) {
-            throw new \Exception("Title and Description are required.");
-        }
-
-        if (!$audienceStudent && !$audienceTeacher) {
-            throw new \Exception("Please select at least one target audience.");
-        }
-
-        $targetAudience = 'student';
-        if ($audienceStudent && $audienceTeacher) {
-            $targetAudience = 'both';
-        } elseif ($audienceTeacher) {
-            $targetAudience = 'teacher';
-        }
-        
-        $stmt = $db->prepare("UPDATE notices SET title = ?, content = ?, target_audience = ?, status = ? WHERE id = ?");
-        $stmt->execute([
-            $title,
-            $content,
-            $targetAudience,
-            $status,
-            $id
-        ]);
+        $service->updateNotice($id, $_POST);
 
         $_SESSION['success_message'] = "Notice updated successfully.";
         header("Location: index.php");
@@ -73,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Fallback to post values
         $notice['title'] = $_POST['title'] ?? '';
         $notice['content'] = $_POST['content'] ?? '';
-        $notice['status'] = $_POST['status'] === 'inactive' ? 'inactive' : 'active';
+        $notice['status'] = ($_POST['status'] ?? '') === 'inactive' ? 'inactive' : 'active';
         $notice['target_audience'] = 'student';
         if (!empty($_POST['audience_student']) && !empty($_POST['audience_teacher'])) {
             $notice['target_audience'] = 'both';

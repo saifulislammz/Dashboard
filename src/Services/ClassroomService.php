@@ -114,7 +114,7 @@ class ClassroomService
         
         do {
             // Generate a random 6-character alphanumeric string to append
-            $randomString = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+            $randomString = strtoupper(bin2hex(random_bytes(3)));
             $code = $prefix . $randomString;
         } while (!$this->repository->isClassCodeUnique($code));
         

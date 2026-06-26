@@ -35,7 +35,7 @@ class ProviderAccountRepository
     public function findByProvider(string $provider): ?array
     {
         $stmt = $this->db->prepare(
-            "SELECT * FROM provider_accounts WHERE provider = :provider LIMIT 1"
+            "SELECT id, provider, client_id, client_secret, zoom_account_id, access_token, refresh_token, token_expires_at, account_email, account_id, is_connected, connected_at, last_token_refresh, connected_by FROM provider_accounts WHERE provider = :provider LIMIT 1"
         );
         $stmt->execute(['provider' => $provider]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

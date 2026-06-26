@@ -1,3 +1,172 @@
+-- PHP-Auth (https://github.com/delight-im/PHP-Auth)
+-- Copyright (c) delight.im (https://www.delight.im/)
+-- Licensed under the MIT License (https://opensource.org/licenses/MIT)
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+CREATE TABLE `users` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `username` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` tinyint unsigned NOT NULL DEFAULT '0',
+  `verified` tinyint unsigned NOT NULL DEFAULT '0',
+  `resettable` tinyint unsigned NOT NULL DEFAULT '1',
+  `roles_mask` int unsigned NOT NULL DEFAULT '0',
+  `registered` int unsigned NOT NULL,
+  `last_login` int unsigned DEFAULT NULL,
+  `force_logout` mediumint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_2fa` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `mechanism` tinyint unsigned NOT NULL,
+  `seed` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` int unsigned NOT NULL,
+  `expires_at` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id_mechanism` (`user_id`,`mechanism`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_audit_log` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned DEFAULT NULL,
+  `event_at` int unsigned NOT NULL,
+  `event_type` varchar(128) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `admin_id` int unsigned DEFAULT NULL,
+  `ip_address` varchar(49) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `details_json` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `event_at` (`event_at`),
+  KEY `user_id_event_at` (`user_id`,`event_at`),
+  KEY `user_id_event_type_event_at` (`user_id`,`event_type`,`event_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_confirmations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `selector` varchar(16) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `expires` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `selector` (`selector`),
+  KEY `email_expires` (`email`,`expires`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_otps` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `mechanism` tinyint unsigned NOT NULL,
+  `single_factor` tinyint unsigned NOT NULL DEFAULT '0',
+  `selector` varchar(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `expires_at` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id_mechanism` (`user_id`,`mechanism`),
+  KEY `selector_user_id` (`selector`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_remembered` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` int unsigned NOT NULL,
+  `selector` varchar(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `expires` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `selector` (`selector`),
+  KEY `user` (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_resets` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user` int unsigned NOT NULL,
+  `selector` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `expires` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `selector` (`selector`),
+  KEY `user_expires` (`user`,`expires`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_throttling` (
+  `bucket` varchar(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `tokens` float NOT NULL,
+  `replenished_at` int unsigned NOT NULL,
+  `expires_at` int unsigned NOT NULL,
+  PRIMARY KEY (`bucket`),
+  KEY `expires_at` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- Future Ready Permission System Architecture
+-- Similar to WordPress role/permission mapping
+
+CREATE TABLE IF NOT EXISTS `roles` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `slug` VARCHAR(50) NOT NULL UNIQUE,
+    `description` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `permissions` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(100) NOT NULL,
+    `slug` VARCHAR(100) NOT NULL UNIQUE,
+    `description` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `role_permissions` (
+    `role_id` INT UNSIGNED NOT NULL,
+    `permission_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`role_id`, `permission_id`),
+    FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`permission_id`) REFERENCES `permissions`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `user_roles` (
+    `user_id` INT UNSIGNED NOT NULL,
+    `role_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`user_id`, `role_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `classrooms` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `class_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `class_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `class_title` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `teacher_id` int unsigned NOT NULL,
+  `student_id` int unsigned NOT NULL,
+  `status` enum('Active','Inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Active',
+  `created_by` int unsigned NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `class_code` (`class_code`),
+  KEY `teacher_id` (`teacher_id`),
+  KEY `student_id` (`student_id`),
+  KEY `status` (`status`),
+  KEY `created_at` (`created_at`),
+  KEY `class_name` (`class_name`),
+  KEY `class_title` (`class_title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- ============================================================
 -- MEETING INTEGRATION MODULE — Database Schema
 -- Compatible with: MySQL 8+ / MariaDB
@@ -319,3 +488,28 @@ ALTER TABLE `session_attendance`
         REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 SET foreign_key_checks = 1;
+CREATE TABLE `notices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `target_audience` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'both',
+  `status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `fk_notices_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Add FULLTEXT indexes for searching in notices and users tables
+-- This is required to comply with database optimization rules (No LIKE '%x%')
+
+-- For notices table
+ALTER TABLE notices ADD FULLTEXT INDEX idx_notices_fulltext (title, content);
+
+-- For users table
+ALTER TABLE users ADD FULLTEXT INDEX idx_users_fulltext (username, email);
+ALTER TABLE `users` ADD INDEX `idx_username` (`username`);
+ALTER TABLE `classrooms` ADD INDEX `idx_class_name` (`class_name`);
+ALTER TABLE `classrooms` ADD INDEX `idx_class_title` (`class_title`);
+ALTER TABLE `class_sessions` ADD INDEX `idx_session_date_time` (`session_date`, `start_time`);

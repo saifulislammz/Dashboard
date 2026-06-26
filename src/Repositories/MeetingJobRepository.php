@@ -79,7 +79,7 @@ class MeetingJobRepository
     public function findJobById(int $jobId): ?array
     {
         $stmt = $this->db->prepare(
-            "SELECT * FROM meeting_generation_jobs WHERE id = :id LIMIT 1"
+            "SELECT id, classroom_id, provider, total_sessions, processed, succeeded, failed, status, created_by, started_at, completed_at FROM meeting_generation_jobs WHERE id = :id LIMIT 1"
         );
         $stmt->execute(['id' => $jobId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -151,7 +151,7 @@ class MeetingJobRepository
     public function getPendingItems(int $jobId): array
     {
         $stmt = $this->db->prepare(
-            "SELECT * FROM meeting_generation_job_items
+            "SELECT id, job_id, session_id, status, attempts, last_error, processed_at FROM meeting_generation_job_items
              WHERE job_id = :job_id AND status = 'pending'
              ORDER BY id ASC"
         );

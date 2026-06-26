@@ -4,8 +4,13 @@ require_once __DIR__ . '/../../src/config/database.php';
 require_once __DIR__ . '/../../src/config/roles.php';
 require_once __DIR__ . '/../../src/middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../src/middleware/CsrfMiddleware.php';
+require_once __DIR__ . '/../../src/Repositories/UserRepository.php';
+require_once __DIR__ . '/../../src/Services/UserService.php';
 
 requireRole(ROLE_ADMIN);
+
+$repository = new \App\Repositories\UserRepository($db);
+$service = new \App\Services\UserService($repository, $auth);
 
 $action = $_GET['action'] ?? 'list';
 $successMessage = $_SESSION['success_message'] ?? '';
@@ -18,43 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         validateCsrfToken($_POST['csrf_token'] ?? '');
         
         if ($action === 'create') {
-            $name = trim($_POST['name'] ?? '');
-            $email = trim($_POST['email'] ?? '');
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-            $status = (int)($_POST['status'] ?? 0); 
-
-            if (empty($name) || empty($email) || empty($password)) {
-                throw new \Exception("All fields are required.");
-            }
-            if ($password !== $confirmPassword) {
-                throw new \Exception("Passwords do not match.");
-            }
-
-            // Create user
-            $userId = $auth->admin()->createUser($email, $password, $name);
-            
-            // Assign role
-            $auth->admin()->addRoleForUserById($userId, ROLE_STUDENT);
-            
-            // Update status
-            if ($status === 2) {
-                $db->prepare("UPDATE users SET status = 2 WHERE id = ?")->execute([$userId]);
-            }
-            
+            $service->createUser($_POST, ROLE_STUDENT);
             $_SESSION['success_message'] = "Student created successfully.";
             header("Location: students.php");
             exit;
             
         } elseif ($action === 'edit') {
             $id = (int)($_POST['id'] ?? 0);
-            $name = trim($_POST['name'] ?? '');
-            
-            if (empty($name) || !$id) {
-                throw new \Exception("Invalid input.");
-            }
-            
-            $db->prepare("UPDATE users SET username = ? WHERE id = ?")->execute([$name, $id]);
+            $service->updateUser($id, $_POST);
             $_SESSION['success_message'] = "Student updated successfully.";
             header("Location: students.php");
             exit;
@@ -62,14 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'status') {
             $id = (int)($_POST['id'] ?? 0);
             $status = (int)($_POST['status'] ?? 0);
-            $db->prepare("UPDATE users SET status = ? WHERE id = ?")->execute([$status, $id]);
+            $service->updateStatus($id, $status);
             $_SESSION['success_message'] = "Status updated.";
             header("Location: students.php");
             exit;
             
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
-            $auth->admin()->deleteUserById($id);
+            $service->deleteUser($id);
             $_SESSION['success_message'] = "Student deleted.";
             header("Location: students.php");
             exit;
@@ -83,35 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Handle GET for Listing
-$search = $_GET['search'] ?? '';
+$search = trim($_GET['search'] ?? '');
 $page = max(1, (int)($_GET['page'] ?? 1));
 $limit = 10;
-$offset = ($page - 1) * $limit;
 
-$roleMask = ROLE_STUDENT;
-$whereClause = "roles_mask & ? = ?";
-$params = [$roleMask, $roleMask];
+$paginated = $service->getPaginatedUsersByRole(ROLE_STUDENT, $page, $limit, $search);
 
-if (!empty($search)) {
-    $whereClause .= " AND (username LIKE ? OR email LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-}
-
-// Total count
-$stmtCount = $db->prepare("SELECT COUNT(*) FROM users WHERE $whereClause");
-$stmtCount->execute($params);
-$totalStudents = $stmtCount->fetchColumn();
-$totalPages = ceil($totalStudents / $limit);
-
-// Fetch data
-$stmt = $db->prepare("SELECT id, email, username as name, status, registered FROM users WHERE $whereClause ORDER BY id DESC LIMIT ? OFFSET ?");
-$stmt->bindValue(count($params) + 1, $limit, PDO::PARAM_INT);
-$stmt->bindValue(count($params) + 2, $offset, PDO::PARAM_INT);
-foreach ($params as $key => $val) {
-    $stmt->bindValue($key + 1, $val);
-}
-$stmt->execute();
-$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$students = $paginated['data'];
+$totalPages = $paginated['pages'];
 
 require __DIR__ . '/../../views/admin/students.php';

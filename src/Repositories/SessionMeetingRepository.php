@@ -24,7 +24,7 @@ class SessionMeetingRepository
     public function findBySessionId(int $sessionId): ?array
     {
         $stmt = $this->db->prepare(
-            "SELECT * FROM session_meetings WHERE session_id = :session_id LIMIT 1"
+            "SELECT id, session_id, provider, provider_meeting_id, provider_event_id, join_url, start_url, meet_link, passcode, generation_status, error_message, generation_attempts, last_attempt_at FROM session_meetings WHERE session_id = :session_id LIMIT 1"
         );
         $stmt->execute(['session_id' => $sessionId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
