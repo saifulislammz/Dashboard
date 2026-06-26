@@ -17,8 +17,8 @@ class UserRepository
 
     public function getPaginatedUsersByRole(int $roleMask, int $limit, int $offset, string $search = ''): array
     {
-        $whereClause = "roles_mask & :role = :role";
-        $params = ['role' => $roleMask];
+        $whereClause = "roles_mask & :role1 = :role2";
+        $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
             $whereClause .= " AND MATCH(username, email) AGAINST(:search IN BOOLEAN MODE)";
@@ -45,8 +45,8 @@ class UserRepository
 
     public function countTotalUsersByRole(int $roleMask, string $search = ''): int
     {
-        $whereClause = "roles_mask & :role = :role";
-        $params = ['role' => $roleMask];
+        $whereClause = "roles_mask & :role1 = :role2";
+        $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
             $whereClause .= " AND MATCH(username, email) AGAINST(:search IN BOOLEAN MODE)";
