@@ -34,3 +34,7 @@ desktop.ini
 *.swp
 *.swo
 *~
+
+# Documentation
+/codebase_index.md
+
