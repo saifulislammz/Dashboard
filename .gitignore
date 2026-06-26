@@ -15,8 +15,7 @@ yarn-error.log
 /storage/logs/
 *.log
 
-# DDEV & AI Agents configuration
-/.ddev/
+# AI Agents configuration
 /.agents/
 
 # OS Generated Files
