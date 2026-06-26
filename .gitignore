@@ -15,8 +15,9 @@ yarn-error.log
 /storage/logs/
 *.log
 
-# DDEV generated (if any specific, usually .ddev has its own .gitignore)
-# /mutagen/ etc.
+# DDEV & AI Agents configuration
+/.ddev/
+/.agents/
 
 # OS Generated Files
 .DS_Store
