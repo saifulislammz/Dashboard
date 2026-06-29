@@ -6,22 +6,32 @@ namespace App\Controllers\Session;
 
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\SessionMeetingRepository;
+use App\Services\AttendanceService;
 use PDO;
 
+/**
+ * SessionJoinController
+ *
+ * Handles the join flow: validates session, checks time window,
+ * records attendance (for both students and teachers), then redirects.
+ */
 class SessionJoinController
 {
-    private PDO $db;
+    private PDO                    $db;
     private ClassSessionRepository $sessionRepo;
     private SessionMeetingRepository $meetingRepo;
+    private AttendanceService      $attendanceService;
 
     public function __construct(
-        PDO $db,
-        ClassSessionRepository $sessionRepo,
-        SessionMeetingRepository $meetingRepo
+        PDO                     $db,
+        ClassSessionRepository  $sessionRepo,
+        SessionMeetingRepository $meetingRepo,
+        AttendanceService       $attendanceService
     ) {
-        $this->db          = $db;
-        $this->sessionRepo = $sessionRepo;
-        $this->meetingRepo = $meetingRepo;
+        $this->db                = $db;
+        $this->sessionRepo       = $sessionRepo;
+        $this->meetingRepo       = $meetingRepo;
+        $this->attendanceService = $attendanceService;
     }
 
     public function handleJoin(int $sessionId): void
@@ -51,24 +61,19 @@ class SessionJoinController
             return;
         }
 
-        // Fetch global settings
-        $stmt = $this->db->query("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key = 'join_open_minutes_before'");
-        $setting = $stmt->fetch(PDO::FETCH_ASSOC);
-        $minutesBefore = (int) ($setting['setting_val'] ?? 10);
+        // Fetch join window setting
+        $stmt          = $this->db->query("SELECT setting_val FROM meeting_settings WHERE setting_key = 'join_open_minutes_before'");
+        $minutesBefore = (int) ($stmt->fetchColumn() ?: 10);
 
         // Time logic
-        $tz = new \DateTimeZone($session['timezone']);
+        $tz      = new \DateTimeZone($session['timezone']);
         $startDt = new \DateTime("{$session['session_date']} {$session['start_time']}", $tz);
         $endDt   = new \DateTime("{$session['session_date']} {$session['end_time']}", $tz);
-        
-        $now = new \DateTime('now', $tz);
+        $now     = new \DateTime('now', $tz);
+        $openDt  = (clone $startDt)->modify("-{$minutesBefore} minutes");
 
-        // Determine if meeting is open
-        $openDt = clone $startDt;
-        $openDt->modify("-{$minutesBefore} minutes");
+        $isTeacher = $auth->hasRole(\ROLE_ADMIN) || ((int) $session['classroom_id'] && $this->sessionRepo->teacherBelongsToSession($sessionId, $userId));
 
-        $isTeacher = $auth->hasRole(\ROLE_ADMIN) || ($session['teacher_id'] === $userId);
-        
         if (!$isTeacher && $now < $openDt) {
             $this->showError("Meeting is not open yet. You can join {$minutesBefore} minutes before the start time.");
             return;
@@ -79,35 +84,19 @@ class SessionJoinController
             return;
         }
 
-        // --- Log attendance if enabled ---
-        $this->logAttendance($sessionId, $userId, 'join');
+        // Record attendance for both student and teacher via AttendanceService
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $role      = $isTeacher ? 'teacher' : 'student';
+        $this->attendanceService->recordAttendance($sessionId, $userId, $ipAddress, $role);
 
-        // Choose start_url (for teacher/admin in Zoom) or join_url
+        // Choose start_url for teacher/admin in Zoom, otherwise join_url
         $redirectUrl = $meeting['join_url'];
-        
         if ($isTeacher && !empty($meeting['start_url'])) {
             $redirectUrl = $meeting['start_url'];
         }
 
-        // Optional: show a transitional loading page, or just redirect
         header("Location: {$redirectUrl}");
         exit;
-    }
-
-    private function logAttendance(int $sessionId, int $userId, string $action): void
-    {
-        $stmt = $this->db->prepare("SELECT setting_val FROM meeting_settings WHERE setting_key = 'attendance_sync_enabled'");
-        $stmt->execute();
-        $enabled = $stmt->fetchColumn();
-
-        if ($enabled === '1') {
-            $logStmt = $this->db->prepare("
-                INSERT INTO session_attendance (session_id, user_id, join_time) 
-                VALUES (:sid, :uid, NOW())
-                ON DUPLICATE KEY UPDATE join_time = IF(join_time IS NULL, NOW(), join_time)
-            ");
-            $logStmt->execute(['sid' => $sessionId, 'uid' => $userId]);
-        }
     }
 
     private function showError(string $message): void

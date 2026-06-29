@@ -513,3 +513,16 @@ ALTER TABLE `users` ADD INDEX `idx_username` (`username`);
 ALTER TABLE `classrooms` ADD INDEX `idx_class_name` (`class_name`);
 ALTER TABLE `classrooms` ADD INDEX `idx_class_title` (`class_title`);
 ALTER TABLE `class_sessions` ADD INDEX `idx_session_date_time` (`session_date`, `start_time`);
+
+-- =============================================================
+-- Attendance System Enhancement
+-- Add ip_address column to existing session_attendance table
+-- =============================================================
+
+ALTER TABLE `session_attendance`
+    ADD COLUMN `ip_address` VARCHAR(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `join_time`,
+    ADD KEY `idx_att_join_time` (`join_time`);
+
+-- Enable attendance tracking by default
+INSERT IGNORE INTO `meeting_settings` (`setting_key`, `setting_val`)
+VALUES ('attendance_sync_enabled', '1');

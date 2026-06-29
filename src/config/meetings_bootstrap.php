@@ -32,9 +32,11 @@ use App\Repositories\ClassSessionRepository;
 use App\Repositories\SessionMeetingRepository;
 use App\Repositories\ProviderAccountRepository;
 use App\Repositories\MeetingJobRepository;
+use App\Repositories\AttendanceRepository;
 use App\Services\Meetings\MeetingProviderFactory;
 use App\Services\Meetings\MeetingService;
 use App\Services\Sessions\ClassSessionService;
+use App\Services\AttendanceService;
 
 // Instantiate repositories
 $classroomRepo    = new ClassroomRepository($db);
@@ -44,6 +46,8 @@ $providerRepo     = new ProviderAccountRepository($db);
 $jobRepo          = new MeetingJobRepository($db);
 
 // Instantiate services
-$providerFactory  = new MeetingProviderFactory($db, $providerRepo);
-$meetingService   = new MeetingService($providerFactory, $sessionRepo, $meetingRepo, $providerRepo);
-$sessionService   = new ClassSessionService($sessionRepo, $meetingRepo, $jobRepo, $meetingService);
+$providerFactory   = new MeetingProviderFactory($db, $providerRepo);
+$meetingService    = new MeetingService($providerFactory, $sessionRepo, $meetingRepo, $providerRepo);
+$sessionService    = new ClassSessionService($sessionRepo, $meetingRepo, $jobRepo, $meetingService);
+$attendanceRepo    = new AttendanceRepository($db);
+$attendanceService = new AttendanceService($attendanceRepo, $sessionRepo, $db);

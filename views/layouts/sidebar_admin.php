@@ -58,11 +58,12 @@
         </a>
 
         <?php
-        $isUserMgmtActive = in_array($activeMenu ?? '', ['teachers', 'students']);
-        $isNoticeActive = in_array($activeMenu ?? '', ['notices_create', 'notices_manage']);
-        $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage']);
-        $isAccountActive = in_array($activeMenu ?? '', ['profile']);
-        $isSettingsActive = in_array($activeMenu ?? '', ['settings_meetings']);
+        $isUserMgmtActive   = in_array($activeMenu ?? '', ['teachers', 'students']);
+        $isNoticeActive      = in_array($activeMenu ?? '', ['notices_create', 'notices_manage']);
+        $isClassroomsActive  = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage']);
+        $isAttendanceActive  = in_array($activeMenu ?? '', ['admin_attendance']);
+        $isAccountActive     = in_array($activeMenu ?? '', ['profile']);
+        $isSettingsActive    = in_array($activeMenu ?? '', ['settings_meetings']);
         ?>
 
         <!-- User Management -->
@@ -193,6 +194,37 @@
                                 </path>
                             </svg>
                             Manage Classrooms
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ATTENDANCE -->
+        <div class="mt-4 pt-2 nav-group <?php echo $isAttendanceActive || !$activeMenu ? 'is-open' : ''; ?>">
+            <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#0ea5e9]"></div>
+                    <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">ATTENDANCE</span>
+                </div>
+                <div class="w-6 h-6 rounded border border-[#bae6fd] flex items-center justify-center text-[#0ea5e9] bg-white group-hover/toggle:bg-sky-50 transition-all duration-200 nav-group-icon <?php echo !$isAttendanceActive && $activeMenu ? 'rotate-180' : ''; ?>">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="grid <?php echo !$isAttendanceActive && $activeMenu ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'; ?> transition-[grid-template-rows] duration-300 ease-in-out nav-group-content">
+                <div class="overflow-hidden">
+                    <div class="space-y-0.5 pb-1">
+                        <a href="/admin/attendance/overview.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'admin_attendance' ? 'bg-[#f0f9ff] text-[#0ea5e9]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                </path>
+                            </svg>
+                            Attendance Overview
                         </a>
                     </div>
                 </div>
