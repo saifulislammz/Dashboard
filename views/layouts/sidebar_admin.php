@@ -323,6 +323,55 @@
             </div>
         </div>
 
+        <!-- QUIZ -->
+        <?php
+        $isQuizActive = in_array($activeMenu ?? '', ['quiz_list', 'quiz_create', 'quiz_view'], true);
+        ?>
+        <div class="mt-4 pt-2 nav-group <?php echo $isQuizActive || !$activeMenu ? 'is-open' : ''; ?>">
+            <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#059669]"></div>
+                    <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">QUIZ</span>
+                    <?php if (!empty($badge) && $badge > 0): ?>
+                        <span class="ml-1 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-[#059669] text-white rounded-full"><?php echo (int) $badge; ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="w-6 h-6 rounded border border-[#d1fae5] flex items-center justify-center text-[#059669] bg-white group-hover/toggle:bg-emerald-50 transition-all duration-200 nav-group-icon <?php echo !$isQuizActive && $activeMenu ? 'rotate-180' : ''; ?>">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="grid <?php echo !$isQuizActive && $activeMenu ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'; ?> transition-[grid-template-rows] duration-300 ease-in-out nav-group-content">
+                <div class="overflow-hidden">
+                    <div class="space-y-0.5 pb-1">
+                        <!-- Quiz List -->
+                        <a href="/admin/quiz/index.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'quiz_list' ? 'bg-[#ecfdf5] text-[#059669]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
+                                </path>
+                            </svg>
+                            কুইজ তালিকা
+                        </a>
+                        <!-- Create Quiz -->
+                        <a href="/admin/quiz/create.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'quiz_create' ? 'bg-[#ecfdf5] text-[#059669]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                            নতুন কুইজ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ACCOUNT -->
         <div class="mt-4 pt-2 nav-group <?php echo $isAccountActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
