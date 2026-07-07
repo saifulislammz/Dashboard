@@ -53,7 +53,8 @@ class QuizController
 
             $input = $_POST;
             try {
-                $adminId = (int) $_SESSION['user_id'];
+                global $auth;
+                $adminId = (int) $auth->getUserId();
                 $quizId  = $this->quizService->createQuiz($input, $adminId);
                 header('Location: /admin/quiz/view.php?id=' . $quizId . '&created=1');
                 exit;

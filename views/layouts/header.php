@@ -14,6 +14,8 @@
             font-family: 'Inter', sans-serif;
         }
     </style>
+    <!-- Alpine.js for dynamic UI components (like quiz builder) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="bg-gray-50 flex h-screen overflow-hidden">
