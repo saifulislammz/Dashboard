@@ -64,6 +64,7 @@
         $isAttendanceActive  = in_array($activeMenu ?? '', ['admin_attendance']);
         $isAccountActive     = in_array($activeMenu ?? '', ['profile']);
         $isSettingsActive    = in_array($activeMenu ?? '', ['settings_meetings']);
+        $isInvoiceActive     = in_array($activeMenu ?? '', ['invoice_create', 'invoice_dashboard', 'invoice_settings']);
         ?>
 
         <!-- User Management -->
@@ -261,6 +262,61 @@
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                             Meetings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INVOICES -->
+        <div class="mt-4 pt-2 nav-group <?php echo $isInvoiceActive || !$activeMenu ? 'is-open' : ''; ?>">
+            <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">INVOICES</span>
+                </div>
+                <div class="w-6 h-6 rounded border border-[#ddd6fe] flex items-center justify-center text-[#7c3aed] bg-white group-hover/toggle:bg-purple-50 transition-all duration-200 nav-group-icon <?php echo !$isInvoiceActive && $activeMenu ? 'rotate-180' : ''; ?>">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="grid <?php echo !$isInvoiceActive && $activeMenu ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'; ?> transition-[grid-template-rows] duration-300 ease-in-out nav-group-content">
+                <div class="overflow-hidden">
+                    <div class="space-y-0.5 pb-1">
+                        <!-- Generate Invoice -->
+                        <a href="/admin/invoices/create.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'invoice_create' ? 'bg-[#f5f3ff] text-[#7c3aed]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Generate Invoice
+                        </a>
+                        <!-- Invoice Dashboard -->
+                        <a href="/admin/invoices/index.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'invoice_dashboard' ? 'bg-[#f5f3ff] text-[#7c3aed]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Invoice Dashboard
+                        </a>
+                        <!-- Invoice Settings -->
+                        <a href="/admin/invoices/settings.php"
+                            class="group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl <?php echo ($activeMenu ?? '') === 'invoice_settings' ? 'bg-[#f5f3ff] text-[#7c3aed]' : 'text-[#475569] hover:bg-gray-50'; ?>"
+                            onclick="closeSidebar()">
+                            <svg class="mr-4 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Settings
                         </a>
                     </div>
                 </div>
