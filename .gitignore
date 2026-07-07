@@ -15,9 +15,6 @@ yarn-error.log
 /storage/logs/
 *.log
 
-# AI Agents configuration
-/.agents/
-
 # OS Generated Files
 .DS_Store
 .DS_Store?
