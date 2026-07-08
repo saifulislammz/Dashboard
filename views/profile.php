@@ -3,14 +3,12 @@ $pageTitle = 'Profile';
 $activeMenu = 'profile';
 
 // Determine correct sidebar based on role
+require __DIR__ . '/layouts/header.php';
 if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN)) {
-    require __DIR__ . '/layouts/header.php';
     require __DIR__ . '/layouts/sidebar_admin.php';
 } elseif ($auth->hasRole(ROLE_TEACHER)) {
-    require __DIR__ . '/layouts/header.php';
     require __DIR__ . '/layouts/sidebar_teacher.php';
 } else {
-    require __DIR__ . '/layouts/header.php';
     require __DIR__ . '/layouts/sidebar_student.php';
 }
 ?>
