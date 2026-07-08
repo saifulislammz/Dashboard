@@ -14,12 +14,13 @@ use App\Services\QuizService;
  */
 class QuizController
 {
-    private QuizService $quizService;
+    private QuizService    $quizService;
+    private QuizRepository $repo;
 
-    public function __construct(private \PDO $db)
+    public function __construct(QuizService $quizService, QuizRepository $repo)
     {
-        $repo              = new QuizRepository($db);
-        $this->quizService = new QuizService($repo);
+        $this->quizService = $quizService;
+        $this->repo        = $repo;
     }
 
     // ──────────────────────────────────────────────
@@ -75,7 +76,7 @@ class QuizController
     // ──────────────────────────────────────────────
     public function edit(): void
     {
-        $quizId  = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $quizId  = (int) ($_REQUEST['id'] ?? 0);
         $error   = null;
         $quiz    = null;
 
@@ -148,7 +149,7 @@ class QuizController
         }
 
         // Report view open করলে সব unread badge clear
-        (new QuizRepository($this->db))->markAllNotified($quizId);
+        $this->repo->markAllNotified($quizId);
 
         $created = isset($_GET['created']);
         $updated = isset($_GET['updated']);
@@ -168,8 +169,7 @@ class QuizController
             exit;
         }
 
-        $repo    = new QuizRepository($this->db);
-        $attempt = $repo->findAttemptById($attemptId);
+        $attempt = $this->repo->findAttemptById($attemptId);
 
         if (!$attempt || empty($attempt['voice_file_path'])) {
             http_response_code(404);
@@ -191,16 +191,7 @@ class QuizController
             exit;
         }
 
-        $ext      = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
-        $mimeMap  = [
-            'webm' => 'audio/webm',
-            'ogg'  => 'audio/ogg',
-            'wav'  => 'audio/wav',
-            'mp4'  => 'audio/mp4',
-            'mp3'  => 'audio/mpeg',
-            'm4a'  => 'audio/x-m4a',
-        ];
-        $mime = $mimeMap[$ext] ?? 'application/octet-stream';
+        $mime = mime_content_type($realPath) ?: 'application/octet-stream';
 
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($realPath));

@@ -105,4 +105,30 @@ class NoticeRepository
         $stmt = $this->db->prepare("DELETE FROM notices WHERE id = :id");
         return $stmt->execute(['id' => $id]);
     }
+
+    /**
+     * Fetch active notices for a given audience (student | teacher | both).
+     * Used by Student & Teacher dashboards.
+     */
+    public function getActiveNoticesByAudience(string $audience, int $limit = 10): array
+    {
+        $allowedAudiences = ['student', 'teacher', 'both'];
+        if (!in_array($audience, $allowedAudiences, true)) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare(
+            "SELECT title, content, created_at
+             FROM notices
+             WHERE status = 'active'
+               AND target_audience IN (:audience, 'both')
+             ORDER BY created_at DESC
+             LIMIT :limit"
+        );
+        $stmt->bindValue(':audience', $audience);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
+

@@ -16,5 +16,8 @@ require_once __DIR__ . '/../../../src/Controllers/Admin/QuizController.php';
 
 requireRole(ROLE_ADMIN);
 
-$controller = new \App\Controllers\Admin\QuizController($db);
+$repo       = new \App\Repositories\QuizRepository($db);
+$service    = new \App\Services\QuizService($repo);
+$controller = new \App\Controllers\Admin\QuizController($service, $repo);
 $controller->create();
+

@@ -80,4 +80,13 @@ class UserService
             'current_page' => $page
         ];
     }
+
+    /**
+     * Get the raw status integer for a user (for display on profile page).
+     */
+    public function getUserStatus(int $userId): ?int
+    {
+        return $this->repository->getUserStatus($userId);
+    }
 }
+

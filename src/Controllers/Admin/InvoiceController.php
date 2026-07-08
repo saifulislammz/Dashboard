@@ -42,7 +42,6 @@ class InvoiceController
 
         $listData  = $this->invoiceService->getInvoiceList($filters, $page);
         $stats     = $this->invoiceService->getDashboardStats();
-        $currencies = InvoiceService::CURRENCIES;
 
         $pageTitle  = 'Invoice Dashboard';
         $activeMenu = 'invoice_dashboard';
@@ -62,7 +61,6 @@ class InvoiceController
     {
         $settings     = $this->invoiceService->getSettings();
         $invoiceNumber = $this->invoiceService->generateInvoiceNumberPreview($settings);
-        $currencies   = InvoiceService::CURRENCIES;
 
         $pageTitle  = 'Generate Invoice';
         $activeMenu = 'invoice_create';
@@ -88,7 +86,6 @@ class InvoiceController
         $errors        = $result['errors'];
         $settings      = $this->invoiceService->getSettings();
         $invoiceNumber = $this->invoiceService->generateInvoiceNumberPreview($settings);
-        $currencies    = InvoiceService::CURRENCIES;
         $old           = $_POST; // repopulate form
 
         $pageTitle  = 'Generate Invoice';
@@ -120,7 +117,6 @@ class InvoiceController
         $invoice    = $data['invoice'];
         $items      = $data['items'];
         $settings   = $this->invoiceService->getSettings();
-        $currencies = InvoiceService::CURRENCIES;
         $created    = isset($_GET['created']) && $_GET['created'] === '1';
 
         $pageTitle  = 'Invoice #' . htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8');
@@ -152,7 +148,6 @@ class InvoiceController
         $invoice    = $data['invoice'];
         $items      = $data['items'];
         $settings   = $this->invoiceService->getSettings();
-        $currencies = InvoiceService::CURRENCIES;
 
         // No sidebar/header — standalone page
         require __DIR__ . '/../../../views/admin/invoices/print.php';

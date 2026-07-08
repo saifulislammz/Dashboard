@@ -3,15 +3,18 @@
 namespace App\Services;
 
 use App\Repositories\ClassroomRepository;
+use App\Repositories\UserRepository;
 use Exception;
 
 class ClassroomService
 {
     private ClassroomRepository $repository;
+    private ?UserRepository $userRepository;
 
-    public function __construct(ClassroomRepository $repository)
+    public function __construct(ClassroomRepository $repository, ?UserRepository $userRepository = null)
     {
-        $this->repository = $repository;
+        $this->repository     = $repository;
+        $this->userRepository = $userRepository;
     }
 
     public function createClassroom(array $data, int $adminId): bool
@@ -119,5 +122,17 @@ class ClassroomService
         } while (!$this->repository->isClassCodeUnique($code));
         
         return $code;
+    }
+
+    /**
+     * Get active users by role bitmask via UserRepository.
+     * UserRepository must be injected to use this method.
+     */
+    public function getUsersByRole(int $roleMask): array
+    {
+        if ($this->userRepository === null) {
+            throw new \LogicException('UserRepository is required to call getUsersByRole().');
+        }
+        return $this->userRepository->getUsersByRole($roleMask);
     }
 }

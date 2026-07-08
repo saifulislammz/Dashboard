@@ -5,7 +5,7 @@ requireRole(ROLE_TEACHER);
 
 use App\Controllers\Teacher\TeacherAttendanceController;
 
-$controller = new TeacherAttendanceController($attendanceService, $classroomRepo);
+$controller = new TeacherAttendanceController($container->get(App\Services\AttendanceService::class), $container->get(App\Repositories\ClassroomRepository::class));
 
 $action = $_GET['action'] ?? 'classroom';
 
@@ -14,3 +14,4 @@ if ($action === 'session') {
 } else {
     $controller->classroomReport();
 }
+

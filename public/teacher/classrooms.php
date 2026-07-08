@@ -24,3 +24,4 @@ $pageTitle  = 'My Classes';
 $activeMenu = 'classes';
 
 require __DIR__ . '/../../views/teacher/classrooms.php';
+

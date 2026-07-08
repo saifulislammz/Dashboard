@@ -16,10 +16,10 @@ class QuizPlayerController
     private QuizService    $quizService;
     private QuizRepository $repo;
 
-    public function __construct(private \PDO $db)
+    public function __construct(QuizService $quizService, QuizRepository $repo)
     {
-        $this->repo        = new QuizRepository($db);
-        $this->quizService = new QuizService($this->repo);
+        $this->quizService = $quizService;
+        $this->repo        = $repo;
     }
 
     // ──────────────────────────────────────────────

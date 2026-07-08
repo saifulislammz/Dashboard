@@ -15,11 +15,13 @@ class AnalyticsService
 
     public function getDashboardStats(): array
     {
+        $counts = $this->analyticsRepository->getDashboardCounts();
+
         return [
-            'total_students' => $this->analyticsRepository->getStudentCount(),
-            'total_teachers' => $this->analyticsRepository->getTeacherCount(),
-            'total_notices'  => $this->analyticsRepository->getNoticeCount(),
-            'total_classrooms' => $this->analyticsRepository->getClassroomCount(),
+            'total_students'    => $counts['total_students'],
+            'total_teachers'    => $counts['total_teachers'],
+            'total_notices'     => $counts['total_notices'],
+            'total_classrooms'  => $counts['total_classrooms'],
             'recent_classrooms' => $this->analyticsRepository->getRecentClassrooms(20),
         ];
     }

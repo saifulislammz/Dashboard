@@ -72,4 +72,33 @@ class UserRepository
         $stmt = $this->db->prepare("UPDATE users SET status = :status WHERE id = :id");
         return $stmt->execute(['status' => $status, 'id' => $id]);
     }
+
+    /**
+     * Get all active users by role bitmask (for dropdowns, selections).
+     * Status 0 = Normal/Active in Delight Auth.
+     */
+    public function getUsersByRole(int $roleMask): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT id, username, email
+             FROM users
+             WHERE (roles_mask & :role) > 0
+               AND status = 0
+             ORDER BY username ASC"
+        );
+        $stmt->bindValue(':role', $roleMask, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get user status integer from DB (for profile display etc.).
+     */
+    public function getUserStatus(int $userId): ?int
+    {
+        $stmt = $this->db->prepare("SELECT status FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $userId]);
+        $val = $stmt->fetchColumn();
+        return $val !== false ? (int) $val : null;
+    }
 }

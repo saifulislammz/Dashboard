@@ -8,6 +8,7 @@ use App\Contracts\MeetingProviderInterface;
 use App\DTOs\SessionDTO;
 use App\DTOs\MeetingResultDTO;
 use App\Repositories\ProviderAccountRepository;
+use App\Utils\Logger;
 use PDO;
 
 /**
@@ -33,6 +34,7 @@ class ZoomProvider implements MeetingProviderInterface
     private array  $account;
     private string $accessToken;
     private ProviderAccountRepository $providerRepo;
+    private Logger $logger;
 
     private const API_BASE  = 'https://api.zoom.us/v2';
     private const TOKEN_URL = 'https://zoom.us/oauth/token';
@@ -43,6 +45,7 @@ class ZoomProvider implements MeetingProviderInterface
         $this->account      = $account;
         $this->providerRepo = new ProviderAccountRepository($db);
         $this->accessToken  = $account['access_token'] ?? '';
+        $this->logger       = new Logger();
     }
 
     // -------------------------------------------------------
@@ -53,6 +56,7 @@ class ZoomProvider implements MeetingProviderInterface
     {
         if (!$this->isTokenValid()) {
             if (!$this->refreshToken()) {
+                $this->logger->error('Zoom token refresh failed', ['account_id' => $this->account['id'] ?? null]);
                 return MeetingResultDTO::failure('zoom', 'Zoom token refresh failed. Check credentials.');
             }
         }
@@ -87,6 +91,11 @@ class ZoomProvider implements MeetingProviderInterface
 
         if (!$response || isset($response['code'])) {
             $errMsg = $response['message'] ?? 'Unknown Zoom API error';
+            $this->logger->error('Zoom createMeeting failed', [
+                'session_id' => $session->sessionId,
+                'error' => $errMsg,
+                'response' => $response
+            ]);
             return MeetingResultDTO::failure('zoom', $errMsg);
         }
 
@@ -128,8 +137,16 @@ class ZoomProvider implements MeetingProviderInterface
         $url      = self::API_BASE . "/meetings/{$providerMeetingId}";
         $response = $this->apiRequest('PATCH', $url, $body);
 
+        if (isset($response['code'])) {
+            $this->logger->error('Zoom updateMeeting failed', [
+                'meeting_id' => $providerMeetingId,
+                'response' => $response
+            ]);
+            return false;
+        }
+
         // Zoom returns 204 on success (empty body)
-        return !isset($response['code']);
+        return true;
     }
 
     // -------------------------------------------------------
@@ -145,7 +162,15 @@ class ZoomProvider implements MeetingProviderInterface
         $url      = self::API_BASE . "/meetings/{$providerMeetingId}";
         $response = $this->apiRequest('DELETE', $url);
 
-        return !isset($response['code']);
+        if (isset($response['code'])) {
+            $this->logger->error('Zoom deleteMeeting failed', [
+                'meeting_id' => $providerMeetingId,
+                'response' => $response
+            ]);
+            return false;
+        }
+
+        return true;
     }
 
     // -------------------------------------------------------
@@ -194,6 +219,7 @@ class ZoomProvider implements MeetingProviderInterface
         $json = json_decode($result, true);
 
         if (!isset($json['access_token'])) {
+            $this->logger->error('Zoom token refresh failed - no access token in response', ['response' => $json]);
             return false;
         }
 
@@ -247,6 +273,11 @@ class ZoomProvider implements MeetingProviderInterface
 
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            $this->logger->error('Zoom cURL error', ['error' => curl_error($ch), 'url' => $url]);
+        }
+        
         curl_close($ch);
 
         if (!$result) {

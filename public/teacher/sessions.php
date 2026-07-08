@@ -5,5 +5,6 @@ requireRole(ROLE_TEACHER);
 
 use App\Controllers\Teacher\TeacherSessionController;
 
-$controller = new TeacherSessionController($db, $sessionService, $classroomRepo);
+$controller = new TeacherSessionController($db, $container->get(App\Services\Sessions\ClassSessionService::class), $container->get(App\Repositories\ClassroomRepository::class));
 $controller->index();
+

@@ -17,3 +17,4 @@ $service = new \App\Services\AnalyticsService($repository);
 $controller = new \App\Controllers\Admin\DashboardController($service);
 
 $controller->index();
+

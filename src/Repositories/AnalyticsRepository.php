@@ -14,41 +14,34 @@ class AnalyticsRepository
         $this->db = $db;
     }
 
-    public function getStudentCount(): int
+    /**
+     * Fetch all dashboard counts in a single query.
+     * Returns: [total_students, total_teachers, total_notices, total_classrooms]
+     */
+    public function getDashboardCounts(): array
     {
-        return Cache::remember('total_students', 300, function() {
+        return Cache::remember('dashboard_counts', 300, function () {
             require_once __DIR__ . '/../config/roles.php';
-            
+
             $roleStudent = \App\Config\Roles::STUDENT;
-            $stmt = $this->db->query("SELECT COUNT(*) FROM users WHERE (roles_mask & {$roleStudent}) = {$roleStudent}");
-            return (int) $stmt->fetchColumn();
-        });
-    }
-
-    public function getTeacherCount(): int
-    {
-        return Cache::remember('total_teachers', 300, function() {
-            require_once __DIR__ . '/../config/roles.php';
-            
             $roleTeacher = \App\Config\Roles::TEACHER;
-            $stmt = $this->db->query("SELECT COUNT(*) FROM users WHERE (roles_mask & {$roleTeacher}) = {$roleTeacher}");
-            return (int) $stmt->fetchColumn();
-        });
-    }
 
-    public function getNoticeCount(): int
-    {
-        return Cache::remember('total_notices', 300, function() {
-            $stmt = $this->db->query("SELECT COUNT(*) FROM notices");
-            return (int) $stmt->fetchColumn();
-        });
-    }
+            $stmt = $this->db->query("
+                SELECT
+                    (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleStudent}) = {$roleStudent}) AS total_students,
+                    (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleTeacher}) = {$roleTeacher}) AS total_teachers,
+                    (SELECT COUNT(*) FROM notices)                                                          AS total_notices,
+                    (SELECT COUNT(*) FROM classrooms)                                                       AS total_classrooms
+            ");
 
-    public function getClassroomCount(): int
-    {
-        return Cache::remember('total_classrooms', 300, function() {
-            $stmt = $this->db->query("SELECT COUNT(*) FROM classrooms");
-            return (int) $stmt->fetchColumn();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                'total_students'   => (int) ($row['total_students']   ?? 0),
+                'total_teachers'   => (int) ($row['total_teachers']   ?? 0),
+                'total_notices'    => (int) ($row['total_notices']    ?? 0),
+                'total_classrooms' => (int) ($row['total_classrooms'] ?? 0),
+            ];
         });
     }
 

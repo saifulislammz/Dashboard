@@ -139,7 +139,7 @@ class AttendanceRepository
         $stmt = $this->db->prepare("
             SELECT
                 COUNT(cs.id) AS total_sessions,
-                SUM(CASE WHEN sa.user_id IS NOT NULL THEN 1 ELSE 0 END) AS attended
+                COUNT(sa.user_id) AS attended
             FROM class_sessions cs
             LEFT JOIN session_attendance sa ON sa.session_id = cs.id AND sa.user_id = :student_id
             WHERE cs.classroom_id = :classroom_id

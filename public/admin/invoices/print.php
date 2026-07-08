@@ -21,3 +21,4 @@ $service    = new \App\Services\InvoiceService($repository);
 $controller = new \App\Controllers\Admin\InvoiceController($service);
 
 $controller->printInvoice();
+

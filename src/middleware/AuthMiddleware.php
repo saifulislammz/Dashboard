@@ -42,6 +42,27 @@ function requireRole(int $role) {
 
     if (!$auth->hasRole($role)) {
         http_response_code(403);
-        die("403 Forbidden - You do not have permission to access this page.");
+        echo "<!DOCTYPE html>
+<html>
+<head>
+    <title>403 Forbidden</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f8f9fa; color: #212529; }
+        .container { text-align: center; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #dc3545; font-size: 2.5rem; margin-bottom: 0.5rem; }
+        p { font-size: 1.1rem; margin-bottom: 1.5rem; color: #6c757d; }
+        a { display: inline-block; padding: 0.5rem 1rem; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 4px; }
+        a:hover { background-color: #0b5ed7; }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <h1>403 Forbidden</h1>
+        <p>You do not have permission to access this page.</p>
+        <a href='javascript:history.back()'>Go Back</a>
+    </div>
+</body>
+</html>";
+        exit();
     }
 }

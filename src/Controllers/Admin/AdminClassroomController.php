@@ -1,10 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers\Admin;
 
+use App\Repositories\ClassroomRepository;
+use App\Repositories\UserRepository;
 use App\Services\ClassroomService;
-use PDO;
 
+/**
+ * AdminClassroomController — Thin Controller
+ * Handles admin classroom CRUD: index, create, edit, delete.
+ * No business logic, no SQL here — delegates to ClassroomService.
+ */
 class AdminClassroomController
 {
     private ClassroomService $service;
@@ -14,96 +22,108 @@ class AdminClassroomController
         $this->service = $service;
     }
 
-    public function index()
+    // ─── GET /admin/classrooms/index.php ───────────────────────────
+    public function index(): void
     {
-        global $auth;
-        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-        $limit = 20;
+        $page    = max(1, (int) ($_GET['page'] ?? 1));
+        $search  = trim($_GET['search'] ?? '');
+        $limit   = 20;
 
-        $result = $this->service->getPaginatedClassrooms($page, $limit, $search);
-        
-        $classrooms = $result['data'];
-        $totalPages = $result['pages'];
+        $result      = $this->service->getPaginatedClassrooms($page, $limit, $search);
+        $classrooms  = $result['data'];
+        $totalPages  = $result['pages'];
         $currentPage = $result['current_page'];
-        
-        $pageTitle = 'Manage Classrooms';
+
+        $pageTitle  = 'Manage Classrooms';
         $activeMenu = 'classrooms_manage';
 
         require __DIR__ . '/../../../views/admin/classrooms/index.php';
     }
 
-    public function create()
+    // ─── GET  /admin/classrooms/create.php ──────────────────────────
+    // ─── POST /admin/classrooms/create.php ──────────────────────────
+    public function create(): void
     {
-        global $auth, $db;
-        $pageTitle = 'Create Classroom';
+        global $auth;
+
+        $pageTitle  = 'Create Classroom';
         $activeMenu = 'classrooms_create';
+        $error      = '';
+        $success    = '';
 
-        // Fetch Teachers (roles_mask & 4 = MANAGER) and Students (roles_mask & 1 = CONSUMER)
-        $teachers = $this->getUsersByRole(ROLE_TEACHER, $db);
-        $students = $this->getUsersByRole(ROLE_STUDENT, $db);
-
-        $error = '';
-        $success = '';
+        // Fetch teachers & students via service (which uses UserRepository)
+        $teachers = $this->service->getUsersByRole(ROLE_TEACHER);
+        $students = $this->service->getUsersByRole(ROLE_STUDENT);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $this->service->createClassroom($_POST, $auth->getUserId());
-                $success = "Classroom created successfully.";
+                validateCsrfToken($_POST['csrf_token'] ?? '');
+                $this->service->createClassroom($_POST, (int) $auth->getUserId());
+                $success = 'Classroom created successfully.';
             } catch (\Exception $e) {
-                $error = $e->getMessage();
+                $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             }
         }
 
         require __DIR__ . '/../../../views/admin/classrooms/create.php';
     }
 
-    public function edit()
+    // ─── GET  /admin/classrooms/edit.php?id=X ───────────────────────
+    // ─── POST /admin/classrooms/edit.php ────────────────────────────
+    public function edit(): void
     {
-        global $auth, $db;
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $id        = (int) ($_GET['id'] ?? ($_POST['id'] ?? 0));
         $classroom = $this->service->getClassroomDetails($id);
 
         if (!$classroom) {
-            die("Classroom not found.");
+            http_response_code(404);
+            echo '<h1>404 Not Found</h1><p>Classroom not found.</p>';
+            return;
         }
 
-        $pageTitle = 'Edit Classroom';
+        $pageTitle  = 'Edit Classroom';
         $activeMenu = 'classrooms_manage';
-
-        $error = '';
-        $success = '';
+        $error      = '';
+        $success    = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
+                validateCsrfToken($_POST['csrf_token'] ?? '');
                 $this->service->updateClassroom($id, $_POST);
-                $success = "Classroom updated successfully.";
-                $classroom = $this->service->getClassroomDetails($id); // refresh data
+                $success   = 'Classroom updated successfully.';
+                $classroom = $this->service->getClassroomDetails($id); // refresh
             } catch (\Exception $e) {
-                $error = $e->getMessage();
+                $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             }
         }
 
         require __DIR__ . '/../../../views/admin/classrooms/edit.php';
     }
-    
-    public function delete()
-    {
-        global $auth;
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && $id > 0) {
-            $this->service->deleteClassroom($id);
-        }
-        
-        header('Location: /admin/classrooms/index.php');
-        exit;
-    }
 
-    private function getUsersByRole(int $roleMask, PDO $db): array
+    // ─── POST /admin/classrooms/delete.php?id=X ─────────────────────
+    public function delete(): void
     {
-        $stmt = $db->prepare("SELECT id, username, email FROM users WHERE (roles_mask & :role) > 0 AND status = 0");
-        $stmt->execute(['role' => $roleMask]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Location: /admin/classrooms/index.php');
+            exit;
+        }
+
+        $id = (int) ($_GET['id'] ?? ($_POST['id'] ?? 0));
+
+        if ($id <= 0) {
+            header('Location: /admin/classrooms/index.php?error=invalid_id');
+            exit;
+        }
+
+        try {
+            validateCsrfToken($_POST['csrf_token'] ?? '');
+            $this->service->deleteClassroom($id);
+            header('Location: /admin/classrooms/index.php?deleted=1');
+        } catch (\Exception $e) {
+            error_log('[AdminClassroomController::delete] ' . $e->getMessage());
+            header('Location: /admin/classrooms/index.php?error=delete_failed');
+        }
+        exit;
     }
 }

@@ -8,6 +8,7 @@ use App\Contracts\MeetingProviderInterface;
 use App\DTOs\SessionDTO;
 use App\DTOs\MeetingResultDTO;
 use App\Repositories\ProviderAccountRepository;
+use App\Utils\Logger;
 use PDO;
 
 /**
@@ -38,6 +39,7 @@ class GoogleMeetProvider implements MeetingProviderInterface
     private array  $account;
     private string $accessToken;
     private ProviderAccountRepository $providerRepo;
+    private Logger $logger;
 
     private const CALENDAR_API_BASE = 'https://www.googleapis.com/calendar/v3';
     private const TOKEN_URL         = 'https://oauth2.googleapis.com/token';
@@ -49,6 +51,7 @@ class GoogleMeetProvider implements MeetingProviderInterface
         $this->account      = $account;
         $this->providerRepo = new ProviderAccountRepository($db);
         $this->accessToken  = $account['access_token'] ?? '';
+        $this->logger       = new Logger();
     }
 
     // -------------------------------------------------------
@@ -60,6 +63,7 @@ class GoogleMeetProvider implements MeetingProviderInterface
         // Ensure token is valid, refresh if needed
         if (!$this->isTokenValid()) {
             if (!$this->refreshToken()) {
+                $this->logger->error('Google token refresh failed', ['account_email' => $this->account['account_email'] ?? null]);
                 return MeetingResultDTO::failure('google_meet', 'Google token expired and refresh failed.');
             }
         }
@@ -95,6 +99,11 @@ class GoogleMeetProvider implements MeetingProviderInterface
 
         if (!$response || isset($response['error'])) {
             $errMsg = $response['error']['message'] ?? 'Unknown Google API error';
+            $this->logger->error('Google createMeeting failed', [
+                'session_id' => $session->sessionId,
+                'error' => $errMsg,
+                'response' => $response
+            ]);
             return MeetingResultDTO::failure('google_meet', $errMsg);
         }
 
@@ -153,7 +162,15 @@ class GoogleMeetProvider implements MeetingProviderInterface
         $url      = self::CALENDAR_API_BASE . '/calendars/' . self::CALENDAR_ID . "/events/{$providerMeetingId}";
         $response = $this->apiRequest('PATCH', $url, $body);
 
-        return !isset($response['error']);
+        if (isset($response['error'])) {
+            $this->logger->error('Google updateMeeting failed', [
+                'meeting_id' => $providerMeetingId,
+                'response' => $response
+            ]);
+            return false;
+        }
+
+        return true;
     }
 
     // -------------------------------------------------------
@@ -168,6 +185,14 @@ class GoogleMeetProvider implements MeetingProviderInterface
 
         $url      = self::CALENDAR_API_BASE . '/calendars/' . self::CALENDAR_ID . "/events/{$providerMeetingId}";
         $response = $this->apiRequest('DELETE', $url);
+
+        if (isset($response['error'])) {
+            $this->logger->error('Google deleteMeeting failed', [
+                'meeting_id' => $providerMeetingId,
+                'response' => $response
+            ]);
+            return false;
+        }
 
         // DELETE returns 204 No Content on success (empty body)
         return $response === [] || $response === null;
@@ -218,6 +243,7 @@ class GoogleMeetProvider implements MeetingProviderInterface
         $json = json_decode($result, true);
 
         if (!isset($json['access_token'])) {
+            $this->logger->error('Google token refresh failed - no access token in response', ['response' => $json]);
             return false;
         }
 
@@ -270,6 +296,11 @@ class GoogleMeetProvider implements MeetingProviderInterface
 
         curl_setopt_array($ch, $options);
         $result = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            $this->logger->error('Google cURL error', ['error' => curl_error($ch), 'url' => $url]);
+        }
+        
         curl_close($ch);
 
         if (!$result) {

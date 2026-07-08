@@ -4,13 +4,14 @@ require_once __DIR__ . '/../../src/config/database.php';
 require_once __DIR__ . '/../../src/config/roles.php';
 require_once __DIR__ . '/../../src/middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../src/middleware/CsrfMiddleware.php';
+require_once __DIR__ . '/../../src/Repositories/NoticeRepository.php';
+require_once __DIR__ . '/../../src/Services/NoticeService.php';
+require_once __DIR__ . '/../../src/Controllers/Teacher/TeacherDashboardController.php';
 
 requireRole(ROLE_TEACHER);
 
-// Fetch active notices for teachers
-$stmt = $db->prepare("SELECT title, content, created_at FROM notices WHERE status = 'active' AND target_audience IN ('teacher', 'both') ORDER BY created_at DESC LIMIT 10");
-$stmt->execute();
-$notices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$repository = new \App\Repositories\NoticeRepository($db);
+$service    = new \App\Services\NoticeService($repository);
+$controller = new \App\Controllers\Teacher\TeacherDashboardController($service);
 
-// Render view
-require __DIR__ . '/../../views/teacher/dashboard.php';
+$controller->index();

@@ -130,4 +130,13 @@ class NoticeService
             'current_page' => $page
         ];
     }
+
+    /**
+     * Get active notices for a specific role audience (student|teacher).
+     * Used by Student & Teacher dashboard controllers.
+     */
+    public function getActiveNoticesForAudience(string $audience, int $limit = 10): array
+    {
+        return $this->repository->getActiveNoticesByAudience($audience, $limit);
+    }
 }

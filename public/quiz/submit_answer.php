@@ -12,5 +12,8 @@ require_once __DIR__ . '/../../src/Repositories/QuizRepository.php';
 require_once __DIR__ . '/../../src/Services/QuizService.php';
 require_once __DIR__ . '/../../src/Controllers/Quiz/QuizPlayerController.php';
 
-$controller = new \App\Controllers\Quiz\QuizPlayerController($db);
+$repo       = new \App\Repositories\QuizRepository($db);
+$service    = new \App\Services\QuizService($repo);
+$controller = new \App\Controllers\Quiz\QuizPlayerController($service, $repo);
+
 $controller->submitAnswer();

@@ -3,11 +3,8 @@
 /**
  * Meeting Module Bootstrap Helper
  *
- * Instantiates all meeting module dependencies.
+ * Configures the DI Container for the meeting module dependencies.
  * Include this file in any meeting module public entry point.
- *
- * Usage:
- *   require_once __DIR__ . '/../../src/config/meetings_bootstrap.php';
  */
 
 require_once __DIR__ . '/security.php';
@@ -23,31 +20,46 @@ spl_autoload_register(function ($class) {
     if (strncmp($prefix, $class, strlen($prefix)) === 0) {
         $relative_class = substr($class, strlen($prefix));
         $file = __DIR__ . '/../' . str_replace('\\', '/', $relative_class) . '.php';
-        require_once $file;
+        if (file_exists($file)) {
+            require_once $file;
+        }
     }
 });
 
-use App\Repositories\ClassroomRepository;
-use App\Repositories\ClassSessionRepository;
-use App\Repositories\SessionMeetingRepository;
-use App\Repositories\ProviderAccountRepository;
-use App\Repositories\MeetingJobRepository;
-use App\Repositories\AttendanceRepository;
-use App\Services\Meetings\MeetingProviderFactory;
-use App\Services\Meetings\MeetingService;
-use App\Services\Sessions\ClassSessionService;
-use App\Services\AttendanceService;
+use App\Utils\Container;
 
-// Instantiate repositories
-$classroomRepo    = new ClassroomRepository($db);
-$sessionRepo      = new ClassSessionRepository($db);
-$meetingRepo      = new SessionMeetingRepository($db);
-$providerRepo     = new ProviderAccountRepository($db);
-$jobRepo          = new MeetingJobRepository($db);
+$container = new Container();
 
-// Instantiate services
-$providerFactory   = new MeetingProviderFactory($db, $providerRepo);
-$meetingService    = new MeetingService($providerFactory, $sessionRepo, $meetingRepo, $providerRepo);
-$sessionService    = new ClassSessionService($sessionRepo, $meetingRepo, $jobRepo, $meetingService);
-$attendanceRepo    = new AttendanceRepository($db);
-$attendanceService = new AttendanceService($attendanceRepo, $sessionRepo, $db);
+// Register the Database Connection
+$container->set(PDO::class, fn() => $GLOBALS['db']);
+
+// Register Repositories
+$container->set(\App\Repositories\ClassroomRepository::class, fn($c) => new \App\Repositories\ClassroomRepository($c->get(PDO::class)));
+$container->set(\App\Repositories\ClassSessionRepository::class, fn($c) => new \App\Repositories\ClassSessionRepository($c->get(PDO::class)));
+$container->set(\App\Repositories\SessionMeetingRepository::class, fn($c) => new \App\Repositories\SessionMeetingRepository($c->get(PDO::class)));
+$container->set(\App\Repositories\ProviderAccountRepository::class, fn($c) => new \App\Repositories\ProviderAccountRepository($c->get(PDO::class)));
+$container->set(\App\Repositories\MeetingJobRepository::class, fn($c) => new \App\Repositories\MeetingJobRepository($c->get(PDO::class)));
+$container->set(\App\Repositories\AttendanceRepository::class, fn($c) => new \App\Repositories\AttendanceRepository($c->get(PDO::class)));
+
+// Register Services
+$container->set(\App\Services\Meetings\MeetingProviderFactory::class, fn($c) => new \App\Services\Meetings\MeetingProviderFactory($c->get(PDO::class), $c->get(\App\Repositories\ProviderAccountRepository::class)));
+
+$container->set(\App\Services\Meetings\MeetingService::class, fn($c) => new \App\Services\Meetings\MeetingService(
+    $c->get(\App\Services\Meetings\MeetingProviderFactory::class),
+    $c->get(\App\Repositories\ClassSessionRepository::class),
+    $c->get(\App\Repositories\SessionMeetingRepository::class),
+    $c->get(\App\Repositories\ProviderAccountRepository::class)
+));
+
+$container->set(\App\Services\Sessions\ClassSessionService::class, fn($c) => new \App\Services\Sessions\ClassSessionService(
+    $c->get(\App\Repositories\ClassSessionRepository::class),
+    $c->get(\App\Repositories\SessionMeetingRepository::class),
+    $c->get(\App\Repositories\MeetingJobRepository::class),
+    $c->get(\App\Services\Meetings\MeetingService::class)
+));
+
+$container->set(\App\Services\AttendanceService::class, fn($c) => new \App\Services\AttendanceService(
+    $c->get(\App\Repositories\AttendanceRepository::class),
+    $c->get(\App\Repositories\ClassSessionRepository::class),
+    $c->get(PDO::class)
+));

@@ -285,10 +285,7 @@ class InvoiceService
      */
     public function calculateTotals(array $items, float $discount, float $vatPercent): array
     {
-        $subtotal   = 0.0;
-        foreach ($items as $item) {
-            $subtotal += (float) $item['amount'];
-        }
+        $subtotal = (float) array_sum(array_column($items, 'amount'));
 
         $discount   = max(0.0, $discount);
         $vatPercent = max(0.0, min(100.0, $vatPercent));

@@ -21,8 +21,7 @@ class InvoiceRepository
     // Allowed status values — used to whitelist ORDER BY / filter columns
     private const ALLOWED_STATUSES = ['draft', 'unpaid', 'paid'];
 
-    // Allowed currencies for filter whitelist
-    private const ALLOWED_ORDER_COLS = ['id', 'invoice_number', 'invoice_date', 'due_date', 'grand_total', 'status', 'created_at'];
+
 
     public function __construct(PDO $db)
     {
@@ -303,13 +302,8 @@ class InvoiceRepository
      */
     public function getSettings(): array
     {
-        $stmt   = $this->db->query("SELECT setting_key, setting_value FROM invoice_settings");
-        $rows   = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $result = [];
-        foreach ($rows as $row) {
-            $result[$row['setting_key']] = $row['setting_value'];
-        }
-        return $result;
+        return $this->db->query("SELECT setting_key, setting_value FROM invoice_settings")
+                        ->fetchAll(PDO::FETCH_KEY_PAIR);
     }
 
     /**

@@ -11,5 +11,12 @@ use App\Controllers\Session\SessionJoinController;
 
 $sessionId  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
-$controller = new SessionJoinController($db, $sessionRepo, $meetingRepo, $attendanceService);
+$controller = new SessionJoinController(
+    $db, 
+    $container->get(App\Repositories\ClassSessionRepository::class), 
+    $container->get(App\Repositories\SessionMeetingRepository::class), 
+    $container->get(App\Services\AttendanceService::class)
+);
 $controller->handleJoin($sessionId);
+
+

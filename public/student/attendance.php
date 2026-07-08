@@ -5,5 +5,6 @@ requireRole(ROLE_STUDENT);
 
 use App\Controllers\Student\StudentAttendanceController;
 
-$controller = new StudentAttendanceController($attendanceService, $classroomRepo);
+$controller = new StudentAttendanceController($container->get(App\Services\AttendanceService::class), $container->get(App\Repositories\ClassroomRepository::class));
 $controller->myReport();
+

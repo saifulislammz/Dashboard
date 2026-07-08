@@ -10,5 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$controller = new AdminSessionController($sessionService, $sessionRepo, $classroomRepo);
+$controller = new AdminSessionController($container->get(App\Services\Sessions\ClassSessionService::class), $container->get(App\Repositories\ClassSessionRepository::class), $container->get(App\Repositories\ClassroomRepository::class));
 $controller->retry();
+

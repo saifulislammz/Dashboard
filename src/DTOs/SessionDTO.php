@@ -29,7 +29,15 @@ final class SessionDTO
         public readonly ?string $teacherName,
         public readonly ?string $studentEmail = null,
         public readonly ?string $studentName = null,
-    ) {}
+    ) {
+        try {
+            new \DateTimeZone($this->timezone);
+            new \DateTime("{$this->sessionDate} {$this->startTime}");
+            new \DateTime("{$this->sessionDate} {$this->endTime}");
+        } catch (\Exception $e) {
+            throw new \InvalidArgumentException("Invalid timezone or date/time format in SessionDTO: " . $e->getMessage());
+        }
+    }
 
     /**
      * Returns ISO 8601 datetime string for the start time.
