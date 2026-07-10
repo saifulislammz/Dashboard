@@ -71,7 +71,9 @@
         <div class="mt-6 pt-2 nav-group is-open">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
                     <span
                         class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">USER
                         MANAGEMENT</span>
@@ -118,7 +120,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isNoticeActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                     <span
                         class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">NOTICE
                         BOARD</span>
@@ -162,7 +166,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isClassroomsActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
                     <span
                         class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">CLASSROOMS</span>
                 </div>
@@ -205,7 +211,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isAttendanceActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#0ea5e9]"></div>
+                    <svg class="w-5 h-5 text-[#0ea5e9]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">ATTENDANCE</span>
                 </div>
                 <div class="w-6 h-6 rounded border border-[#bae6fd] flex items-center justify-center text-[#0ea5e9] bg-white group-hover/toggle:bg-sky-50 transition-all duration-200 nav-group-icon <?php echo !$isAttendanceActive && $activeMenu ? 'rotate-180' : ''; ?>">
@@ -236,7 +244,10 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isSettingsActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></div>
+                    <svg class="w-5 h-5 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                     <span
                         class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">SETTINGS</span>
                 </div>
@@ -272,7 +283,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isInvoiceActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">INVOICES</span>
                 </div>
                 <div class="w-6 h-6 rounded border border-[#ddd6fe] flex items-center justify-center text-[#7c3aed] bg-white group-hover/toggle:bg-purple-50 transition-all duration-200 nav-group-icon <?php echo !$isInvoiceActive && $activeMenu ? 'rotate-180' : ''; ?>">
@@ -330,7 +343,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isQuizActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#059669]"></div>
+                    <svg class="w-5 h-5 text-[#059669]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">QUIZ</span>
                     <?php if (!empty($badge) && $badge > 0): ?>
                         <span class="ml-1 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-[#059669] text-white rounded-full"><?php echo (int) $badge; ?></span>
@@ -354,7 +369,7 @@
                                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4">
                                 </path>
                             </svg>
-                            কুইজ তালিকা
+                            Quiz List
                         </a>
                         <!-- Create Quiz -->
                         <a href="/admin/quiz/create.php"
@@ -365,7 +380,7 @@
                                     d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z">
                                 </path>
                             </svg>
-                            নতুন কুইজ
+                            Create Quiz
                         </a>
                     </div>
                 </div>
@@ -376,7 +391,9 @@
         <div class="mt-4 pt-2 nav-group <?php echo $isAccountActive || !$activeMenu ? 'is-open' : ''; ?>">
             <div class="flex items-center justify-between px-2 py-2 mb-1 cursor-pointer nav-group-toggle group/toggle">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#7c3aed]"></div>
+                    <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
                     <span
                         class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover/toggle:text-[#475569] transition-colors">ACCOUNT</span>
                 </div>
@@ -504,21 +521,63 @@
 
         <!-- Right actions -->
         <div class="flex items-center gap-4 md:gap-6">
-            <span class="text-[15px] font-semibold text-[#1e293b] hidden sm:block">Welcome,
-                <?php echo e($auth->getUsername() ?: $auth->getEmail()); ?></span>
+            <!-- User Dropdown (Alpine.js) -->
+            <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                <button @click="open = !open" class="flex items-center gap-3 p-1 rounded-full hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/20">
+                    <div class="hidden sm:block text-right">
+                        <div class="text-[14px] font-bold text-gray-900 leading-tight"><?php echo e($auth->getUsername() ?: $auth->getEmail()); ?></div>
+                        <div class="text-[12px] font-medium text-gray-500">Administrator</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white">
+                        <?php echo strtoupper(substr($auth->getUsername() ?: $auth->getEmail(), 0, 1)); ?>
+                    </div>
+                    <svg class="w-4 h-4 text-gray-400 hidden sm:block" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="transition: transform 0.2s;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
 
-            <div class="flex items-center gap-3 md:gap-4">
-                <form action="/logout.php" method="POST" class="inline">
-                    <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-                    <button type="submit"
-                        class="w-10 h-10 bg-[#fef2f2] rounded-xl flex items-center justify-center text-[#ef4444] hover:bg-red-100 transition-colors shadow-sm">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                            </path>
+                <!-- Dropdown Menu -->
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-100" 
+                     x-transition:enter-start="transform opacity-0 scale-95" 
+                     x-transition:enter-end="transform opacity-100 scale-100" 
+                     x-transition:leave="transition ease-in duration-75" 
+                     x-transition:leave-start="transform opacity-100 scale-100" 
+                     x-transition:leave-end="transform opacity-0 scale-95" 
+                     class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 py-2 z-50"
+                     style="display: none;">
+                    <div class="px-4 py-3 border-b border-gray-50 mb-2 sm:hidden">
+                        <div class="text-[14px] font-bold text-gray-900 truncate"><?php echo e($auth->getUsername() ?: $auth->getEmail()); ?></div>
+                        <div class="text-[12px] font-medium text-gray-500">Administrator</div>
+                    </div>
+                    
+                    <a href="/profile.php" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#7c3aed] transition-colors group">
+                        <svg class="w-4 h-4 mr-3 text-gray-400 group-hover:text-[#7c3aed] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                    </button>
-                </form>
+                        My Profile
+                    </a>
+                    
+                    <a href="/admin/settings/meetings.php" class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#7c3aed] transition-colors group">
+                        <svg class="w-4 h-4 mr-3 text-gray-400 group-hover:text-[#7c3aed] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Settings
+                    </a>
+                    
+                    <div class="h-px bg-gray-100 my-2"></div>
+                    
+                    <form action="/logout.php" method="POST" class="w-full">
+                        <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+                        <button type="submit" class="w-full flex items-center px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors group">
+                            <svg class="w-4 h-4 mr-3 text-red-400 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Log out
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </header>

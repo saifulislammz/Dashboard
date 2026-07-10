@@ -63,7 +63,7 @@ class QuizController
                 $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             } catch (\Throwable $e) {
                 error_log('[QuizController::create] ' . $e->getMessage());
-                $error = 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+                $error = 'An error occurred. Please try again.';
             }
         }
 
@@ -102,7 +102,7 @@ class QuizController
                 $quiz  = $this->quizService->getQuizForEdit($quizId);
             } catch (\Throwable $e) {
                 error_log('[QuizController::edit] ' . $e->getMessage());
-                $error = 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+                $error = 'An error occurred. Please try again.';
             }
         }
 
@@ -230,14 +230,14 @@ class QuizController
 
         try {
             $this->quizService->saveVoiceReviewNote($attemptId, $note);
-            echo json_encode(['success' => true, 'message' => 'নোট সংরক্ষিত হয়েছে।']);
+            echo json_encode(['success' => true, 'message' => 'Note saved.']);
         } catch (\InvalidArgumentException $e) {
             http_response_code(422);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (\Throwable $e) {
             error_log('[QuizController::reviewVoice] ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'সংরক্ষণ ব্যর্থ হয়েছে।']);
+            echo json_encode(['success' => false, 'message' => 'Failed to save.']);
         }
         exit;
     }
