@@ -3,6 +3,8 @@
 /node_modules/
 npm-debug.log
 yarn-error.log
+yarn-debug.log
+pnpm-debug.log
 
 # Environment Variables
 .env
@@ -10,10 +12,27 @@ yarn-error.log
 !.env.example
 !.env.sample
 
-# Application Storage & Caches
+# Storage, Caches & Logs
 /storage/cache/
 /storage/logs/
+/storage/sessions/
+/storage/views/
 *.log
+
+# User Uploads (Ignore user uploaded files so they don't go to public repo)
+/public/uploads/
+/public/storage/
+
+# Temporary & Test Scripts
+check.php
+check_schema.php
+admin_dashboard.html
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.db3
 
 # OS Generated Files
 .DS_Store
@@ -32,6 +51,8 @@ desktop.ini
 *.swo
 *~
 
-# Documentation
+# AI Assistant & Local Dev Tools
+.ddev/
+.agents/
 /codebase_index.md
-
+/scratch/
