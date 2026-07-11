@@ -88,5 +88,58 @@ class UserService
     {
         return $this->repository->getUserStatus($userId);
     }
+
+    public function getProfilePicture(int $userId): ?string
+    {
+        return $this->repository->getProfilePicture($userId);
+    }
+
+    public function updateProfilePicture(int $userId, array $file): void
+    {
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception("Error uploading file.");
+        }
+
+        if ($file['size'] > 1048576) {
+            throw new Exception("Profile picture must be less than 1MB.");
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        if ($mimeType !== 'image/png') {
+            throw new Exception("Only PNG images are allowed.");
+        }
+
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'png') {
+            throw new Exception("Only PNG images are allowed.");
+        }
+
+        // Delete old picture if exists
+        $oldPicture = $this->repository->getProfilePicture($userId);
+        if ($oldPicture && file_exists(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture)) {
+            unlink(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture);
+        }
+
+        $filename = 'admin_' . $userId . '_' . time() . '.png';
+        $destination = __DIR__ . '/../../public/uploads/avatars/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            throw new Exception("Failed to save profile picture.");
+        }
+
+        $this->repository->updateProfilePicture($userId, $filename);
+    }
+
+    public function deleteProfilePicture(int $userId): void
+    {
+        $oldPicture = $this->repository->getProfilePicture($userId);
+        if ($oldPicture && file_exists(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture)) {
+            unlink(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture);
+        }
+        $this->repository->updateProfilePicture($userId, null);
+    }
 }
 

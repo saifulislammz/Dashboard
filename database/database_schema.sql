@@ -12,6 +12,7 @@ CREATE TABLE `users` (
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `username` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `profile_picture` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` tinyint unsigned NOT NULL DEFAULT '0',
   `verified` tinyint unsigned NOT NULL DEFAULT '0',
   `resettable` tinyint unsigned NOT NULL DEFAULT '1',

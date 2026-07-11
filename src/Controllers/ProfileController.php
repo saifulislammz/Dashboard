@@ -52,7 +52,39 @@ class ProfileController
         $statusInt  = $this->userService->getUserStatus((int) $this->auth->getUserId());
         $statusText = self::STATUS_MAP[$statusInt] ?? 'Unknown';
 
+        // Fetch profile picture
+        $profilePicture = $this->userService->getProfilePicture((int) $this->auth->getUserId());
+
         $auth = $this->auth;
         require __DIR__ . '/../../views/profile.php';
+    }
+
+    public function updatePicture(): void
+    {
+        try {
+            if (!isset($_FILES['profile_picture'])) {
+                throw new \Exception('No file uploaded.');
+            }
+            $userId = (int) $this->auth->getUserId();
+            $this->userService->updateProfilePicture($userId, $_FILES['profile_picture']);
+            $_SESSION['profile_success'] = 'Profile picture updated successfully.';
+        } catch (\Exception $e) {
+            $_SESSION['profile_error'] = $e->getMessage();
+        }
+        header("Location: profile.php");
+        exit();
+    }
+
+    public function removePicture(): void
+    {
+        try {
+            $userId = (int) $this->auth->getUserId();
+            $this->userService->deleteProfilePicture($userId);
+            $_SESSION['profile_success'] = 'Profile picture removed successfully.';
+        } catch (\Exception $e) {
+            $_SESSION['profile_error'] = $e->getMessage();
+        }
+        header("Location: profile.php");
+        exit();
     }
 }

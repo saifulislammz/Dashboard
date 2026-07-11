@@ -101,4 +101,17 @@ class UserRepository
         $val = $stmt->fetchColumn();
         return $val !== false ? (int) $val : null;
     }
+    public function updateProfilePicture(int $userId, ?string $filename): bool
+    {
+        $stmt = $this->db->prepare("UPDATE users SET profile_picture = :picture WHERE id = :id");
+        return $stmt->execute(['picture' => $filename, 'id' => $userId]);
+    }
+
+    public function getProfilePicture(int $userId): ?string
+    {
+        $stmt = $this->db->prepare("SELECT profile_picture FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $userId]);
+        $val = $stmt->fetchColumn();
+        return $val ? (string) $val : null;
+    }
 }
