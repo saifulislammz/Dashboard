@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Profile';
 $activeMenu = 'profile';
 
@@ -45,12 +45,18 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
             <div class="px-6 py-8 sm:px-8 flex items-center space-x-6 border-b border-gray-50">
                 <div class="flex-shrink-0 relative group">
                     <div class="h-24 w-24 rounded-full bg-green-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-sm">
-                        <?php if (!empty($profilePicture)): ?>
-                            <img src="/uploads/avatars/<?php echo htmlspecialchars($profilePicture); ?>" alt="Profile Picture" class="h-full w-full object-cover">
+                        <?php if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN)): ?>
+                            <?php if (!empty($profilePicture)): ?>
+                                <img src="/uploads/avatars/<?php echo htmlspecialchars($profilePicture); ?>" alt="Profile Picture" class="h-full w-full object-cover">
+                            <?php else: ?>
+                                <svg class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            <?php endif; ?>
+                        <?php elseif ($auth->hasRole(ROLE_TEACHER)): ?>
+                            <i class="ph ph-users text-4xl text-primary"></i>
                         <?php else: ?>
-                            <svg class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
+                            <i class="ph ph-user text-4xl text-primary"></i>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -58,6 +64,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <h3 class="text-xl font-bold text-gray-900">User Information</h3>
                     <p class="mt-1 text-sm text-gray-500">Personal details and application status.</p>
                     
+                    <?php if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN)): ?>
                     <div class="mt-4 flex gap-3">
                         <form id="profilePicForm" action="profile.php" method="POST" enctype="multipart/form-data" class="inline">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
@@ -79,6 +86,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                         <?php endif; ?>
                     </div>
                     <p class="mt-2 text-xs text-gray-400">Allowed format: PNG. Max size: 1MB.</p>
+                    <?php endif; ?>
                 </div>
             </div>
             <script>
