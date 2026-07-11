@@ -92,69 +92,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             </a>
         </div>
 
-        <!-- Dashboard Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-            <!-- Recent Activities -->
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden flex flex-col h-full min-h-[360px]">
-                <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                    <h2 class="text-[16px] font-bold text-slate-900">Recent Activities</h2>
-                    <a href="#" class="text-[13px] font-medium text-purple-600 hover:text-purple-700 hover:underline">View All</a>
-                </div>
-                <div class="p-6 flex-1 flex flex-col justify-center items-center text-center bg-gray-50/50">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm text-slate-300 border border-gray-100">
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-[14px] font-semibold text-slate-600">No recent activities found</p>
-                    <p class="text-[13px] text-slate-400 mt-1 max-w-sm">When users perform actions, register, or create items, they will appear here as a timeline.</p>
-                </div>
-            </div>
 
-            <!-- Quick Actions -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden flex flex-col h-full">
-                <div class="p-6 border-b border-gray-100">
-                    <h2 class="text-[16px] font-bold text-slate-900">Quick Actions</h2>
-                </div>
-                <div class="p-4 space-y-1.5 flex-1 bg-gray-50/50">
-                    <a href="/admin/students.php" class="flex items-center p-3 rounded-xl bg-white hover:shadow-sm border border-transparent hover:border-gray-100 transition-all group">
-                        <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-[14px] font-bold text-slate-700 group-hover:text-purple-600 transition-colors">Add Student</div>
-                            <div class="text-[12px] font-medium text-slate-500 mt-0.5">Register a new student</div>
-                        </div>
-                    </a>
-                    
-                    <a href="/admin/notices/create.php" class="flex items-center p-3 rounded-xl bg-white hover:shadow-sm border border-transparent hover:border-gray-100 transition-all group">
-                        <div class="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-[14px] font-bold text-slate-700 group-hover:text-orange-600 transition-colors">Publish Notice</div>
-                            <div class="text-[12px] font-medium text-slate-500 mt-0.5">Create a new announcement</div>
-                        </div>
-                    </a>
-                    
-                    <a href="/admin/classrooms/create.php" class="flex items-center p-3 rounded-xl bg-white hover:shadow-sm border border-transparent hover:border-gray-100 transition-all group">
-                        <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-[14px] font-bold text-slate-700 group-hover:text-blue-600 transition-colors">New Classroom</div>
-                            <div class="text-[12px] font-medium text-slate-500 mt-0.5">Set up a new virtual class</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </main>
 
