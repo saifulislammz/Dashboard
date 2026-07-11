@@ -24,8 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($e->getMessage() === 'Invalid Security Token. Please refresh and try again.') {
             $_SESSION['login_error'] = $e->getMessage();
         } else {
-            $_SESSION['login_error'] = $e->getMessage();
-            $_SESSION['old_email'] = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+            $_SESSION['login_error'] = 'An error occurred. Please try again.';
+            // Strip control chars + sanitize before storing in session
+            $sanitizedEmail = preg_replace('/[\x00-\x1F\x7F]/', '', $_POST['email'] ?? '');
+            $sanitizedEmail = filter_var(trim($sanitizedEmail), FILTER_SANITIZE_EMAIL);
+            $_SESSION['old_email'] = htmlspecialchars($sanitizedEmail, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
     }
     

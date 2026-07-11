@@ -1,140 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - Rahen Azat Institute</title>
+    <title>Login - Rahen Azat Institute</title>
     <!-- We will use Tailwind CLI generated CSS -->
     <link href="css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <!-- Universal CSS: Colors, Fonts, Sizes -->
+    <link href="css/universal.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <!-- Google Fonts: Inter for the clean look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons for the input icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        /* All design tokens come from universal.css */
+        .login-body {
+            font-family: var(--font-family-primary);
+            background-color: #F5F6F8;
+            color: var(--color-black);
+        }
+
+        .login-card {
+            background-color: var(--color-white);
+        }
+
+        .login-title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .login-subtitle {
+            font-size: var(--font-size-lg);
+            color: #6B7280;
+        }
+
+        .login-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .login-input {
+            font-size: var(--font-size-sm);
+            color: var(--color-black);
+        }
+
+        .login-forgot {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-primary-green);
+        }
+
+        .login-forgot:hover {
+            text-decoration: underline;
+        }
+
+        .login-remember-label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-black);
+        }
+
+        .login-btn {
+            background-color: var(--color-primary-green);
+            color: var(--color-white);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-base);
+        }
+
+        .login-btn:hover {
+            filter: brightness(0.9);
+        }
+
+        .login-error {
+            border-left-color: var(--color-red);
+        }
+
+        .login-error-text {
+            font-size: var(--font-size-sm);
+            color: var(--color-red);
+        }
+
+        .login-footer {
+            font-size: var(--font-size-xs);
+            color: #6B7280;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .login-logo {
+            background-color: var(--color-primary-green);
+        }
+
+        .login-checkbox:checked {
+            background-color: var(--color-primary-green);
+            border-color: var(--color-primary-green);
+        }
+
+        .input-focus-ring:focus-within {
+            border-color: var(--color-primary-green);
+            box-shadow: 0 0 0 1px var(--color-primary-green);
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div class="bg-white rounded-3xl shadow-xl overflow-hidden w-full max-w-[1000px] flex flex-col md:flex-row">
-        
-        <!-- Left Side: Banner (Hidden on small screens) -->
-        <div class="hidden md:flex md:w-1/2 bg-primary relative overflow-hidden flex-col justify-center p-12 text-white">
-            <!-- Background circles decoration -->
-            <div class="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white opacity-10"></div>
-            <div class="absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-white opacity-10"></div>
-            
-            <div class="relative z-10 space-y-6 max-w-sm">
-                <h1 class="text-4xl lg:text-5xl font-bold leading-tight">
-                    Let's Grow Up<br>Your Future<br>With Rahen Azat Institute
-                </h1>
-                <p class="text-green-50 text-base leading-relaxed">
-                    Learn important new skills, discover passions or hobbies, find ideas to change your careers.
-                </p>
-            </div>
-            
-            <div class="relative z-10 mt-12 flex justify-center">
-                <img src="images/login-illustration.png" alt="Student using laptop" class="max-w-full h-auto drop-shadow-2xl rounded-lg">
+<body class="login-body min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <!-- Main Card Container -->
+    <div
+        class="login-card rounded-[24px] shadow-sm w-full max-w-2xl px-6 py-12 sm:px-16 sm:py-16 flex flex-col items-center">
+
+        <!-- Header with Logo -->
+        <div class="mb-6 flex justify-center">
+            <div
+                class="login-logo w-20 h-20 rounded-full flex items-center justify-center shadow-inner border-[6px] border-green-50 ring-1 ring-gray-100">
+                <i class="ph ph-book-open text-white text-[32px]"></i>
             </div>
         </div>
 
-        <!-- Right Side: Login Form -->
-        <div class="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center bg-white relative z-10">
-            <div class="max-w-md w-full mx-auto space-y-8">
-                
-                <!-- Logo -->
-                <div class="flex items-center gap-2">
-                    <div class="text-primary">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold text-gray-900 tracking-tight">Rahen Azat Institute</span>
-                </div>
+        <h1 class="login-title mb-2 text-center tracking-tight">Login</h1>
+        <p class="login-subtitle mb-10 text-center">RahenazatInstitute</p>
 
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900">Sign in to your account</h2>
-                </div>
-
-                <?php if (!empty($error)): ?>
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-red-700"><?php echo e($error); ?></p>
-                            </div>
-                        </div>
+        <?php if (!empty($error)): ?>
+            <div class="login-error bg-red-50 border-l-4 p-4 rounded-md mb-8 w-full max-w-[480px]">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="ph ph-warning-circle text-xl" style="color: var(--color-red);"></i>
                     </div>
-                <?php endif; ?>
-
-                <form class="space-y-6" action="index.php" method="POST">
-                    <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-                    
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        <input id="email" name="email" type="email" autocomplete="email" required 
-                            value="<?php echo e($oldEmail ?? ''); ?>"
-                            class="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-150 ease-in-out sm:text-sm bg-gray-50/50" 
-                            placeholder="eldo.nawawi@Rahen Azat Institute.com">
+                    <div class="ml-3">
+                        <p class="login-error-text"><?php echo e($error); ?></p>
                     </div>
-
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <a href="#" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">Forgot Password?</a>
-                        </div>
-                        <div class="relative">
-                            <input id="password" name="password" type="password" autocomplete="current-password" required 
-                                class="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-150 ease-in-out sm:text-sm bg-gray-50/50 pr-10" 
-                                placeholder="••••••••">
-                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500 focus:outline-none">
-                                <svg class="h-5 w-5" id="eye-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0l-3.29-3.29" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input id="remember_me" name="remember_me" type="checkbox" value="1"
-                            class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer">
-                        <label for="remember_me" class="ml-2 block text-sm text-gray-700 cursor-pointer">
-                            Keep me logged in
-                        </label>
-                    </div>
-
-                    <div>
-                        <button type="submit" 
-                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ease-in-out transform hover:-translate-y-0.5">
-                            Sign In
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="pt-8 text-center text-xs text-gray-400">
-                    &copy; 2026 FT Rahen Azat Institute. All rights reserved.
                 </div>
             </div>
+        <?php endif; ?>
+
+        <!-- Form Area -->
+        <form id="loginForm" action="index.php" method="POST" class="w-full max-w-[480px]" novalidate>
+            <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+
+            <!-- Email Input Group -->
+            <div class="mb-6">
+                <label for="email" class="login-label block mb-2">Email Address</label>
+                <div
+                    class="input-focus-ring relative flex items-center border border-[#E5E7EB] rounded-xl transition-all duration-200 bg-white overflow-hidden group">
+                    <div
+                        class="pl-4 pr-3 flex items-center justify-center text-gray-400 group-focus-within:text-[#6B7280] transition-colors">
+                        <i class="ph ph-envelope-simple text-[22px]"></i>
+                    </div>
+                    <input type="email" id="email" name="email" value="<?php echo e($oldEmail ?? ''); ?>"
+                        placeholder="Enter your email address"
+                        class="login-input w-full py-3.5 pr-4 outline-none placeholder:text-gray-400 bg-transparent"
+                        maxlength="254"
+                        autocomplete="email"
+                        inputmode="email"
+                        spellcheck="false"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        required>
+                </div>
+            </div>
+
+            <!-- Password Input Group -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="password" class="login-label block">Password</label>
+                    <a href="#" class="login-forgot">Forgot Password?</a>
+                </div>
+                <div
+                    class="input-focus-ring relative flex items-center border border-[#E5E7EB] rounded-xl transition-all duration-200 bg-white overflow-hidden group">
+                    <div
+                        class="pl-4 pr-3 flex items-center justify-center text-gray-400 group-focus-within:text-[#6B7280] transition-colors">
+                        <i class="ph ph-lock-key text-[22px]"></i>
+                    </div>
+                    <input type="password" id="password" name="password" placeholder="Enter your password"
+                        class="login-input w-full py-3.5 outline-none placeholder:text-gray-400 bg-transparent"
+                        minlength="8"
+                        maxlength="128"
+                        autocomplete="current-password"
+                        pattern="[\x20-\x7E]+"
+                        title="Password must be 8–128 characters using standard keyboard characters only"
+                        required>
+                    <button type="button" id="togglePassword"
+                        class="pr-4 pl-3 flex items-center justify-center text-gray-400 hover:text-[#6B7280] transition-colors focus:outline-none">
+                        <i id="eyeIcon" class="ph ph-eye-slash text-[22px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keep me logged in Checkbox -->
+            <div class="mb-8 flex items-center">
+                <div class="relative flex items-center">
+                    <input type="checkbox" id="keepLogged" name="remember_me" value="1"
+                        class="login-checkbox peer appearance-none w-[20px] h-[20px] border border-gray-400 rounded bg-white cursor-pointer transition-colors">
+                    <i
+                        class="ph ph-check absolute text-white text-sm pointer-events-none opacity-0 peer-checked:opacity-100 left-[3px] top-[3px]"></i>
+                </div>
+                <label for="keepLogged" class="login-remember-label ml-3 cursor-pointer">Keep me logged in</label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="login-btn w-full py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none shadow-sm">
+                <i class="ph ph-lock-key text-[20px]"></i>
+                Login
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="login-footer mt-12 text-center">
+            &copy; <?php echo date('Y'); ?> Rahenazat Institute. All rights reserved.
         </div>
+
     </div>
 
+    <!-- JavaScript for Password Toggle -->
     <script>
-        function togglePassword() {
-            var pwd = document.getElementById('password');
-            var icon = document.getElementById('eye-icon');
-            if (pwd.type === 'password') {
-                pwd.type = 'text';
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
+        // ── Password Toggle ───────────────────────────────────────────────
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const passwordInput     = document.getElementById('password');
+        const eyeIcon           = document.getElementById('eyeIcon');
+        const emailInput        = document.getElementById('email');
+        const loginForm         = document.getElementById('loginForm');
+
+        togglePasswordBtn.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            if (type === 'password') {
+                eyeIcon.classList.remove('ph-eye');
+                eyeIcon.classList.add('ph-eye-slash');
             } else {
-                pwd.type = 'password';
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0l-3.29-3.29" />';
+                eyeIcon.classList.remove('ph-eye-slash');
+                eyeIcon.classList.add('ph-eye');
             }
-        }
+        });
+
+        // ── Client-Side Sanitization on Submit ───────────────────────────
+        loginForm.addEventListener('submit', function (e) {
+            // 1. Trim & normalise email
+            const rawEmail = emailInput.value.trim().toLowerCase();
+            emailInput.value = rawEmail;
+
+            // 2. Basic email format check (defence-in-depth; browser already validates type=email)
+            const emailRegex = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
+            if (!emailRegex.test(rawEmail) || rawEmail.length > 254) {
+                e.preventDefault();
+                alert('Please enter a valid email address (max 254 characters).');
+                emailInput.focus();
+                return;
+            }
+
+            // 3. Password: strip null-bytes & control characters (ASCII < 32 except none allowed)
+            const rawPass   = passwordInput.value;
+            // Allow only printable ASCII (0x20–0x7E)
+            const cleanPass = rawPass.replace(/[^\x20-\x7E]/g, '');
+
+            if (cleanPass !== rawPass) {
+                e.preventDefault();
+                alert('Password contains invalid characters. Only standard keyboard characters are allowed.');
+                passwordInput.value = '';
+                passwordInput.focus();
+                return;
+            }
+
+            // 4. Length guards (server also enforces, this is early feedback)
+            if (cleanPass.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long.');
+                passwordInput.focus();
+                return;
+            }
+            if (cleanPass.length > 128) {
+                e.preventDefault();
+                alert('Password must not exceed 128 characters.');
+                passwordInput.focus();
+                return;
+            }
+
+            // 5. Prevent double-submission
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-circle-notch text-[20px] animate-spin"></i> Logging in…';
+        });
     </script>
 </body>
+
 </html>
