@@ -17,32 +17,24 @@ class InvoiceService
 {
     private InvoiceRepository $repo;
 
-    // Allowed currencies (ISO 4217 codes)
-    public const CURRENCIES = [
-        'BDT' => ['name' => 'Bangladeshi Taka',   'symbol' => '৳',  'flag' => '🇧🇩'],
-        'USD' => ['name' => 'US Dollar',           'symbol' => '$',  'flag' => '🇺🇸'],
-        'EUR' => ['name' => 'Euro',                'symbol' => '€',  'flag' => '🇪🇺'],
-        'GBP' => ['name' => 'British Pound',       'symbol' => '£',  'flag' => '🇬🇧'],
-        'AUD' => ['name' => 'Australian Dollar',   'symbol' => 'A$', 'flag' => '🇦🇺'],
-        'CAD' => ['name' => 'Canadian Dollar',     'symbol' => 'C$', 'flag' => '🇨🇦'],
-        'SGD' => ['name' => 'Singapore Dollar',    'symbol' => 'S$', 'flag' => '🇸🇬'],
-        'SAR' => ['name' => 'Saudi Riyal',         'symbol' => '﷼',  'flag' => '🇸🇦'],
-        'AED' => ['name' => 'UAE Dirham',          'symbol' => 'د.إ','flag' => '🇦🇪'],
-        'MYR' => ['name' => 'Malaysian Ringgit',   'symbol' => 'RM', 'flag' => '🇲🇾'],
-        'INR' => ['name' => 'Indian Rupee',        'symbol' => '₹',  'flag' => '🇮🇳'],
-        'JPY' => ['name' => 'Japanese Yen',        'symbol' => '¥',  'flag' => '🇯🇵'],
-        'CNY' => ['name' => 'Chinese Yuan',        'symbol' => '¥',  'flag' => '🇨🇳'],
-        'KWD' => ['name' => 'Kuwaiti Dinar',       'symbol' => 'KD', 'flag' => '🇰🇼'],
-        'QAR' => ['name' => 'Qatari Riyal',        'symbol' => 'QR', 'flag' => '🇶🇦'],
-        'TRY' => ['name' => 'Turkish Lira',        'symbol' => '₺',  'flag' => '🇹🇷'],
-    ];
-
     private const ALLOWED_STATUSES = ['draft', 'unpaid', 'paid'];
     private const PER_PAGE         = 15;
 
     public function __construct(InvoiceRepository $repo)
     {
         $this->repo = $repo;
+    }
+
+    // ===========================================================
+    // CURRENCIES
+    // ===========================================================
+
+    /**
+     * Get all currencies from DB.
+     */
+    public function getCurrencies(): array
+    {
+        return $this->repo->getCurrencies();
     }
 
     // ===========================================================
@@ -310,7 +302,8 @@ class InvoiceService
      */
     public function getCurrencyInfo(string $code): ?array
     {
-        return self::CURRENCIES[strtoupper($code)] ?? null;
+        $currencies = $this->getCurrencies();
+        return $currencies[strtoupper($code)] ?? null;
     }
 
     // ===========================================================
@@ -337,7 +330,8 @@ class InvoiceService
             $errors['student_email'] = 'Please enter a valid email address.';
         }
 
-        if (empty($input['currency']) || !array_key_exists(strtoupper(trim($input['currency'])), self::CURRENCIES)) {
+        $currencies = $this->getCurrencies();
+        if (empty($input['currency']) || !array_key_exists(strtoupper(trim($input['currency'])), $currencies)) {
             $errors['currency'] = 'Please select a valid currency.';
         }
 
@@ -402,7 +396,8 @@ class InvoiceService
      */
     private function sanitizeFilters(array $raw): array
     {
-        $allowed_currencies = array_keys(self::CURRENCIES);
+        $currencies = $this->getCurrencies();
+        $allowed_currencies = array_keys($currencies);
 
         $status   = trim($raw['status']   ?? '');
         $currency = strtoupper(trim($raw['currency'] ?? ''));
@@ -443,5 +438,41 @@ class InvoiceService
         }
         $d = \DateTime::createFromFormat('Y-m-d', $date);
         return $d && $d->format('Y-m-d') === $date;
+    }
+
+    // ===========================================================
+    // CURRENCY MANAGEMENT (DELEGATES TO REPOSITORY)
+    // ===========================================================
+
+    /**
+     * Add a new currency.
+     */
+    public function addCurrency(array $data): array
+    {
+        $errors = [];
+        if (empty(trim($data['code'] ?? ''))) {
+            $errors['code'] = 'Currency code is required.';
+        }
+        if (empty(trim($data['name'] ?? ''))) {
+            $errors['name'] = 'Currency name is required.';
+        }
+        if (empty(trim($data['symbol'] ?? ''))) {
+            $errors['symbol'] = 'Currency symbol is required.';
+        }
+
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
+        }
+
+        $ok = $this->repo->addCurrency($data);
+        return ['success' => $ok, 'errors' => $ok ? [] : ['system' => 'Failed to save currency.']];
+    }
+
+    /**
+     * Delete a currency.
+     */
+    public function deleteCurrency(string $code): bool
+    {
+        return $this->repo->deleteCurrency($code);
     }
 }

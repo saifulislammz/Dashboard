@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 /**
- * Invoice Generator View â€” Create/Generate Invoice
+ * Invoice Generator View ” Create/Generate Invoice
  * Accessible only by ROLE_ADMIN via public/admin/invoices/create.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -259,7 +259,7 @@ function inv_err(string $key): string
                             ?>
                                 <option value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>"
                                         <?= $oldCurrency === $code ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($info['flag'] . ' ' . $code . ' â€” ' . $info['name'], ENT_QUOTES, 'UTF-8') ?>
+                                    <?= htmlspecialchars($info['flag'] . ' ' . $code . ' - ' . $info['name'], ENT_QUOTES, 'UTF-8') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -374,7 +374,7 @@ function inv_err(string $key): string
 </template>
 
 <!-- ================================================================
-     JAVASCRIPT â€” Live invoice calculator
+     JAVASCRIPT ” Live invoice calculator
 ================================================================ -->
 <script>
 (function () {

@@ -42,6 +42,7 @@ class InvoiceController
 
         $listData  = $this->invoiceService->getInvoiceList($filters, $page);
         $stats     = $this->invoiceService->getDashboardStats();
+        $currencies = $this->invoiceService->getCurrencies();
 
         $pageTitle  = 'Invoice Dashboard';
         $activeMenu = 'invoice_dashboard';
@@ -61,6 +62,7 @@ class InvoiceController
     {
         $settings     = $this->invoiceService->getSettings();
         $invoiceNumber = $this->invoiceService->generateInvoiceNumberPreview($settings);
+        $currencies   = $this->invoiceService->getCurrencies();
 
         $pageTitle  = 'Generate Invoice';
         $activeMenu = 'invoice_create';
@@ -86,6 +88,7 @@ class InvoiceController
         $errors        = $result['errors'];
         $settings      = $this->invoiceService->getSettings();
         $invoiceNumber = $this->invoiceService->generateInvoiceNumberPreview($settings);
+        $currencies    = $this->invoiceService->getCurrencies();
         $old           = $_POST; // repopulate form
 
         $pageTitle  = 'Generate Invoice';
@@ -117,6 +120,7 @@ class InvoiceController
         $invoice    = $data['invoice'];
         $items      = $data['items'];
         $settings   = $this->invoiceService->getSettings();
+        $currencies = $this->invoiceService->getCurrencies();
         $created    = isset($_GET['created']) && $_GET['created'] === '1';
 
         $pageTitle  = 'Invoice #' . htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8');
@@ -148,6 +152,7 @@ class InvoiceController
         $invoice    = $data['invoice'];
         $items      = $data['items'];
         $settings   = $this->invoiceService->getSettings();
+        $currencies = $this->invoiceService->getCurrencies();
 
         // No sidebar/header — standalone page
         require __DIR__ . '/../../../views/admin/invoices/print.php';
@@ -192,17 +197,33 @@ class InvoiceController
         $settings  = $this->invoiceService->getSettings();
         $success   = false;
         $errors    = [];
+        $action    = $_POST['action'] ?? '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $result = $this->invoiceService->saveSettings($_POST);
-
-            if ($result['success']) {
-                $settings = $this->invoiceService->getSettings(); // reload fresh
-                $success  = true;
-            } else {
+            if ($action === 'add_currency') {
+                $result = $this->invoiceService->addCurrency($_POST);
+                if ($result['success']) {
+                    header('Location: /admin/invoices/settings.php?currency_added=1');
+                    exit;
+                }
                 $errors = $result['errors'];
+            } elseif ($action === 'delete_currency') {
+                $this->invoiceService->deleteCurrency($_POST['code'] ?? '');
+                header('Location: /admin/invoices/settings.php?currency_deleted=1');
+                exit;
+            } else {
+                $result = $this->invoiceService->saveSettings($_POST);
+
+                if ($result['success']) {
+                    $settings = $this->invoiceService->getSettings(); // reload fresh
+                    $success  = true;
+                } else {
+                    $errors = $result['errors'];
+                }
             }
         }
+
+        $currencies = $this->invoiceService->getCurrencies();
 
         // Live preview of invoice number
         $numberPreview = $this->invoiceService->generateInvoiceNumberPreview($settings);

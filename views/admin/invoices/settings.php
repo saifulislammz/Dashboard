@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 /**
- * Invoice Settings View â€” Configure institution details & invoice number format.
+ * Invoice Settings View ” Configure institution details & invoice number format.
  * Accessible only by ROLE_ADMIN via public/admin/invoices/settings.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -210,6 +210,89 @@ function serr(string $key): string {
 
             </div>
         </form>
+
+        <!-- =============================================
+             SECTION 3: Currency Management
+        ============================================== -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mt-8 space-y-5">
+            <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h2 class="text-base font-semibold text-[#0f172a]">Currency Management</h2>
+            </div>
+
+            <?php if (isset($_GET['currency_added'])): ?>
+                <div class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-sm text-green-700">Currency added successfully!</div>
+            <?php endif; ?>
+            <?php if (isset($_GET['currency_deleted'])): ?>
+                <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-700">Currency deleted.</div>
+            <?php endif; ?>
+
+            <!-- Add Currency Form -->
+            <form method="POST" action="/admin/invoices/settings.php" class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="action" value="add_currency">
+                
+                <h3 class="text-sm font-semibold text-[#1e293b] mb-3">Add New Currency</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-medium text-[#64748b] mb-1">Code (e.g. USD)</label>
+                        <input type="text" name="code" required maxlength="10" placeholder="USD" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#64748b] mb-1">Name (e.g. US Dollar)</label>
+                        <input type="text" name="name" required placeholder="US Dollar" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#64748b] mb-1">Symbol (e.g. $)</label>
+                        <input type="text" name="symbol" required placeholder="$" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-[#64748b] mb-1">Flag Emoji (e.g. 🇺🇸)</label>
+                        <div class="flex gap-2">
+                            <input type="text" name="flag" placeholder="🇺🇸" class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-green-700 transition-colors shrink-0">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Currencies List -->
+            <div class="mt-6 border border-gray-100 rounded-xl overflow-hidden">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 font-semibold text-[#64748b]">Code</th>
+                            <th class="px-4 py-3 font-semibold text-[#64748b]">Name</th>
+                            <th class="px-4 py-3 font-semibold text-[#64748b]">Symbol</th>
+                            <th class="px-4 py-3 font-semibold text-[#64748b]">Flag</th>
+                            <th class="px-4 py-3 font-semibold text-[#64748b] text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php foreach ($currencies as $code => $info): ?>
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-4 py-3 font-mono font-medium text-[#0f172a]"><?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="px-4 py-3 text-[#334155]"><?= htmlspecialchars($info['name'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="px-4 py-3 text-[#334155]"><?= htmlspecialchars($info['symbol'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="px-4 py-3 text-lg"><?= htmlspecialchars($info['flag'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td class="px-4 py-3 text-right">
+                                <form method="POST" action="/admin/invoices/settings.php" onsubmit="return confirm('Delete this currency?');" class="inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="action" value="delete_currency">
+                                    <input type="hidden" name="code" value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>">
+                                    <button type="submit" class="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
     </div><!-- /max-w -->
 </main>

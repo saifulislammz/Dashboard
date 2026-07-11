@@ -398,4 +398,82 @@ class InvoiceRepository
         $whereClause = 'WHERE ' . implode(' AND ', $conditions);
         return [$whereClause, $params];
     }
+
+    // ===========================================================
+    // CURRENCY MANAGEMENT
+    // ===========================================================
+
+    /**
+     * Get all currencies from the database.
+     * Returned format matches the old static array:
+     * [ 'CODE' => ['name' => '...', 'symbol' => '...', 'flag' => '...'] ]
+     *
+     * @return array
+     */
+    public function getCurrencies(): array
+    {
+        try {
+            $stmt = $this->db->query("SELECT code, name, symbol, flag FROM invoice_currencies ORDER BY code ASC");
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $currencies = [];
+            foreach ($results as $row) {
+                $currencies[$row['code']] = [
+                    'name'   => $row['name'],
+                    'symbol' => $row['symbol'],
+                    'flag'   => $row['flag']
+                ];
+            }
+            
+            return $currencies;
+        } catch (PDOException $e) {
+            error_log('[InvoiceRepository] getCurrencies failed: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Add or update a currency in the database.
+     *
+     * @param array $data ['code', 'name', 'symbol', 'flag']
+     * @return bool
+     */
+    public function addCurrency(array $data): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO invoice_currencies (code, name, symbol, flag) 
+                VALUES (:code, :name, :symbol, :flag)
+                ON DUPLICATE KEY UPDATE 
+                name = VALUES(name), symbol = VALUES(symbol), flag = VALUES(flag)
+            ");
+            
+            return $stmt->execute([
+                ':code'   => strtoupper(trim($data['code'])),
+                ':name'   => trim($data['name']),
+                ':symbol' => trim($data['symbol']),
+                ':flag'   => trim($data['flag'])
+            ]);
+        } catch (PDOException $e) {
+            error_log('[InvoiceRepository] addCurrency failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Delete a currency from the database.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function deleteCurrency(string $code): bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM invoice_currencies WHERE code = :code");
+            return $stmt->execute([':code' => strtoupper(trim($code))]);
+        } catch (PDOException $e) {
+            error_log('[InvoiceRepository] deleteCurrency failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
