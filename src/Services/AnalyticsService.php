@@ -22,6 +22,7 @@ class AnalyticsService
             'total_teachers'    => $counts['total_teachers'],
             'total_notices'     => $counts['total_notices'],
             'total_classrooms'  => $counts['total_classrooms'],
+            'total_quizzes'     => $counts['total_quizzes'] ?? 0,
             'recent_classrooms' => $this->analyticsRepository->getRecentClassrooms(20),
         ];
     }

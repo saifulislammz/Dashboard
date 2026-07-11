@@ -3,6 +3,15 @@
 @theme {
   --color-primary: #10b981;
   --color-primary-dark: #059669;
+  --color-brandText: #1F2937;
+  --color-secondaryText: #6B7280;
+  --color-bgLight: #F9FAFB;
+  --color-cardBg: #FFFFFF;
+  --color-iconBgGreen: #E6F4F1;
+  --color-iconBgTeal: #E0F2FE;
+  --color-iconBgOrange: #FEF3C7;
+  --color-iconBgBlue: #DBEAFE;
+  --color-iconBgPurple: #F3E8FF;
 }
 
 @source "../../views";

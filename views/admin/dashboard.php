@@ -13,81 +13,120 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
         </div>
         
         <!-- Analytics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <!-- Total Students Card -->
-            <a href="/admin/students.php" class="relative bg-white rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-                <div class="flex items-center justify-between mb-4 relative">
-                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    
+            <!-- Stat Card 1: Students -->
+            <a href="/admin/students.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-600">
+                        <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">group</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total Students</p>
+                        <h3 class="text-3xl font-bold text-brandText"><?= htmlspecialchars((string) ($stats['total_students'] ?? 0)) ?></h3>
+                    </div>
+                </div>
+                <div class="flex items-end justify-between">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span class="text-green-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>12%</span> from last month
+                    </p>
+                    <div class="w-16 h-8 flex items-end">
+                        <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
+                            <path d="M0,40 Q20,40 30,20 T60,30 T100,5" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round"></path>
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 text-[13px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                        +12%
-                    </span>
-                </div>
-                <div class="relative">
-                    <div class="text-[32px] leading-none font-bold text-slate-900 mb-1"><?= htmlspecialchars((string) ($stats['total_students'] ?? 0)) ?></div>
-                    <div class="text-[13px] font-medium text-slate-500">Total Students</div>
                 </div>
             </a>
 
-            <!-- Total Teachers Card -->
-            <a href="/admin/teachers.php" class="relative bg-white rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-                <div class="flex items-center justify-between mb-4 relative">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <!-- Stat Card 2: Teachers -->
+            <a href="/admin/teachers.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgTeal flex items-center justify-center text-teal-600">
+                        <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">school</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total Teachers</p>
+                        <h3 class="text-3xl font-bold text-brandText"><?= htmlspecialchars((string) ($stats['total_teachers'] ?? 0)) ?></h3>
+                    </div>
+                </div>
+                <div class="flex items-end justify-between">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span class="text-green-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>8%</span> from last month
+                    </p>
+                    <div class="w-16 h-8 flex items-end">
+                        <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
+                            <path d="M0,45 Q20,30 40,40 T70,20 T100,10" fill="none" stroke="#0EA5E9" stroke-width="3" stroke-linecap="round"></path>
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 text-[13px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                        +3%
-                    </span>
-                </div>
-                <div class="relative">
-                    <div class="text-[32px] leading-none font-bold text-slate-900 mb-1"><?= htmlspecialchars((string) ($stats['total_teachers'] ?? 0)) ?></div>
-                    <div class="text-[13px] font-medium text-slate-500">Total Teachers</div>
                 </div>
             </a>
 
-            <!-- Total Notices Card -->
-            <a href="/admin/notices/index.php" class="relative bg-white rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/5 to-transparent rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-                <div class="flex items-center justify-between mb-4 relative">
-                    <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
+            <!-- Stat Card 3: Notices -->
+            <a href="/admin/notices/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgOrange flex items-center justify-center text-orange-500">
+                        <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">notifications</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total Notices</p>
+                        <h3 class="text-3xl font-bold text-brandText"><?= htmlspecialchars((string) ($stats['total_notices'] ?? 0)) ?></h3>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="text-[32px] leading-none font-bold text-slate-900 mb-1"><?= htmlspecialchars((string) ($stats['total_notices'] ?? 0)) ?></div>
-                    <div class="text-[13px] font-medium text-slate-500">Total Notices</div>
+                <div class="flex items-end justify-between">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span class="text-orange-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>15%</span> from last month
+                    </p>
+                    <div class="w-16 h-8 flex items-end">
+                        <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
+                            <path d="M0,40 Q30,40 40,25 T70,30 T100,15" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"></path>
+                        </svg>
+                    </div>
                 </div>
             </a>
 
-            <!-- Total Classrooms Card -->
-            <a href="/admin/classrooms/index.php" class="relative bg-white rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-transparent rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-                <div class="flex items-center justify-between mb-4 relative">
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            <!-- Stat Card 4: Classrooms -->
+            <a href="/admin/classrooms/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgBlue flex items-center justify-center text-blue-500">
+                        <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">business</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total Classrooms</p>
+                        <h3 class="text-3xl font-bold text-brandText"><?= htmlspecialchars((string) ($stats['total_classrooms'] ?? 0)) ?></h3>
+                    </div>
+                </div>
+                <div class="flex items-end justify-between">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span class="text-blue-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>20%</span> from last month
+                    </p>
+                    <div class="w-16 h-8 flex items-end">
+                        <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
+                            <path d="M0,45 Q20,40 30,25 T60,35 T100,5" fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"></path>
                         </svg>
                     </div>
-                    <span class="inline-flex items-center gap-1 text-[13px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                        +1
-                    </span>
                 </div>
-                <div class="relative">
-                    <div class="text-[32px] leading-none font-bold text-slate-900 mb-1"><?= htmlspecialchars((string) ($stats['total_classrooms'] ?? 0)) ?></div>
-                    <div class="text-[13px] font-medium text-slate-500">Total Classrooms</div>
+            </a>
+
+            <!-- Stat Card 5: Quizzes -->
+            <a href="/admin/quiz/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgPurple flex items-center justify-center text-purple-600">
+                        <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">quiz</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total Quizzes</p>
+                        <h3 class="text-3xl font-bold text-brandText"><?= htmlspecialchars((string) ($stats['total_quizzes'] ?? 0)) ?></h3>
+                    </div>
+                </div>
+                <div class="flex items-end justify-between">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <span class="text-purple-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>10%</span> from last month
+                    </p>
+                    <div class="w-16 h-8 flex items-end">
+                        <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
+                            <path d="M0,45 Q20,40 30,25 T60,35 T100,5" fill="none" stroke="#9333EA" stroke-width="3" stroke-linecap="round"></path>
+                        </svg>
+                    </div>
                 </div>
             </a>
         </div>

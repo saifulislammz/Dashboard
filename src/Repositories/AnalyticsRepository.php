@@ -31,7 +31,8 @@ class AnalyticsRepository
                     (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleStudent}) = {$roleStudent}) AS total_students,
                     (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleTeacher}) = {$roleTeacher}) AS total_teachers,
                     (SELECT COUNT(*) FROM notices)                                                          AS total_notices,
-                    (SELECT COUNT(*) FROM classrooms)                                                       AS total_classrooms
+                    (SELECT COUNT(*) FROM classrooms)                                                       AS total_classrooms,
+                    (SELECT COUNT(*) FROM quizzes WHERE status = 'active' AND deleted_at IS NULL)           AS total_quizzes
             ");
 
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -41,6 +42,7 @@ class AnalyticsRepository
                 'total_teachers'   => (int) ($row['total_teachers']   ?? 0),
                 'total_notices'    => (int) ($row['total_notices']    ?? 0),
                 'total_classrooms' => (int) ($row['total_classrooms'] ?? 0),
+                'total_quizzes'    => (int) ($row['total_quizzes']    ?? 0),
             ];
         });
     }
