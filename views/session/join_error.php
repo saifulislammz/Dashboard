@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Simple layout for error display
 ?>
 <!DOCTYPE html>
@@ -12,7 +12,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { primary: '#7c3aed' }
+                    colors: { primary: 'var(--color-primary-green)' }
                 }
             }
         }
@@ -35,3 +35,4 @@
     </div>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 
@@ -53,8 +53,8 @@ $error   = $_GET['error'] ?? $error ?? '';
                 <!-- TAB 1: Google Meet -->
                 <div id="content-google" class="space-y-6">
                     <div class="flex items-center gap-4 border-b border-gray-100 pb-4">
-                        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-                            <svg class="w-7 h-7 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
+                            <svg class="w-7 h-7 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                         </div>
                         <div>
                             <h2 class="text-lg font-medium text-gray-900">Google Workspace Connection</h2>
@@ -92,8 +92,8 @@ $error   = $_GET['error'] ?? $error ?? '';
                                 </div>
                             </div>
 
-                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                                <p class="text-sm text-blue-700"><strong>Redirect URI:</strong> Set this exactly in Google Cloud Console:</p>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                                <p class="text-sm text-green-700"><strong>Redirect URI:</strong> Set this exactly in Google Cloud Console:</p>
                                 <code class="mt-2 block bg-white p-2 rounded text-xs"><?= htmlspecialchars($this->getGoogleRedirectUri()) ?></code>
                             </div>
 
@@ -102,7 +102,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                                     Save Credentials
                                 </button>
                                 <?php if (!empty($googleAccount['client_id'])): ?>
-                                    <a href="<?= htmlspecialchars($this->getGoogleAuthUrl($googleAccount['client_id'])) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-colors">
+                                    <a href="<?= htmlspecialchars($this->getGoogleAuthUrl($googleAccount['client_id'])) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none transition-colors">
                                         Connect Google Account
                                     </a>
                                 <?php endif; ?>
@@ -114,8 +114,8 @@ $error   = $_GET['error'] ?? $error ?? '';
                 <!-- TAB 2: Zoom -->
                 <div id="content-zoom" class="hidden space-y-6">
                     <div class="flex items-center gap-4 border-b border-gray-100 pb-4">
-                        <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center shrink-0">
-                            <svg class="w-7 h-7 text-indigo-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                        <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
+                            <svg class="w-7 h-7 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                         </div>
                         <div>
                             <h2 class="text-lg font-medium text-gray-900">Zoom Server-to-Server App</h2>
@@ -159,7 +159,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                         </div>
 
                         <div>
-                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors">
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none transition-colors">
                                 Save & Test Zoom Connection
                             </button>
                         </div>
@@ -266,3 +266,4 @@ $error   = $_GET['error'] ?? $error ?? '';
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

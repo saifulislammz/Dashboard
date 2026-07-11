@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Manage Notices';
 $activeMenu = 'notices_manage';
 require __DIR__ . '/../../layouts/header.php';
@@ -13,7 +13,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                 <h1 class="text-2xl font-bold text-gray-900">Manage Notices</h1>
                 <p class="mt-1 text-sm text-gray-500">View, edit and manage all published notices.</p>
             </div>
-            <a href="create.php" class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors">
+            <a href="create.php" class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                 <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -44,9 +44,9 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search notices..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors">
+                        <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search notices..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors">
                     </div>
-                    <button type="submit" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-[#7c3aed] bg-[#f5f3ff] hover:bg-[#ede9fe] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors">Search</button>
+                    <button type="submit" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-primary bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">Search</button>
                 </form>
             </div>
 
@@ -85,7 +85,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                             <td class="px-6 py-5 whitespace-nowrap text-sm text-gray-600"><?php echo date('d M Y', strtotime($notice['created_at'])); ?></td>
                             <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-2.5">
                                 <!-- Edit -->
-                                <a href="edit.php?id=<?php echo $notice['id']; ?>" class="text-[#7c3aed] hover:text-[#6d28d9] transition-colors">Edit</a>
+                                <a href="edit.php?id=<?php echo $notice['id']; ?>" class="text-primary hover:text-green-700 transition-colors">Edit</a>
                                 <span class="text-gray-200">|</span>
                                 
                                 <!-- Status Toggle -->
@@ -143,3 +143,4 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

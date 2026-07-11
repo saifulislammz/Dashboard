@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Admin Quiz Edit View — pre-fills existing questions & options
+ * Admin Quiz Edit View â€” pre-fills existing questions & options
  */
 $activeMenu = 'quiz_list';
 require __DIR__ . '/../../layouts/header.php';
@@ -69,8 +69,8 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
             <div class="space-y-1">
                 <label class="text-sm font-medium text-[#374151]">Status</label>
                 <select name="status" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669]">
-                    <option value="active"   <?php echo ($quizData['status'] ?? '') === 'active'   ? 'selected' : ''; ?>>● Active</option>
-                    <option value="inactive" <?php echo ($quizData['status'] ?? '') === 'inactive' ? 'selected' : ''; ?>>○ Inactive</option>
+                    <option value="active"   <?php echo ($quizData['status'] ?? '') === 'active'   ? 'selected' : ''; ?>>â— Active</option>
+                    <option value="inactive" <?php echo ($quizData['status'] ?? '') === 'inactive' ? 'selected' : ''; ?>>â—‹ Inactive</option>
                 </select>
             </div>
         </div>
@@ -129,7 +129,7 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
                         </div>
                         <div x-show="q.type === 'voice'"
                              class="text-xs text-[#64748b] bg-[#f0fdf4] px-4 py-2.5 rounded-xl border border-[#d1fae5]">
-                            🎙️ User will read this paragraph and record Voice for up to 1 minute.
+                            ðŸŽ™ï¸ User will read this paragraph and record Voice for up to 1 minute.
                         </div>
                     </div>
                 </div>
@@ -142,12 +142,12 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
                     Alphabet Question
                 </button>
                 <button type="button" @click="addQuestion('pronunciation')"
-                        class="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-blue-400/50 text-blue-600 text-sm font-semibold rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all">
+                        class="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-green-400/50 text-green-600 text-sm font-semibold rounded-xl hover:border-green-500 hover:bg-green-50 transition-all">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Pronunciation Question
                 </button>
                 <button type="button" @click="addQuestion('voice')"
-                        class="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-purple-400/50 text-purple-600 text-sm font-semibold rounded-xl hover:border-purple-500 hover:bg-purple-50 transition-all">
+                        class="flex items-center gap-2 px-4 py-2.5 border-2 border-dashed border-red-400/50 text-red-600 text-sm font-semibold rounded-xl hover:border-red-500 hover:bg-red-50 transition-all">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Voice Question
                 </button>
@@ -197,3 +197,4 @@ function quizBuilder(initial = []) {
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

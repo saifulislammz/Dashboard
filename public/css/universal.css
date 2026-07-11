@@ -1,0 +1,39 @@
+/* 
+   Universal Typography File
+   Handles global font sizes, weights, and styles.
+   Change values here to affect the entire project centrally.
+*/
+
+:root {
+  /* Font Families */
+  --font-family-primary: 'Inter', system-ui, sans-serif;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+
+  /* Colors (Restricted to 5 base colors + shades handled by Tailwind via CSS var overrides if needed, but here we define the core 5) */
+  --color-primary-green: #0F766E;
+  --color-red: #EF4444; /* red-500 equivalent */
+  --color-yellow: #EAB308; /* yellow-500 equivalent */
+  --color-black: #000000;
+  --color-white: #FFFFFF;
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+body {
+  font-family: var(--font-family-primary);
+}

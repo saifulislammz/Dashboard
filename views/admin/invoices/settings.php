@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Invoice Settings View — Configure institution details & invoice number format.
+ * Invoice Settings View â€” Configure institution details & invoice number format.
  * Accessible only by ROLE_ADMIN via public/admin/invoices/settings.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -55,8 +55,8 @@ function serr(string $key): string {
                 ============================================== -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Institution Details</h2>
                     </div>
@@ -68,7 +68,7 @@ function serr(string $key): string {
                             <input type="text" id="institution_name" name="institution_name"
                                    value="<?= s('institution_name') ?>"
                                    placeholder="e.g. Rahe Nazat Institute"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                             <?= serr('institution_name') ?>
                         </div>
                         <!-- Tagline -->
@@ -77,7 +77,7 @@ function serr(string $key): string {
                             <input type="text" id="institution_tagline" name="institution_tagline"
                                    value="<?= s('institution_tagline') ?>"
                                    placeholder="e.g. Excellence in Education"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                         <!-- Address -->
                         <div class="sm:col-span-2">
@@ -85,7 +85,7 @@ function serr(string $key): string {
                             <input type="text" id="institution_address" name="institution_address"
                                    value="<?= s('institution_address') ?>"
                                    placeholder="e.g. 123 Education Road, Dhaka, Bangladesh"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                         <!-- Phone -->
                         <div>
@@ -93,7 +93,7 @@ function serr(string $key): string {
                             <input type="text" id="institution_phone" name="institution_phone"
                                    value="<?= s('institution_phone') ?>"
                                    placeholder="+880 1XXX-XXXXXX"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                         <!-- Email -->
                         <div>
@@ -101,7 +101,7 @@ function serr(string $key): string {
                             <input type="email" id="institution_email" name="institution_email"
                                    value="<?= s('institution_email') ?>"
                                    placeholder="info@institute.edu"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                         <!-- Footer Note -->
                         <div class="sm:col-span-2">
@@ -109,7 +109,7 @@ function serr(string $key): string {
                             <input type="text" id="invoice_footer_note" name="invoice_footer_note"
                                    value="<?= s('invoice_footer_note') ?>"
                                    placeholder="e.g. Thank you for your payment. Please retain this invoice."
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                     </div>
                 </div>
@@ -119,8 +119,8 @@ function serr(string $key): string {
                 ============================================== -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Invoice Number Format</h2>
                     </div>
@@ -133,7 +133,7 @@ function serr(string $key): string {
                                    value="<?= s('invoice_prefix') ?>"
                                    maxlength="10"
                                    placeholder="e.g. INV"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all font-mono"
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-mono"
                                    oninput="updatePreview()">
                             <?= serr('invoice_prefix') ?>
                         </div>
@@ -141,7 +141,7 @@ function serr(string $key): string {
                         <div>
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="invoice_number_format">Format Template</label>
                             <select id="invoice_number_format" name="invoice_number_format"
-                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent bg-white appearance-none cursor-pointer"
+                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white appearance-none cursor-pointer"
                                     onchange="updatePreview()">
                                 <?php
                                 $fmts = [
@@ -163,12 +163,12 @@ function serr(string $key): string {
                     </div>
 
                     <!-- Live Preview -->
-                    <div class="bg-[#f5f3ff] rounded-xl p-4 flex items-center gap-4">
+                    <div class="bg-green-50 rounded-xl p-4 flex items-center gap-4">
                         <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm shrink-0">
-                            <svg class="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-[#7c3aed] uppercase tracking-wider mb-0.5">Live Preview</p>
+                            <p class="text-xs font-semibold text-primary uppercase tracking-wider mb-0.5">Live Preview</p>
                             <p id="format-preview" class="text-lg font-bold font-mono text-[#0f172a] tracking-widest">
                                 <?= htmlspecialchars($numberPreview ?? 'INV2506040001', ENT_QUOTES, 'UTF-8') ?>
                             </p>
@@ -191,7 +191,7 @@ function serr(string $key): string {
                             foreach ($tokens as $tok => $desc):
                             ?>
                             <div class="flex items-start gap-1.5">
-                                <code class="text-xs bg-white border border-gray-200 px-2 py-0.5 rounded-md font-mono text-[#7c3aed] shrink-0"><?= htmlspecialchars($tok, ENT_QUOTES, 'UTF-8') ?></code>
+                                <code class="text-xs bg-white border border-gray-200 px-2 py-0.5 rounded-md font-mono text-primary shrink-0"><?= htmlspecialchars($tok, ENT_QUOTES, 'UTF-8') ?></code>
                                 <span class="text-xs text-[#64748b]"><?= htmlspecialchars($desc, ENT_QUOTES, 'UTF-8') ?></span>
                             </div>
                             <?php endforeach; ?>
@@ -202,7 +202,7 @@ function serr(string $key): string {
                 <!-- Save Button -->
                 <div class="flex justify-end">
                     <button type="submit"
-                            class="px-8 py-3 text-sm font-semibold text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors shadow-sm flex items-center gap-2">
+                            class="px-8 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Save Settings
                     </button>
@@ -243,3 +243,5 @@ function serr(string $key): string {
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+
+

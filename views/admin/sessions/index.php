@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 ?>
@@ -138,11 +138,11 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <?php if ($session['provider'] === 'google_meet'): ?>
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                                 Google Meet
                                             </span>
                                         <?php elseif ($session['provider'] === 'zoom'): ?>
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                                 Zoom
                                             </span>
                                         <?php endif; ?>
@@ -154,7 +154,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                             'scheduled'       => 'bg-gray-100 text-gray-800',
                                             'meeting_pending' => 'bg-yellow-100 text-yellow-800',
                                             'active'          => 'bg-green-100 text-green-800',
-                                            'completed'       => 'bg-blue-100 text-blue-800',
+                                            'completed'       => 'bg-green-100 text-green-800',
                                             'cancelled'       => 'bg-red-100 text-red-800',
                                             'failed'          => 'bg-red-100 text-red-800',
                                         ][$session['status']] ?? 'bg-gray-100 text-gray-800';
@@ -288,3 +288,4 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

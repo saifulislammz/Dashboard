@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 ?>
@@ -12,7 +12,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                 <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Manage Classrooms</h1>
                 <p class="mt-1 text-sm text-gray-500">View and manage all classrooms in your institution.</p>
             </div>
-            <a href="/admin/classrooms/create.php" class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors">
+            <a href="/admin/classrooms/create.php" class="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                 <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -31,9 +31,9 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Search by class name, title, teacher or student..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors text-gray-900">
+                        <input type="text" name="search" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" placeholder="Search by class name, title, teacher or student..." class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors text-gray-900">
                     </div>
-                    <button type="submit" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-[#7c3aed] bg-[#f5f3ff] hover:bg-[#ede9fe] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors">
+                    <button type="submit" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-primary bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                         Search
                     </button>
                     <?php if (!empty($_GET['search'])): ?>
@@ -75,8 +75,8 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-5 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-xl bg-[#f5f3ff] flex items-center justify-center mr-4">
-                                            <svg class="h-5 w-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center mr-4">
+                                            <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                             </svg>
                                         </div>
@@ -89,8 +89,8 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 </td>
                                 <td class="px-6 py-5 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-[#f5f3ff] border border-[#ddd6fe] flex items-center justify-center mr-3">
-                                            <svg class="h-4 w-4 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-50 border border-green-200 flex items-center justify-center mr-3">
+                                            <svg class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                         </div>
@@ -129,7 +129,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium space-x-2.5">
                                     <a href="/admin/sessions/index.php?classroom_id=<?= $class['id'] ?>" class="text-[#10b981] hover:text-[#059669] transition-colors font-semibold">Manage Sessions</a>
                                     <span class="text-gray-200">|</span>
-                                    <a href="/admin/classrooms/edit.php?id=<?= $class['id'] ?>" class="text-[#7c3aed] hover:text-[#6d28d9] transition-colors">Edit</a>
+                                    <a href="/admin/classrooms/edit.php?id=<?= $class['id'] ?>" class="text-primary hover:text-green-700 transition-colors">Edit</a>
                                     <span class="text-gray-200">|</span>
                                     <form method="POST" action="/admin/classrooms/delete.php?id=<?= $class['id'] ?>" class="inline" onsubmit="return confirm('Are you sure you want to delete this classroom?');">
                                         <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
@@ -161,7 +161,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                             <?php endif; ?>
                             
                             <?php for ($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++): ?>
-                                <a href="?page=<?= $i ?><?= !empty($_GET['search']) ? '&search=' . urlencode($_GET['search']) : '' ?>" class="relative inline-flex items-center px-4 py-2 border border-gray-200 bg-white text-sm font-medium rounded-lg <?= $i === $currentPage ? 'text-[#7c3aed] bg-[#f5f3ff] border-[#7c3aed]' : 'text-gray-700 hover:bg-gray-50 transition-colors' ?>">
+                                <a href="?page=<?= $i ?><?= !empty($_GET['search']) ? '&search=' . urlencode($_GET['search']) : '' ?>" class="relative inline-flex items-center px-4 py-2 border border-gray-200 bg-white text-sm font-medium rounded-lg <?= $i === $currentPage ? 'text-primary bg-green-50 border-primary' : 'text-gray-700 hover:bg-gray-50 transition-colors' ?>">
                                     <?= $i ?>
                                 </a>
                             <?php endfor; ?>
@@ -181,3 +181,4 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

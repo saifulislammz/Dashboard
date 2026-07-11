@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Admin Quiz Report View — Stats cards + participant table + voice review
+ * Admin Quiz Report View â€” Stats cards + participant table + voice review
  */
 $activeMenu = 'quiz_view';
 require __DIR__ . '/../../layouts/header.php';
@@ -40,14 +40,14 @@ function rPageUrl(int $p): string {
         </div>
         <div class="flex items-center gap-2">
             <a href="/admin/quiz/edit.php?id=<?php echo $quizId; ?>"
-               class="px-4 py-2 text-sm font-medium bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-100 transition-colors">Edit</a>
+               class="px-4 py-2 text-sm font-medium bg-yellow-50 text-yellow-700 rounded-xl hover:bg-yellow-100 transition-colors">Edit</a>
         </div>
     </div>
 
     <!-- Toast notifications -->
     <?php if (isset($created) && $created): ?>
-    <div class="flex items-center gap-3 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm font-medium">
-        ✓ Quiz created successfully!
+    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium">
+        âœ“ Quiz created successfully!
     </div>
     <?php endif; ?>
 
@@ -105,12 +105,12 @@ function rPageUrl(int $p): string {
 
         <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </div>
                 <span class="text-sm font-medium text-[#64748b]">Unreviewed Voice</span>
             </div>
-            <p class="text-3xl font-bold text-purple-600"><?php echo number_format((int)($stats['unreviewed_count'] ?? 0)); ?></p>
+            <p class="text-3xl font-bold text-red-600"><?php echo number_format((int)($stats['unreviewed_count'] ?? 0)); ?></p>
         </div>
     </div>
 
@@ -164,7 +164,7 @@ function rPageUrl(int $p): string {
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
                                 <?php
                                 $pct = $a['score_pct'] ?? 0;
-                                echo $pct >= 70 ? 'bg-emerald-100 text-emerald-700' : ($pct >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700');
+                                echo $pct >= 70 ? 'bg-green-100 text-green-700' : ($pct >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
                                 ?>">
                                 <?php echo $pct; ?>%
                             </span>
@@ -177,7 +177,7 @@ function rPageUrl(int $p): string {
                                        preload="none">
                                 </audio>
                             <?php else: ?>
-                                <span class="text-xs text-gray-400">—</span>
+                                <span class="text-xs text-gray-400">â€”</span>
                             <?php endif; ?>
                         </td>
                         <td class="px-4 py-3 min-w-[220px]">
@@ -192,7 +192,7 @@ function rPageUrl(int $p): string {
                                             class="px-3 py-1.5 bg-[#059669] text-white text-xs font-semibold rounded-lg hover:bg-[#047857] disabled:opacity-50 transition-colors">
                                         <span x-text="saving ? 'Saving...' : 'Save'"></span>
                                     </button>
-                                    <span x-show="saved" x-transition class="text-xs text-[#059669] font-medium">✓ Saved</span>
+                                    <span x-show="saved" x-transition class="text-xs text-[#059669] font-medium">âœ“ Saved</span>
                                     <!-- WhatsApp link -->
                                     <a :href="`https://wa.me/<?php echo htmlspecialchars(preg_replace('/[^0-9]/', '', $a['whatsapp_number']), ENT_QUOTES, 'UTF-8'); ?>?text=${encodeURIComponent(note)}`"
                                        target="_blank"
@@ -262,7 +262,7 @@ function copyPublicUrl() {
     navigator.clipboard.writeText(url).then(() => {
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-6 right-6 z-50 bg-[#059669] text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg';
-        toast.textContent = '✓ Link copied!';
+        toast.textContent = 'âœ“ Link copied!';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2500);
     });
@@ -270,3 +270,4 @@ function copyPublicUrl() {
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

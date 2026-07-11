@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Admin Dashboard';
 $activeMenu = 'dashboard';
 require __DIR__ . '/../layouts/header.php';
@@ -8,8 +8,8 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
 <main class="flex-1 overflow-y-auto p-8 lg:p-10 bg-[#fafafa]">
     <div class="max-w-[1600px] mx-auto space-y-8">
         <div class="flex flex-col gap-1">
-            <h1 class="text-[28px] font-bold text-slate-900 tracking-tight">Admin Dashboard</h1>
-            <p class="text-[15px] text-slate-600 font-medium">Here's an overview of your system.</p>
+            <h1 class="text-[28px] font-bold text-gray-900 tracking-tight">Admin Dashboard</h1>
+            <p class="text-[15px] text-gray-600 font-medium">Here's an overview of your system.</p>
         </div>
         
         <!-- Analytics Cards -->
@@ -41,7 +41,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             <!-- Stat Card 2: Teachers -->
             <a href="/admin/teachers.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-iconBgTeal flex items-center justify-center text-teal-600">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-600">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">school</span>
                     </div>
                     <div class="text-right">
@@ -64,7 +64,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             <!-- Stat Card 3: Notices -->
             <a href="/admin/notices/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-iconBgOrange flex items-center justify-center text-orange-500">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgYellow flex items-center justify-center text-yellow-500">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">notifications</span>
                     </div>
                     <div class="text-right">
@@ -74,7 +74,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                 </div>
                 <div class="flex items-end justify-between">
                     <p class="text-xs text-gray-500 flex items-center gap-1">
-                        <span class="text-orange-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>15%</span> from last month
+                        <span class="text-yellow-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>15%</span> from last month
                     </p>
                     <div class="w-16 h-8 flex items-end">
                         <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -87,7 +87,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             <!-- Stat Card 4: Classrooms -->
             <a href="/admin/classrooms/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-iconBgBlue flex items-center justify-center text-blue-500">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-500">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">business</span>
                     </div>
                     <div class="text-right">
@@ -97,7 +97,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                 </div>
                 <div class="flex items-end justify-between">
                     <p class="text-xs text-gray-500 flex items-center gap-1">
-                        <span class="text-blue-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>20%</span> from last month
+                        <span class="text-green-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>20%</span> from last month
                     </p>
                     <div class="w-16 h-8 flex items-end">
                         <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -110,7 +110,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             <!-- Stat Card 5: Quizzes -->
             <a href="/admin/quiz/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-iconBgPurple flex items-center justify-center text-purple-600">
+                    <div class="w-12 h-12 rounded-xl bg-iconBgRed flex items-center justify-center text-red-600">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">quiz</span>
                     </div>
                     <div class="text-right">
@@ -120,7 +120,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                 </div>
                 <div class="flex items-end justify-between">
                     <p class="text-xs text-gray-500 flex items-center gap-1">
-                        <span class="text-purple-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>10%</span> from last month
+                        <span class="text-red-500 font-bold flex items-center"><span class="material-symbols-outlined text-[14px] mr-0.5">arrow_upward</span>10%</span> from last month
                     </p>
                     <div class="w-16 h-8 flex items-end">
                         <svg width="100%" height="100%" viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -136,4 +136,5 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
 </main>
 
 <?php require __DIR__ . '/../layouts/footer.php'; ?>
+
 

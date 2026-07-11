@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Invoice Generator View — Create/Generate Invoice
+ * Invoice Generator View â€” Create/Generate Invoice
  * Accessible only by ROLE_ADMIN via public/admin/invoices/create.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -68,8 +68,8 @@ function inv_err(string $key): string
                 ============================================== -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Customer Information</h2>
                     </div>
@@ -83,7 +83,7 @@ function inv_err(string $key): string
                             <input type="text" id="student_name" name="student_name"
                                    value="<?= inv_old('student_name') ?>"
                                    placeholder="Enter full student name"
-                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['student_name']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all"
+                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['student_name']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                    required>
                             <?= inv_err('student_name') ?>
                         </div>
@@ -94,7 +94,7 @@ function inv_err(string $key): string
                             <input type="email" id="student_email" name="student_email"
                                    value="<?= inv_old('student_email') ?>"
                                    placeholder="student@example.com"
-                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['student_email']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['student_email']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                             <?= inv_err('student_email') ?>
                         </div>
 
@@ -104,7 +104,7 @@ function inv_err(string $key): string
                             <input type="text" id="student_phone" name="student_phone"
                                    value="<?= inv_old('student_phone') ?>"
                                    placeholder="+880 1XXX-XXXXXX"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
 
                         <!-- Country -->
@@ -113,7 +113,7 @@ function inv_err(string $key): string
                             <input type="text" id="student_country" name="student_country"
                                    value="<?= inv_old('student_country', 'Bangladesh') ?>"
                                    placeholder="e.g. Bangladesh"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
                     </div>
                 </div>
@@ -123,8 +123,8 @@ function inv_err(string $key): string
                 ============================================== -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Invoice Information</h2>
                     </div>
@@ -136,7 +136,7 @@ function inv_err(string $key): string
                             <input type="text" id="invoice_number" name="invoice_number"
                                    value="<?= inv_old('invoice_number', htmlspecialchars($invoiceNumber ?? '', ENT_QUOTES, 'UTF-8')) ?>"
                                    placeholder="Auto-generated"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all font-mono bg-gray-50">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-mono bg-gray-50">
                             <p class="mt-1 text-xs text-[#94a3b8]">Auto-generated. You may override it.</p>
                         </div>
 
@@ -147,7 +147,7 @@ function inv_err(string $key): string
                             </label>
                             <input type="date" id="invoice_date" name="invoice_date"
                                    value="<?= inv_old('invoice_date', $todayDate) ?>"
-                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['invoice_date']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all"
+                                   class="w-full px-4 py-2.5 text-sm border <?= isset($errors['invoice_date']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                    required>
                             <?= inv_err('invoice_date') ?>
                         </div>
@@ -157,14 +157,14 @@ function inv_err(string $key): string
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="due_date">Due Date</label>
                             <input type="date" id="due_date" name="due_date"
                                    value="<?= inv_old('due_date', $dueDateDefault) ?>"
-                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
 
                         <!-- Status -->
                         <div>
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="status">Status</label>
                             <select id="status" name="status"
-                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-white appearance-none cursor-pointer">
+                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white appearance-none cursor-pointer">
                                 <?php $oldStatus = inv_old('status', 'unpaid'); ?>
                                 <option value="unpaid" <?= $oldStatus === 'unpaid' ? 'selected' : '' ?>>Unpaid</option>
                                 <option value="paid"   <?= $oldStatus === 'paid'   ? 'selected' : '' ?>>Paid</option>
@@ -177,7 +177,7 @@ function inv_err(string $key): string
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="notes">Notes (Optional)</label>
                             <textarea id="notes" name="notes" rows="2"
                                       placeholder="Any additional notes for the student..."
-                                      class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all resize-none"><?= inv_old('notes') ?></textarea>
+                                      class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"><?= inv_old('notes') ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ function inv_err(string $key): string
                         <h2 class="text-base font-semibold text-[#0f172a]">Service / Course Items</h2>
                     </div>
                     <button type="button" id="add-item-btn"
-                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors shadow-sm">
+                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Add Item
                     </button>
@@ -240,8 +240,8 @@ function inv_err(string $key): string
                 <!-- Currency -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Currency</h2>
                     </div>
@@ -251,7 +251,7 @@ function inv_err(string $key): string
                             Select Currency <span class="text-red-500">*</span>
                         </label>
                         <select id="currency" name="currency"
-                                class="w-full px-4 py-2.5 text-sm border <?= isset($errors['currency']) ? 'border-red-400' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all bg-white appearance-none cursor-pointer"
+                                class="w-full px-4 py-2.5 text-sm border <?= isset($errors['currency']) ? 'border-red-400' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white appearance-none cursor-pointer"
                                 required>
                             <?php
                             $oldCurrency = strtoupper(inv_old('currency', 'BDT'));
@@ -259,7 +259,7 @@ function inv_err(string $key): string
                             ?>
                                 <option value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>"
                                         <?= $oldCurrency === $code ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($info['flag'] . ' ' . $code . ' — ' . $info['name'], ENT_QUOTES, 'UTF-8') ?>
+                                    <?= htmlspecialchars($info['flag'] . ' ' . $code . ' â€” ' . $info['name'], ENT_QUOTES, 'UTF-8') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -270,8 +270,8 @@ function inv_err(string $key): string
                 <!-- Summary -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                         </div>
                         <h2 class="text-base font-semibold text-[#0f172a]">Summary</h2>
                     </div>
@@ -288,7 +288,7 @@ function inv_err(string $key): string
                                 <input type="number" id="discount" name="discount"
                                        value="<?= inv_old('discount', '0') ?>"
                                        min="0" step="0.01" placeholder="0.00"
-                                       class="w-28 px-3 py-1.5 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                       class="w-28 px-3 py-1.5 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                             </div>
                         </div>
 
@@ -298,7 +298,7 @@ function inv_err(string $key): string
                                 <input type="number" id="vat_percent" name="vat_percent"
                                        value="<?= inv_old('vat_percent', '0') ?>"
                                        min="0" max="100" step="0.01" placeholder="0"
-                                       class="w-20 px-3 py-1.5 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                                       class="w-20 px-3 py-1.5 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                                 <span id="summary-vat-amount" class="w-24 text-right font-medium text-[#0f172a]">0.00</span>
                             </div>
                         </div>
@@ -306,7 +306,7 @@ function inv_err(string $key): string
                         <div class="pt-3 border-t border-gray-100">
                             <div class="flex justify-between items-center">
                                 <span class="text-base font-bold text-[#0f172a]">Grand Total</span>
-                                <span id="summary-grand-total" class="text-2xl font-bold text-[#7c3aed]">0.00</span>
+                                <span id="summary-grand-total" class="text-2xl font-bold text-primary">0.00</span>
                             </div>
                         </div>
                     </div>
@@ -328,7 +328,7 @@ function inv_err(string $key): string
                         Save as Draft
                     </button>
                     <button type="submit" name="action" value="generate"
-                            class="px-6 py-2.5 text-sm font-semibold text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors flex items-center gap-2 shadow-sm">
+                            class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Generate Invoice
                     </button>
@@ -347,19 +347,19 @@ function inv_err(string $key): string
         <td class="py-3 pr-2 text-xs font-medium text-[#94a3b8] align-top pt-4 row-num">__NUM__</td>
         <td class="py-3 pr-2 align-top">
             <input type="text" name="items[__IDX__][item_name]" placeholder="Course or service name"
-                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all" required>
+                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" required>
         </td>
         <td class="py-3 pr-2 align-top hidden md:table-cell">
             <input type="text" name="items[__IDX__][description]" placeholder="Optional description"
-                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
             <input type="number" name="items[__IDX__][quantity]" value="1" min="0.01" step="0.01"
-                   class="item-qty w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                   class="item-qty w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
             <input type="number" name="items[__IDX__][unit_price]" value="0.00" min="0" step="0.01"
-                   class="item-price w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                   class="item-price w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
             <input type="number" name="items[__IDX__][amount]" value="0.00" readonly
@@ -374,7 +374,7 @@ function inv_err(string $key): string
 </template>
 
 <!-- ================================================================
-     JAVASCRIPT — Live invoice calculator
+     JAVASCRIPT â€” Live invoice calculator
 ================================================================ -->
 <script>
 (function () {
@@ -393,7 +393,7 @@ function inv_err(string $key): string
     const grandTotalEl = document.getElementById('summary-grand-total');
     const form        = document.getElementById('invoice-form');
 
-    // ── Add row ──────────────────────────────────────────────
+    // â”€â”€ Add row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function addRow(name = '', desc = '', qty = 1, price = 0) {
         const html = tpl.innerHTML
             .replaceAll('__IDX__', itemIndex)
@@ -412,7 +412,7 @@ function inv_err(string $key): string
         recalcTotals();
     }
 
-    // ── Remove row ───────────────────────────────────────────
+    // â”€â”€ Remove row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     tbody.addEventListener('click', function (e) {
         const btn = e.target.closest('.remove-item-btn');
         if (!btn) return;
@@ -422,7 +422,7 @@ function inv_err(string $key): string
         recalcTotals();
     });
 
-    // ── Input change ─────────────────────────────────────────
+    // â”€â”€ Input change â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     tbody.addEventListener('input', function (e) {
         const row = e.target.closest('tr.item-row');
         if (row) recalcRow(row);
@@ -432,7 +432,7 @@ function inv_err(string $key): string
     discountEl.addEventListener('input', recalcTotals);
     vatEl.addEventListener('input', recalcTotals);
 
-    // ── Recalculate a single row amount ──────────────────────
+    // â”€â”€ Recalculate a single row amount â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function recalcRow(row) {
         const qty   = parseFloat(row.querySelector('.item-qty').value)   || 0;
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
@@ -440,7 +440,7 @@ function inv_err(string $key): string
         row.querySelector('.item-amount').value = amt.toFixed(2);
     }
 
-    // ── Recalculate totals ───────────────────────────────────
+    // â”€â”€ Recalculate totals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function recalcTotals() {
         let subtotal = 0;
         tbody.querySelectorAll('.item-amount').forEach(function (el) {
@@ -458,7 +458,7 @@ function inv_err(string $key): string
         grandTotalEl.textContent = grandTotal.toFixed(2);
     }
 
-    // ── Renumber rows after removal ──────────────────────────
+    // â”€â”€ Renumber rows after removal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function renumberRows() {
         tbody.querySelectorAll('tr.item-row').forEach(function (row, i) {
             row.querySelector('.row-num').textContent = i + 1;
@@ -470,14 +470,14 @@ function inv_err(string $key): string
         });
     }
 
-    // ── Toggle empty state ───────────────────────────────────
+    // â”€â”€ Toggle empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function toggleEmpty() {
         const hasRows = tbody.querySelectorAll('tr.item-row').length > 0;
         emptyState.style.display = hasRows ? 'none' : 'block';
         document.querySelector('#items-table thead').style.display = hasRows ? '' : 'none';
     }
 
-    // ── Handle Draft vs Generate button ─────────────────────
+    // â”€â”€ Handle Draft vs Generate button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     form.addEventListener('submit', function (e) {
         const action = document.activeElement?.value;
         if (action === 'draft') {
@@ -485,7 +485,7 @@ function inv_err(string $key): string
         }
     });
 
-    // ── Init ─────────────────────────────────────────────────
+    // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     addBtn.addEventListener('click', function () { addRow(); });
 
     // Re-fill form if POST validation failed
@@ -510,3 +510,5 @@ function inv_err(string $key): string
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+
+

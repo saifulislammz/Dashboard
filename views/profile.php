@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Profile';
 $activeMenu = 'profile';
 
@@ -20,7 +20,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                 <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
                 <p class="mt-1 text-sm text-gray-500">View and manage your personal information.</p>
             </div>
-            <a href="change_password.php" class="inline-flex items-center px-4 py-2 border border-[#ddd6fe] shadow-sm text-sm font-medium rounded-lg text-[#6d28d9] bg-[#f5f3ff] hover:bg-[#ede9fe] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors">
+            <a href="change_password.php" class="inline-flex items-center px-4 py-2 border border-green-200 shadow-sm text-sm font-medium rounded-lg text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                 <svg class="mr-2 -ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
@@ -44,11 +44,11 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
         <div class="bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
             <div class="px-6 py-8 sm:px-8 flex items-center space-x-6 border-b border-gray-50">
                 <div class="flex-shrink-0 relative group">
-                    <div class="h-24 w-24 rounded-full bg-[#f5f3ff] flex items-center justify-center overflow-hidden border-4 border-white shadow-sm">
+                    <div class="h-24 w-24 rounded-full bg-green-50 flex items-center justify-center overflow-hidden border-4 border-white shadow-sm">
                         <?php if (!empty($profilePicture)): ?>
                             <img src="/uploads/avatars/<?php echo htmlspecialchars($profilePicture); ?>" alt="Profile Picture" class="h-full w-full object-cover">
                         <?php else: ?>
-                            <svg class="h-10 w-10 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         <?php endif; ?>
@@ -63,7 +63,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
                             <input type="hidden" name="action" value="upload_picture">
                             <input type="file" id="profile_picture" name="profile_picture" accept="image/png" class="hidden" onchange="validateAndSubmitProfilePic(this)">
-                            <button type="button" onclick="document.getElementById('profile_picture').click()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed]">
+                            <button type="button" onclick="document.getElementById('profile_picture').click()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                                 <?php echo !empty($profilePicture) ? 'Change Picture' : 'Upload Picture'; ?>
                             </button>
                         </form>
@@ -105,8 +105,8 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <div class="py-5 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                         <dt class="text-sm font-semibold text-gray-800 flex items-center">
                             <div class="flex-shrink-0 mr-4">
-                                <div class="h-10 w-10 rounded-xl bg-[#f5f3ff] flex items-center justify-center">
-                                    <svg class="h-5 w-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                 </div>
@@ -119,8 +119,8 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <div class="py-5 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                         <dt class="text-sm font-semibold text-gray-800 flex items-center">
                             <div class="flex-shrink-0 mr-4">
-                                <div class="h-10 w-10 rounded-xl bg-[#f5f3ff] flex items-center justify-center">
-                                    <svg class="h-5 w-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                 </div>
@@ -133,8 +133,8 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <div class="py-5 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                         <dt class="text-sm font-semibold text-gray-800 flex items-center">
                             <div class="flex-shrink-0 mr-4">
-                                <div class="h-10 w-10 rounded-xl bg-[#f5f3ff] flex items-center justify-center">
-                                    <svg class="h-5 w-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 </div>
@@ -147,8 +147,8 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <div class="py-5 sm:grid sm:grid-cols-3 sm:gap-4 items-center">
                         <dt class="text-sm font-semibold text-gray-800 flex items-center">
                             <div class="flex-shrink-0 mr-4">
-                                <div class="h-10 w-10 rounded-xl bg-[#f5f3ff] flex items-center justify-center">
-                                    <svg class="h-5 w-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
                                 </div>
@@ -173,3 +173,4 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
 </main>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

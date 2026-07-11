@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Change Password';
 
 // Determine correct sidebar based on role
@@ -42,7 +42,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
-                        <input type="password" name="current_password" required placeholder="Enter your current password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-[#7c3aed] focus:border-[#7c3aed] sm:text-sm rounded-lg py-2.5">
+                        <input type="password" name="current_password" required placeholder="Enter your current password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-primary focus:border-primary sm:text-sm rounded-lg py-2.5">
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
                             <svg class="h-5 w-5 text-gray-400 hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -60,7 +60,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
-                        <input type="password" name="new_password" required placeholder="Enter your new password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-[#7c3aed] focus:border-[#7c3aed] sm:text-sm rounded-lg py-2.5">
+                        <input type="password" name="new_password" required placeholder="Enter your new password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-primary focus:border-primary sm:text-sm rounded-lg py-2.5">
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
                             <svg class="h-5 w-5 text-gray-400 hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -68,7 +68,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                             </svg>
                         </div>
                     </div>
-                    <p class="mt-2 text-sm text-[#7c3aed] flex items-start">
+                    <p class="mt-2 text-sm text-primary flex items-start">
                         <svg class="h-4 w-4 mr-1.5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
@@ -84,7 +84,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </div>
-                        <input type="password" name="confirm_password" required placeholder="Confirm your new password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-[#7c3aed] focus:border-[#7c3aed] sm:text-sm rounded-lg py-2.5">
+                        <input type="password" name="confirm_password" required placeholder="Confirm your new password" class="block w-full pl-10 pr-10 border-gray-300 border focus:ring-primary focus:border-primary sm:text-sm rounded-lg py-2.5">
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
                             <svg class="h-5 w-5 text-gray-400 hover:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -108,3 +108,4 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
 </main>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

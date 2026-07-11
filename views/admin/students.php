@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Manage Students';
 $activeMenu = 'students';
 require __DIR__ . '/../layouts/header.php';
@@ -14,7 +14,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                 <p class="text-sm text-gray-500 mt-1">Manage and view all students in your institution.</p>
             </div>
             <!-- Create Student Button -->
-            <button onclick="document.getElementById('createForm').classList.toggle('hidden')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-[#7c3aed] hover:bg-[#6d28d9] transition-colors gap-2">
+            <button onclick="document.getElementById('createForm').classList.toggle('hidden')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-green-700 transition-colors gap-2">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -36,7 +36,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
         <!-- Create Form -->
         <div id="createForm" class="hidden bg-white shadow-sm border border-gray-100 rounded-xl p-6">
             <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 rounded-full bg-[#f3e8ff] flex items-center justify-center text-[#7c3aed]">
+                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-primary">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
@@ -59,7 +59,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <input type="text" name="name" required placeholder="Enter full name" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors">
+                            <input type="text" name="name" required placeholder="Enter full name" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors">
                         </div>
                     </div>
                     <div>
@@ -70,7 +70,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <input type="email" name="email" required placeholder="Enter email address" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors">
+                            <input type="email" name="email" required placeholder="Enter email address" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors">
                         </div>
                     </div>
                     <div>
@@ -81,7 +81,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input type="password" name="password" required placeholder="Enter password" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors">
+                            <input type="password" name="password" required placeholder="Enter password" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors">
                         </div>
                     </div>
                     <div>
@@ -92,7 +92,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input type="password" name="confirm_password" required placeholder="Confirm password" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors">
+                            <input type="password" name="confirm_password" required placeholder="Confirm password" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors">
                         </div>
                     </div>
                     <div>
@@ -103,7 +103,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <select name="status" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent sm:text-sm transition-colors appearance-none bg-white">
+                            <select name="status" class="pl-10 block w-full border border-gray-200 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm transition-colors appearance-none bg-white">
                                 <option value="0">Active</option>
                                 <option value="2">Inactive</option>
                             </select>
@@ -114,7 +114,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                     </div>
                 </div>
                 <div class="flex justify-end pt-4 border-t border-gray-50">
-                    <button type="submit" class="inline-flex items-center gap-2 justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none transition-colors">
+                    <button type="submit" class="inline-flex items-center gap-2 justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-green-700 focus:outline-none transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                         Save Student
                     </button>
@@ -133,7 +133,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                     </div>
                     <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search by name or email..." class="pl-10 block w-full border-none bg-transparent rounded-lg py-2.5 px-3 focus:ring-0 sm:text-sm text-gray-900 placeholder-gray-400">
                 </div>
-                <button type="submit" class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-[#7c3aed] bg-[#f3e8ff] hover:bg-[#e9d5ff] transition-colors">Search</button>
+                <button type="submit" class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-primary bg-green-50 hover:bg-green-200 transition-colors">Search</button>
             </form>
         </div>
 
@@ -154,7 +154,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-[#f3e8ff] flex items-center justify-center text-[#7c3aed] font-bold text-sm uppercase">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-primary font-bold text-sm uppercase">
                                         <?php echo substr($student['name'], 0, 1); ?>
                                     </div>
                                     <div class="ml-4">
@@ -180,7 +180,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
                                     <input type="hidden" name="status" value="<?php echo $student['status'] == 0 ? 2 : 0; ?>">
-                                    <button type="submit" class="text-[#7c3aed] hover:text-[#6d28d9] transition-colors">
+                                    <button type="submit" class="text-primary hover:text-green-700 transition-colors">
                                         <?php echo $student['status'] == 0 ? 'Deactivate' : 'Activate'; ?>
                                     </button>
                                 </form>
@@ -227,3 +227,4 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
 </main>
 
 <?php require __DIR__ . '/../layouts/footer.php'; ?>
+

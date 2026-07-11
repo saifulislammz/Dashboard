@@ -1,21 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice <?= htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8') ?> — <?= htmlspecialchars($settings['institution_name'] ?? 'Invoice', ENT_QUOTES, 'UTF-8') ?></title>
+    <title>Invoice <?= htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8') ?> â€” <?= htmlspecialchars($settings['institution_name'] ?? 'Invoice', ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
 
     <style>
-        /* ─── Reset & Base ─────────────────────────────────── */
+        /* â”€â”€â”€ Reset & Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --brand:        #7c3aed;
+            --brand:        var(--color-primary-green);
             --brand-dark:   #5b21b6;
-            --brand-light:  #f5f3ff;
+            --brand-light:  var(--color-primary-green);
             --text-primary: #0f172a;
             --text-secondary:#475569;
             --text-muted:   #94a3b8;
@@ -33,7 +33,7 @@
             print-color-adjust: exact;
         }
 
-        /* ─── Screen-only controls ──────────────────────────── */
+        /* â”€â”€â”€ Screen-only controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .screen-only {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -73,7 +73,7 @@
         .btn-secondary { background: #f1f5f9; color: var(--text-secondary); }
         .btn-secondary:hover { background: #e2e8f0; }
 
-        /* ─── Invoice container ─────────────────────────────── */
+        /* â”€â”€â”€ Invoice container â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .invoice-wrapper {
             max-width: 820px;
             margin: 0 auto;
@@ -87,9 +87,9 @@
             box-shadow: 0 4px 40px rgba(0,0,0,0.08);
         }
 
-        /* ─── Invoice Header ────────────────────────────────── */
+        /* â”€â”€â”€ Invoice Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .inv-header {
-            background: linear-gradient(135deg, var(--brand) 0%, #4f46e5 100%);
+            background: linear-gradient(135deg, var(--brand) 0%, var(--color-primary-green) 100%);
             color: #fff;
             padding: 36px 40px;
             display: flex;
@@ -165,13 +165,13 @@
         .status-unpaid  { background: rgba(251,191,36,0.2);  color: #fde68a; }
         .status-draft   { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
 
-        /* ─── Invoice Body ──────────────────────────────────── */
+        /* â”€â”€â”€ Invoice Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .inv-body {
             padding: 36px 40px;
             space-y: 28px;
         }
 
-        /* ─── Info Row: Bill To + Invoice Details ───────────── */
+        /* â”€â”€â”€ Info Row: Bill To + Invoice Details â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .inv-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -218,7 +218,7 @@
         .inv-detail-label { color: var(--text-muted); font-weight: 500; }
         .inv-detail-value { font-weight: 600; color: var(--text-primary); text-align: right; }
 
-        /* ─── Items Table ───────────────────────────────────── */
+        /* â”€â”€â”€ Items Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -270,7 +270,7 @@
         .item-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
         .item-amount { font-weight: 700; color: var(--text-primary); font-family: 'Courier New', monospace; }
 
-        /* ─── Summary Box ───────────────────────────────────── */
+        /* â”€â”€â”€ Summary Box â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .summary-area {
             display: flex;
             justify-content: flex-end;
@@ -319,7 +319,7 @@
             font-family: 'Courier New', monospace;
         }
 
-        /* ─── Notes ─────────────────────────────────────────── */
+        /* â”€â”€â”€ Notes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .inv-notes {
             background: #fafbff;
             border: 1px solid #e9edf5;
@@ -343,7 +343,7 @@
             line-height: 1.7;
         }
 
-        /* ─── Footer ─────────────────────────────────────────── */
+        /* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .inv-footer {
             border-top: 1px solid var(--border);
             padding: 20px 40px;
@@ -369,7 +369,7 @@
 
         .inv-footer-brand strong { color: var(--brand); }
 
-        /* ─── Print Styles ──────────────────────────────────── */
+        /* â”€â”€â”€ Print Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         @media print {
             body { background: white; font-size: 12px; }
             .screen-only { display: none !important; }
@@ -384,7 +384,7 @@
             @page { margin: 12mm 14mm; size: A4; }
         }
 
-        /* ─── Responsive (screen only) ──────────────────────── */
+        /* â”€â”€â”€ Responsive (screen only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         @media (max-width: 640px) {
             .inv-info { grid-template-columns: 1fr; }
             .inv-header { flex-direction: column; }
@@ -420,9 +420,9 @@ $currInfo   = $currencies[$invoice['currency']] ?? ['name' => $curr, 'symbol' =>
 $statusClass = match ($status) { 'paid' => 'status-paid', 'unpaid' => 'status-unpaid', default => 'status-draft' };
 ?>
 
-<!-- ════════════════════════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      SCREEN-ONLY CONTROL BAR
-════════════════════════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div class="screen-only">
     <span class="title">Invoice <?= $invNo ?></span>
     <div class="btn-group">
@@ -437,13 +437,13 @@ $statusClass = match ($status) { 'paid' => 'status-paid', 'unpaid' => 'status-un
     </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      INVOICE DOCUMENT
-════════════════════════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div class="invoice-wrapper">
 <div class="invoice">
 
-    <!-- ── Header ───────────────────────────────────────────── -->
+    <!-- â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="inv-header">
         <div>
             <div class="inst-logo">
@@ -467,7 +467,7 @@ $statusClass = match ($status) { 'paid' => 'status-paid', 'unpaid' => 'status-un
         </div>
     </div>
 
-    <!-- ── Body ─────────────────────────────────────────────── -->
+    <!-- â”€â”€ Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="inv-body">
 
         <!-- Bill To + Invoice Details -->
@@ -574,7 +574,7 @@ $statusClass = match ($status) { 'paid' => 'status-paid', 'unpaid' => 'status-un
 
     </div><!-- /inv-body -->
 
-    <!-- ── Footer ───────────────────────────────────────────── -->
+    <!-- â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="inv-footer">
         <div class="inv-footer-note"><?= $footerNote ?></div>
         <div class="inv-footer-brand">
@@ -596,3 +596,4 @@ window.addEventListener('load', function () {
 </script>
 </body>
 </html>
+

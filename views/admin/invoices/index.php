@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Invoice Dashboard View — Lists all invoices with stats & filters.
+ * Invoice Dashboard View â€” Lists all invoices with stats & filters.
  * Accessible only by ROLE_ADMIN via public/admin/invoices/index.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -24,10 +24,10 @@ $created = isset($_GET['created']) && $_GET['created'] === '1';
 function statusBadge(string $s): string
 {
     return match ($s) {
-        'paid'   => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Paid</span>',
-        'unpaid' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Unpaid</span>',
+        'paid'   => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Paid</span>',
+        'unpaid' => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">Unpaid</span>',
         'draft'  => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Draft</span>',
-        default  => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">' . htmlspecialchars($s, ENT_QUOTES, 'UTF-8') . '</span>',
+        default  => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">' . htmlspecialchars($s, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }
 
@@ -50,7 +50,7 @@ function pageUrl(int $p): string
                 <p class="text-sm text-[#64748b] mt-1">View, manage and track all generated invoices.</p>
             </div>
             <a href="/admin/invoices/create.php"
-               class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors shadow-sm self-start sm:self-auto">
+               class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm self-start sm:self-auto">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Generate Invoice
             </a>
@@ -70,8 +70,8 @@ function pageUrl(int $p): string
 
             <!-- Total Invoices -->
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
-                <div class="w-14 h-14 rounded-2xl bg-[#f5f3ff] flex items-center justify-center shrink-0">
-                    <svg class="w-6 h-6 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <div class="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
                 <div>
                     <p class="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-1">Total Invoices</p>
@@ -82,8 +82,8 @@ function pageUrl(int $p): string
             <!-- Total Amount by Currency -->
             <?php if (empty($currencyTotals)): ?>
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5 sm:col-span-2">
-                <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
-                    <svg class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="w-14 h-14 rounded-2xl bg-yellow-50 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <div>
                     <p class="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-1">Total Amount</p>
@@ -98,12 +98,12 @@ function pageUrl(int $p): string
                         $code   = htmlspecialchars($ct['currency'], ENT_QUOTES, 'UTF-8');
                         $amount = number_format((float) $ct['total'], 2);
                         $info   = $currencies[$ct['currency']] ?? null;
-                        $flag   = $info ? $info['flag'] : '💰';
+                        $flag   = $info ? $info['flag'] : 'ðŸ’°';
                     ?>
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-[#475569] flex items-center gap-1.5">
                             <span><?= $flag ?></span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-mono font-bold"><?= $code ?></span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-xs font-mono font-bold"><?= $code ?></span>
                         </span>
                         <span class="text-sm font-bold text-[#0f172a]"><?= $amount ?></span>
                     </div>
@@ -112,7 +112,7 @@ function pageUrl(int $p): string
             </div>
 
             <?php if (count($currencyTotals) > 1): ?>
-            <div class="bg-gradient-to-br from-[#7c3aed] to-[#4f46e5] rounded-2xl shadow-sm p-6 flex items-center gap-5">
+            <div class="bg-gradient-to-br from-primary to-primary rounded-2xl shadow-sm p-6 flex items-center gap-5">
                 <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
                     <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
                 </div>
@@ -139,8 +139,8 @@ function pageUrl(int $p): string
                     <div class="relative">
                         <input type="text" name="search" id="filter-search"
                                value="<?= htmlspecialchars($activeFilters['search'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                               placeholder="Invoice # or student name…"
-                               class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                               placeholder="Invoice # or student nameâ€¦"
+                               class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                 </div>
@@ -149,7 +149,7 @@ function pageUrl(int $p): string
                 <div class="min-w-[130px]">
                     <label class="block text-xs font-semibold text-[#94a3b8] mb-1.5 uppercase tracking-wider">Status</label>
                     <select name="status" id="filter-status"
-                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent bg-white appearance-none cursor-pointer">
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white appearance-none cursor-pointer">
                         <option value="">All Status</option>
                         <?php foreach (['unpaid' => 'Unpaid', 'paid' => 'Paid', 'draft' => 'Draft'] as $val => $lbl): ?>
                             <option value="<?= $val ?>" <?= ($activeFilters['status'] ?? '') === $val ? 'selected' : '' ?>><?= $lbl ?></option>
@@ -161,7 +161,7 @@ function pageUrl(int $p): string
                 <div class="min-w-[130px]">
                     <label class="block text-xs font-semibold text-[#94a3b8] mb-1.5 uppercase tracking-wider">Currency</label>
                     <select name="currency" id="filter-currency"
-                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent bg-white appearance-none cursor-pointer">
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white appearance-none cursor-pointer">
                         <option value="">All Currencies</option>
                         <?php foreach ($currencies as $code => $info): ?>
                             <option value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>"
@@ -177,7 +177,7 @@ function pageUrl(int $p): string
                     <label class="block text-xs font-semibold text-[#94a3b8] mb-1.5 uppercase tracking-wider">From Date</label>
                     <input type="date" name="date_from" id="filter-date-from"
                            value="<?= htmlspecialchars($activeFilters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                           class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                           class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                 </div>
 
                 <!-- Date To -->
@@ -185,13 +185,13 @@ function pageUrl(int $p): string
                     <label class="block text-xs font-semibold text-[#94a3b8] mb-1.5 uppercase tracking-wider">To Date</label>
                     <input type="date" name="date_to" id="filter-date-to"
                            value="<?= htmlspecialchars($activeFilters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                           class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-transparent transition-all">
+                           class="px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                 </div>
 
                 <!-- Buttons -->
                 <div class="flex gap-2">
                     <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors flex items-center gap-1.5 shadow-sm">
+                            class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-xl hover:bg-green-700 transition-colors flex items-center gap-1.5 shadow-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                         Filter
                     </button>
@@ -218,7 +218,7 @@ function pageUrl(int $p): string
                 </p>
                 <?php if (empty(array_filter($activeFilters))): ?>
                 <a href="/admin/invoices/create.php"
-                   class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors">
+                   class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Generate First Invoice
                 </a>
@@ -248,15 +248,15 @@ function pageUrl(int $p): string
                             $curr    = htmlspecialchars($inv['currency'],         ENT_QUOTES, 'UTF-8');
                             $amount  = number_format((float) $inv['grand_total'], 2);
                             $iDate   = htmlspecialchars($inv['invoice_date'] ?? '', ENT_QUOTES, 'UTF-8');
-                            $dDate   = htmlspecialchars($inv['due_date'] ?? '—',   ENT_QUOTES, 'UTF-8');
+                            $dDate   = htmlspecialchars($inv['due_date'] ?? 'â€”',   ENT_QUOTES, 'UTF-8');
                             $status  = $inv['status'] ?? 'unpaid';
-                            $flag    = $currencies[$inv['currency']]['flag'] ?? '💰';
+                            $flag    = $currencies[$inv['currency']]['flag'] ?? 'ðŸ’°';
                         ?>
                         <tr class="hover:bg-gray-50/80 transition-colors group">
                             <!-- Invoice Number -->
                             <td class="px-4 py-3.5">
                                 <a href="/admin/invoices/view.php?id=<?= $id ?>"
-                                   class="font-mono text-[#7c3aed] hover:text-[#6d28d9] font-semibold text-xs hover:underline">
+                                   class="font-mono text-primary hover:text-green-700 font-semibold text-xs hover:underline">
                                     <?= $invNo ?>
                                 </a>
                             </td>
@@ -267,7 +267,7 @@ function pageUrl(int $p): string
                             </td>
                             <!-- Currency Badge -->
                             <td class="px-4 py-3.5 text-center">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold font-mono">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-bold font-mono">
                                     <?= $flag ?> <?= $curr ?>
                                 </span>
                             </td>
@@ -285,13 +285,13 @@ function pageUrl(int $p): string
                                     <!-- View -->
                                     <a href="/admin/invoices/view.php?id=<?= $id ?>"
                                        title="View Invoice"
-                                       class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-[#7c3aed] hover:bg-purple-50 transition-colors">
+                                       class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-primary hover:bg-red-50 transition-colors">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
                                     <!-- Print/Download -->
                                     <a href="/admin/invoices/print.php?id=<?= $id ?>" target="_blank"
                                        title="Print / Download PDF"
-                                       class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                                       class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-green-600 hover:bg-green-50 transition-colors">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                     </a>
                                     <!-- Delete -->
@@ -315,7 +315,7 @@ function pageUrl(int $p): string
             <!-- Table Footer: count + pagination -->
             <div class="px-4 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-xs text-[#94a3b8]">
-                    Showing <?= (($currentPage - 1) * $perPage) + 1 ?> – <?= min($total, $currentPage * $perPage) ?> of <?= $total ?> invoices
+                    Showing <?= (($currentPage - 1) * $perPage) + 1 ?> â€“ <?= min($total, $currentPage * $perPage) ?> of <?= $total ?> invoices
                 </p>
 
                 <?php if ($pages > 1): ?>
@@ -331,18 +331,18 @@ function pageUrl(int $p): string
                     $end   = min($pages, $currentPage + 2);
                     if ($start > 1): ?>
                         <a href="<?= pageUrl(1) ?>" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#64748b] hover:bg-gray-50 text-sm">1</a>
-                        <?php if ($start > 2): ?><span class="text-[#94a3b8] px-1">…</span><?php endif; ?>
+                        <?php if ($start > 2): ?><span class="text-[#94a3b8] px-1">â€¦</span><?php endif; ?>
                     <?php endif; ?>
 
                     <?php for ($p = $start; $p <= $end; $p++): ?>
                     <a href="<?= pageUrl($p) ?>"
-                       class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors <?= $p === $currentPage ? 'bg-[#7c3aed] text-white shadow-sm' : 'border border-gray-200 text-[#64748b] hover:bg-gray-50' ?>">
+                       class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors <?= $p === $currentPage ? 'bg-primary text-white shadow-sm' : 'border border-gray-200 text-[#64748b] hover:bg-gray-50' ?>">
                         <?= $p ?>
                     </a>
                     <?php endfor; ?>
 
                     <?php if ($end < $pages): ?>
-                        <?php if ($end < $pages - 1): ?><span class="text-[#94a3b8] px-1">…</span><?php endif; ?>
+                        <?php if ($end < $pages - 1): ?><span class="text-[#94a3b8] px-1">â€¦</span><?php endif; ?>
                         <a href="<?= pageUrl($pages) ?>" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#64748b] hover:bg-gray-50 text-sm"><?= $pages ?></a>
                     <?php endif; ?>
 
@@ -362,3 +362,5 @@ function pageUrl(int $p): string
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+
+

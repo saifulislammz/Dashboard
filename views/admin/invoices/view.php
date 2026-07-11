@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Invoice View — Single invoice detail page (with sidebar).
+ * Invoice View â€” Single invoice detail page (with sidebar).
  * Accessible only by ROLE_ADMIN via public/admin/invoices/view.php
  */
 require __DIR__ . '/../../layouts/header.php';
@@ -17,14 +17,14 @@ $iDate    = htmlspecialchars($invoice['invoice_date'] ?? '', ENT_QUOTES, 'UTF-8'
 $dDate    = htmlspecialchars($invoice['due_date'] ?? '',     ENT_QUOTES, 'UTF-8');
 $notes    = htmlspecialchars($invoice['notes'] ?? '',        ENT_QUOTES, 'UTF-8');
 
-$currInfo = $currencies[$invoice['currency']] ?? ['name' => $curr, 'symbol' => $curr, 'flag' => '💰'];
+$currInfo = $currencies[$invoice['currency']] ?? ['name' => $curr, 'symbol' => $curr, 'flag' => 'ðŸ’°'];
 $instName = htmlspecialchars($settings['institution_name'] ?? 'Rahe Nazat Institute', ENT_QUOTES, 'UTF-8');
 
 $statusClasses = match ($status) {
-    'paid'   => 'bg-emerald-100 text-emerald-700',
-    'unpaid' => 'bg-amber-100 text-amber-700',
+    'paid'   => 'bg-green-100 text-green-700',
+    'unpaid' => 'bg-yellow-100 text-yellow-700',
     'draft'  => 'bg-gray-100 text-gray-600',
-    default  => 'bg-slate-100 text-slate-600',
+    default  => 'bg-gray-100 text-gray-600',
 };
 ?>
 
@@ -47,7 +47,7 @@ $statusClasses = match ($status) {
             </div>
             <div class="flex items-center gap-3 ml-8 sm:ml-0">
                 <a href="/admin/invoices/print.php?id=<?= (int) $invoice['id'] ?>" target="_blank"
-                   class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#7c3aed] rounded-xl hover:bg-[#6d28d9] transition-colors shadow-sm">
+                   class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     Print / Download
                 </a>
@@ -75,7 +75,7 @@ $statusClasses = match ($status) {
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
             <!-- Invoice Header Band -->
-            <div class="bg-gradient-to-r from-[#7c3aed] to-[#4f46e5] px-8 py-6 text-white">
+            <div class="bg-gradient-to-r from-primary to-primary px-8 py-6 text-white">
                 <div class="flex flex-col sm:flex-row justify-between gap-4">
                     <div>
                         <h2 class="text-xl font-bold tracking-wide"><?= $instName ?></h2>
@@ -89,7 +89,7 @@ $statusClasses = match ($status) {
                     <div class="text-right">
                         <p class="text-xs text-white/60 uppercase tracking-widest font-semibold">Invoice</p>
                         <p class="text-2xl font-bold font-mono mt-1"><?= $invNo ?></p>
-                        <span class="inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold <?= match ($status) { 'paid' => 'bg-emerald-400/20 text-emerald-200', 'unpaid' => 'bg-amber-400/20 text-amber-200', default => 'bg-white/20 text-white/80' } ?>">
+                        <span class="inline-flex items-center mt-2 px-3 py-1 rounded-full text-xs font-bold <?= match ($status) { 'paid' => 'bg-green-400/20 text-green-200', 'unpaid' => 'bg-yellow-400/20 text-yellow-200', default => 'bg-white/20 text-white/80' } ?>">
                             <?= strtoupper($status) ?>
                         </span>
                     </div>
@@ -177,9 +177,9 @@ $statusClasses = match ($status) {
                             <span class="font-mono font-medium text-[#0f172a]"><?= number_format((float)$invoice['vat_amount'], 2) ?></span>
                         </div>
                         <?php endif; ?>
-                        <div class="pt-3 border-t-2 border-[#7c3aed] flex justify-between items-center">
+                        <div class="pt-3 border-t-2 border-primary flex justify-between items-center">
                             <span class="font-bold text-[#0f172a]">Grand Total</span>
-                            <span class="text-xl font-bold text-[#7c3aed] font-mono">
+                            <span class="text-xl font-bold text-primary font-mono">
                                 <?= $curr ?> <?= number_format((float)$invoice['grand_total'], 2) ?>
                             </span>
                         </div>
@@ -200,3 +200,5 @@ $statusClasses = match ($status) {
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+
+

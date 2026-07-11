@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Create Notice';
 $activeMenu = 'notices_create';
 require __DIR__ . '/../../layouts/header.php';
@@ -40,12 +40,12 @@ $audienceTeacher = isset($oldValues['audience_teacher']) ? $oldValues['audience_
                 
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-gray-700">Notice Title</label>
-                    <input type="text" name="title" required value="<?php echo e($title); ?>" placeholder="Enter notice title" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] sm:text-sm transition-colors">
+                    <input type="text" name="title" required value="<?php echo e($title); ?>" placeholder="Enter notice title" class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-colors">
                 </div>
 
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-gray-700">Notice Description</label>
-                    <textarea name="content" required rows="6" placeholder="Write your notice description here..." class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:border-[#7c3aed] sm:text-sm transition-colors"><?php echo e($content); ?></textarea>
+                    <textarea name="content" required rows="6" placeholder="Write your notice description here..." class="block w-full border border-gray-300 rounded-lg shadow-sm py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-colors"><?php echo e($content); ?></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -54,11 +54,11 @@ $audienceTeacher = isset($oldValues['audience_teacher']) ? $oldValues['audience_
                         <label class="block text-sm font-medium text-gray-700">Target Audience</label>
                         <div class="space-y-3">
                             <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" name="audience_student" value="1" <?php echo $audienceStudent ? 'checked' : ''; ?> class="h-5 w-5 rounded border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed] transition-colors cursor-pointer">
+                                <input type="checkbox" name="audience_student" value="1" <?php echo $audienceStudent ? 'checked' : ''; ?> class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer">
                                 <span class="ml-3 text-sm text-gray-700">Students</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
-                                <input type="checkbox" name="audience_teacher" value="1" <?php echo $audienceTeacher ? 'checked' : ''; ?> class="h-5 w-5 rounded border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed] transition-colors cursor-pointer">
+                                <input type="checkbox" name="audience_teacher" value="1" <?php echo $audienceTeacher ? 'checked' : ''; ?> class="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer">
                                 <span class="ml-3 text-sm text-gray-700">Teachers</span>
                             </label>
                         </div>
@@ -69,11 +69,11 @@ $audienceTeacher = isset($oldValues['audience_teacher']) ? $oldValues['audience_
                         <label class="block text-sm font-medium text-gray-700">Status</label>
                         <div class="space-y-3">
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="status" value="active" <?php echo $status === 'active' ? 'checked' : ''; ?> class="h-5 w-5 border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed] transition-colors cursor-pointer">
+                                <input type="radio" name="status" value="active" <?php echo $status === 'active' ? 'checked' : ''; ?> class="h-5 w-5 border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer">
                                 <span class="ml-3 text-sm text-gray-700">Active</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="status" value="inactive" <?php echo $status === 'inactive' ? 'checked' : ''; ?> class="h-5 w-5 border-gray-300 text-[#7c3aed] focus:ring-[#7c3aed] transition-colors cursor-pointer">
+                                <input type="radio" name="status" value="inactive" <?php echo $status === 'inactive' ? 'checked' : ''; ?> class="h-5 w-5 border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer">
                                 <span class="ml-3 text-sm text-gray-700">Inactive</span>
                             </label>
                         </div>
@@ -82,7 +82,7 @@ $audienceTeacher = isset($oldValues['audience_teacher']) ? $oldValues['audience_
 
                 <div class="flex flex-col sm:flex-row justify-end pt-6 border-t border-gray-100 gap-3">
                     <a href="index.php" class="inline-flex justify-center items-center py-2.5 px-5 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors order-2 sm:order-1">Cancel</a>
-                    <button type="submit" class="inline-flex justify-center items-center py-2.5 px-5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-[#7c3aed] hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7c3aed] transition-colors order-1 sm:order-2">Save Notice</button>
+                    <button type="submit" class="inline-flex justify-center items-center py-2.5 px-5 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors order-1 sm:order-2">Save Notice</button>
                 </div>
             </form>
         </div>
@@ -90,3 +90,4 @@ $audienceTeacher = isset($oldValues['audience_teacher']) ? $oldValues['audience_
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+

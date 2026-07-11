@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Admin Quiz List View
  * Shows all quizzes with status, attempt counts, and actions.
@@ -76,7 +76,7 @@ function quizPageUrl(int $p): string
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
                     <p class="font-medium">No quizzes found.</p>
-                    <a href="/admin/quiz/create.php" class="mt-3 inline-block text-[#059669] font-semibold hover:underline text-sm">Create new quiz →</a>
+                    <a href="/admin/quiz/create.php" class="mt-3 inline-block text-[#059669] font-semibold hover:underline text-sm">Create new quiz â†’</a>
                 </div>
             <?php else: ?>
             <div class="overflow-x-auto">
@@ -107,7 +107,7 @@ function quizPageUrl(int $p): string
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <?php if ($q['status'] === 'active'): ?>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Active</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Active</span>
                                 <?php else: ?>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">Inactive</span>
                                 <?php endif; ?>
@@ -124,7 +124,7 @@ function quizPageUrl(int $p): string
                                         <?php echo (int) $q['unreviewed_count']; ?>
                                     </span>
                                 <?php else: ?>
-                                    <span class="text-gray-300">—</span>
+                                    <span class="text-gray-300">â€”</span>
                                 <?php endif; ?>
                             </td>
                             <td class="px-6 py-4 text-center text-[#64748b]">
@@ -132,7 +132,7 @@ function quizPageUrl(int $p): string
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <button onclick="copyUrl('/quiz/play.php?id=<?php echo (int)$q['id']; ?>')"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#ecfdf5] text-[#059669] rounded-lg hover:bg-emerald-100 transition-colors">
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#ecfdf5] text-[#059669] rounded-lg hover:bg-green-100 transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                     </svg>
@@ -142,11 +142,11 @@ function quizPageUrl(int $p): string
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="/admin/quiz/view.php?id=<?php echo (int)$q['id']; ?>"
-                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
                                         Report
                                     </a>
                                     <a href="/admin/quiz/edit.php?id=<?php echo (int)$q['id']; ?>"
-                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors">
+                                       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors">
                                         Edit
                                     </a>
                                     <form method="POST" action="/admin/quiz/delete.php"
@@ -193,7 +193,7 @@ function copyUrl(path) {
         // Simple toast
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-6 right-6 z-50 bg-[#059669] text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all';
-        toast.textContent = '✓ Link copied!';
+        toast.textContent = 'âœ“ Link copied!';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2500);
     });
@@ -201,3 +201,4 @@ function copyUrl(path) {
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
+
