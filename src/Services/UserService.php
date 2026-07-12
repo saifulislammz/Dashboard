@@ -67,10 +67,10 @@ class UserService
         $this->auth->admin()->deleteUserById($id);
     }
 
-    public function getPaginatedUsersByRole(int $roleMask, int $page, int $limit, string $search = ''): array
+    public function getPaginatedUsersByRole(int $roleMask, int $page, int $limit, string $search = '', string $sort = 'id', string $order = 'DESC'): array
     {
         $offset = ($page - 1) * $limit;
-        $users = $this->repository->getPaginatedUsersByRole($roleMask, $limit, $offset, $search);
+        $users = $this->repository->getPaginatedUsersByRole($roleMask, $limit, $offset, $search, $sort, $order);
         $total = $this->repository->countTotalUsersByRole($roleMask, $search);
 
         return [

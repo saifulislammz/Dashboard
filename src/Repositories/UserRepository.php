@@ -15,7 +15,7 @@ class UserRepository
         $this->db = $db;
     }
 
-    public function getPaginatedUsersByRole(int $roleMask, int $limit, int $offset, string $search = ''): array
+    public function getPaginatedUsersByRole(int $roleMask, int $limit, int $offset, string $search = '', string $sort = 'id', string $order = 'DESC'): array
     {
         $whereClause = "roles_mask & :role1 = :role2";
         $params = ['role1' => $roleMask, 'role2' => $roleMask];
@@ -26,11 +26,18 @@ class UserRepository
             $params['search2'] = '%' . $search . '%';
         }
 
+        $sortColumn = 'id';
+        if ($sort === 'name') $sortColumn = 'username';
+        elseif ($sort === 'email') $sortColumn = 'email';
+        elseif ($sort === 'status') $sortColumn = 'status';
+
+        $orderDirection = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+
         $stmt = $this->db->prepare("
             SELECT id, email, username as name, status, registered 
             FROM users 
             WHERE $whereClause 
-            ORDER BY id DESC 
+            ORDER BY $sortColumn $orderDirection 
             LIMIT :limit OFFSET :offset
         ");
 

@@ -45,12 +45,17 @@ class AdminUserController
         $page       = max(1, (int) ($_GET['page'] ?? 1));
         $limit      = 10;
 
-        $paginated  = $this->service->getPaginatedUsersByRole($this->roleMask, $page, $limit, $search);
+        $sort       = $_GET['sort'] ?? 'id';
+        $order      = strtoupper($_GET['order'] ?? 'DESC');
+        if (!in_array($sort, ['id', 'name', 'email', 'status'])) $sort = 'id';
+        if (!in_array($order, ['ASC', 'DESC'])) $order = 'DESC';
+
+        $paginated  = $this->service->getPaginatedUsersByRole($this->roleMask, $page, $limit, $search, $sort, $order);
         $users      = $paginated['data'];
         $totalPages = (int) $paginated['pages'];
         $userType   = $this->userType;
 
-        $this->renderView($users, $totalPages, $successMessage, $errorMessage, $userType, $search);
+        $this->renderView($users, $totalPages, $successMessage, $errorMessage, $userType, $search, $page, $sort, $order);
     }
 
     // ─── Private: handle POST actions ─────────────────────────────
@@ -105,7 +110,10 @@ class AdminUserController
         string $successMessage,
         string $errorMessage,
         string $userType,
-        string $search = ''
+        string $search = '',
+        int    $page = 1,
+        string $sort = 'id',
+        string $order = 'DESC'
     ): void {
         if ($this->userType === 'Student') {
             $students = $users;

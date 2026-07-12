@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Manage Teachers';
 $activeMenu = 'teachers';
 require __DIR__ . '/../layouts/header.php';
@@ -131,7 +131,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search by name or email..." class="pl-10 block w-full border-none bg-transparent rounded-lg py-2.5 px-3 focus:ring-0 sm:text-sm text-gray-900 placeholder-gray-400">
+                    <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search by name or email..." class="pl-10 block w-full border-none bg-transparent rounded-lg py-2.5 px-3 focus:ring-0 sm:text-sm text-gray-900 placeholder-gray-400" oninput="if(this.value.trim() === '') this.form.submit()">
                 </div>
                 <button type="submit" class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-primary bg-green-50 hover:bg-green-200 transition-colors">Search</button>
             </form>
@@ -145,7 +145,15 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">
+                                <a href="teachers.php?search=<?php echo urlencode($search); ?>&sort=status&order=<?php echo ($sort === 'status' && $order === 'ASC') ? 'DESC' : 'ASC'; ?>" class="group inline-flex items-center space-x-1 text-gray-500 hover:text-gray-900 transition-colors">
+                                    <span>Status</span>
+                                    <span class="flex flex-col">
+                                        <svg class="w-3 h-3 <?php echo ($sort === 'status' && $order === 'ASC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?> -mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                        <svg class="w-3 h-3 <?php echo ($sort === 'status' && $order === 'DESC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?>" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                    </span>
+                                </a>
+                            </th>
                             <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -211,15 +219,56 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             
             <!-- Pagination -->
             <?php if($totalPages > 1): ?>
-            <div class="bg-white px-4 py-3 border-t border-gray-100 flex items-center justify-between sm:px-6">
-                <div class="flex-1 flex justify-between">
+            <?php
+                $pages = [];
+                if ($totalPages <= 5) {
+                    for ($i = 1; $i <= $totalPages; $i++) {
+                        $pages[] = $i;
+                    }
+                } else {
+                    if ($page <= 3) {
+                        $pages = [1, 2, 3, '...', $totalPages];
+                    } elseif ($page >= $totalPages - 2) {
+                        $pages = [1, '...', $totalPages - 2, $totalPages - 1, $totalPages];
+                    } else {
+                        $pages = [1, '...', $page, '...', $totalPages];
+                    }
+                }
+            ?>
+            <div class="bg-white px-4 py-6 border-t border-gray-100 flex flex-col items-center justify-center gap-4">
+                <!-- Pagination Buttons -->
+                <nav class="flex items-center justify-center gap-2" aria-label="Pagination">
                     <?php if($page > 1): ?>
-                        <a href="teachers.php?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>" class="relative inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">Previous</a>
+                        <a href="teachers.php?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>" class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 shadow-sm" title="Previous">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
                     <?php endif; ?>
+                    
+                    <?php foreach ($pages as $p): ?>
+                        <?php if ($p === '...'): ?>
+                            <span class="flex items-center justify-center w-10 h-10 text-gray-400 font-medium tracking-widest">...</span>
+                        <?php else: ?>
+                            <a href="teachers.php?page=<?php echo $p; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>" 
+                               class="flex items-center justify-center w-10 h-10 rounded-full border text-sm font-semibold transition-all duration-200 shadow-sm <?php echo $p === $page ? 'bg-primary text-white border-primary ring-2 ring-primary ring-offset-2' : 'border-gray-200 bg-white text-gray-600 hover:bg-primary hover:text-white hover:border-primary'; ?>">
+                                <?php echo $p; ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+
                     <?php if($page < $totalPages): ?>
-                        <a href="teachers.php?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>" class="relative inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 ml-auto transition-colors">Next</a>
+                        <a href="teachers.php?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>" class="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 shadow-sm" title="Next">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
                     <?php endif; ?>
-                </div>
+                </nav>
+
+
             </div>
             <?php endif; ?>
         </div>
