@@ -9,9 +9,12 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 $errors  = $errors  ?? [];
 $success = $success ?? false;
 
+$GLOBALS['settings'] = $settings ?? [];
+$GLOBALS['errors']   = $errors;
+
 function s(string $key): string {
     global $settings;
-    return htmlspecialchars($settings[$key] ?? '', ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string)($settings[$key] ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 function serr(string $key): string {
@@ -39,10 +42,17 @@ function serr(string $key): string {
         </div>
 
         <?php if ($success || isset($_GET['saved'])): ?>
-        <div class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-green-700">
-            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            Settings saved successfully!
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Settings Saved!',
+                    text: 'Your institution details and invoice settings have been saved successfully.',
+                    icon: 'success',
+                    confirmButtonColor: '#0F766E',
+                    confirmButtonText: 'Great!'
+                });
+            });
+        </script>
         <?php endif; ?>
 
         <form method="POST" action="/admin/invoices/settings.php" enctype="multipart/form-data">
