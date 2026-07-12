@@ -20,31 +20,29 @@ class AnalyticsRepository
      */
     public function getDashboardCounts(): array
     {
-        return Cache::remember('dashboard_counts', 300, function () {
-            require_once __DIR__ . '/../config/roles.php';
+        require_once __DIR__ . '/../config/roles.php';
 
-            $roleStudent = \App\Config\Roles::STUDENT;
-            $roleTeacher = \App\Config\Roles::TEACHER;
+        $roleStudent = \App\Config\Roles::STUDENT;
+        $roleTeacher = \App\Config\Roles::TEACHER;
 
-            $stmt = $this->db->query("
-                SELECT
-                    (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleStudent}) = {$roleStudent}) AS total_students,
-                    (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleTeacher}) = {$roleTeacher}) AS total_teachers,
-                    (SELECT COUNT(*) FROM notices)                                                          AS total_notices,
-                    (SELECT COUNT(*) FROM classrooms)                                                       AS total_classrooms,
-                    (SELECT COUNT(*) FROM quizzes WHERE status = 'active' AND deleted_at IS NULL)           AS total_quizzes
-            ");
+        $stmt = $this->db->query("
+            SELECT
+                (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleStudent}) = {$roleStudent}) AS total_students,
+                (SELECT COUNT(*) FROM users      WHERE (roles_mask & {$roleTeacher}) = {$roleTeacher}) AS total_teachers,
+                (SELECT COUNT(*) FROM notices)                                                          AS total_notices,
+                (SELECT COUNT(*) FROM classrooms)                                                       AS total_classrooms,
+                (SELECT COUNT(*) FROM quizzes WHERE status = 'active' AND deleted_at IS NULL)           AS total_quizzes
+        ");
 
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return [
-                'total_students'   => (int) ($row['total_students']   ?? 0),
-                'total_teachers'   => (int) ($row['total_teachers']   ?? 0),
-                'total_notices'    => (int) ($row['total_notices']    ?? 0),
-                'total_classrooms' => (int) ($row['total_classrooms'] ?? 0),
-                'total_quizzes'    => (int) ($row['total_quizzes']    ?? 0),
-            ];
-        });
+        return [
+            'total_students'   => (int) ($row['total_students']   ?? 0),
+            'total_teachers'   => (int) ($row['total_teachers']   ?? 0),
+            'total_notices'    => (int) ($row['total_notices']    ?? 0),
+            'total_classrooms' => (int) ($row['total_classrooms'] ?? 0),
+            'total_quizzes'    => (int) ($row['total_quizzes']    ?? 0),
+        ];
     }
 
     public function getRecentClassrooms(int $limit = 20): array
