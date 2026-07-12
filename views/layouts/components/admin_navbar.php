@@ -44,10 +44,6 @@
                         class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors">
                         <i class="ph ph-user-circle text-lg"></i> My Profile
                     </a>
-                    <a href="/admin/settings/meetings.php"
-                        class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors">
-                        <i class="ph ph-video-camera text-lg"></i> Meetings
-                    </a>
                 </div>
                 <div class="border-t border-gray-100 my-1"></div>
                 <form action="/logout.php" method="POST" class="w-full m-0">
