@@ -21,6 +21,49 @@
     </style>
     <!-- Alpine.js for dynamic UI components (like quiz builder) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- SweetAlert2 for Universal Modals -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Global function to handle form submission confirmations
+        function handleConfirm(event, message) {
+            event.preventDefault();
+            const form = event.target || event.currentTarget;
+            Swal.fire({
+                title: 'Confirmation',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0F766E', // var(--color-primary-green)
+                cancelButtonColor: '#EF4444', // var(--color-red)
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
+                background: '#ffffff',
+                color: '#1f2937'
+            }).then((result) => {
+                if (result.isConfirmed && form) {
+                    form.submit();
+                }
+            });
+            return false;
+        }
+
+        // Global async function for custom logic confirmations (e.g. Alpine.js)
+        function confirmAsync(message) {
+            return Swal.fire({
+                title: 'Confirmation',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0F766E',
+                cancelButtonColor: '#EF4444',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
+                background: '#ffffff',
+                color: '#1f2937'
+            }).then(result => result.isConfirmed);
+        }
+    </script>
 </head>
 
 <body class="bg-bgLight text-brandText flex h-screen overflow-hidden">

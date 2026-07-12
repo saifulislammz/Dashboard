@@ -278,7 +278,7 @@ function serr(string $key): string {
                             <td class="px-4 py-3 text-[#334155]"><?= htmlspecialchars($info['symbol'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td class="px-4 py-3 text-lg"><?= htmlspecialchars($info['flag'], ENT_QUOTES, 'UTF-8') ?></td>
                             <td class="px-4 py-3 text-right">
-                                <form method="POST" action="/admin/invoices/settings.php" onsubmit="return confirm('Delete this currency?');" class="inline">
+                                <form method="POST" action="/admin/invoices/settings.php" onsubmit="return handleConfirm(event, 'Delete this currency?');" class="inline">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                                     <input type="hidden" name="action" value="delete_currency">
                                     <input type="hidden" name="code" value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>">

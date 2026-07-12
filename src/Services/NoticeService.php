@@ -117,10 +117,10 @@ class NoticeService
         return $this->repository->findById($id);
     }
 
-    public function getPaginatedNotices(int $page, int $limit, string $search = ''): array
+    public function getPaginatedNotices(int $page, int $limit, string $search = '', string $sortField = 'created_at', string $sortOrder = 'DESC'): array
     {
         $offset = ($page - 1) * $limit;
-        $notices = $this->repository->getPaginatedNotices($limit, $offset, $search);
+        $notices = $this->repository->getPaginatedNotices($limit, $offset, $search, $sortField, $sortOrder);
         $total = $this->repository->countTotalNotices($search);
 
         return [

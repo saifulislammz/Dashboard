@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Admin Quiz Create View
  * Dynamic form with Alpine.js for adding letter/pronunciation/voice questions.
@@ -214,9 +214,11 @@ function quizBuilder() {
         },
 
         removeQuestion(idx) {
-            if (confirm('Are you sure you want to delete this question?')) {
-                this.questions.splice(idx, 1);
-            }
+            confirmAsync('Are you sure you want to delete this question?').then(confirmed => {
+                if (confirmed) {
+                    this.questions.splice(idx, 1);
+                }
+            });
         },
 
         setCorrect(qIdx, optIdx) {

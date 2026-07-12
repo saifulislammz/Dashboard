@@ -58,7 +58,7 @@ $statusClasses = match ($status) {
                     Print / Download
                 </a>
                 <form method="POST" action="/admin/invoices/delete.php"
-                    onsubmit="return confirm('Delete this invoice? This cannot be undone.')">
+                    onsubmit="return handleConfirm(event, 'Delete this invoice? This cannot be undone.')">
                     <input type="hidden" name="csrf_token"
                         value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="id" value="<?= (int) $invoice['id'] ?>">

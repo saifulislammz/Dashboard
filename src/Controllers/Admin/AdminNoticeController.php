@@ -36,8 +36,9 @@ class AdminNoticeController
 
                 if ($action === 'status') {
                     $id     = (int) ($_POST['id'] ?? 0);
-                    $status = $_POST['status'] ?? '';
-                    $this->service->updateStatus($id, $status);
+                    $currentStatus = $_POST['status'] ?? '';
+                    $newStatus = ($currentStatus === 'active') ? 'inactive' : 'active';
+                    $this->service->updateStatus($id, $newStatus);
                     $_SESSION['success_message'] = 'Notice status updated.';
                     header('Location: index.php');
                     exit;
@@ -66,9 +67,11 @@ class AdminNoticeController
 
         $search     = trim($_GET['search'] ?? '');
         $page       = max(1, (int) ($_GET['page'] ?? 1));
+        $sortField  = in_array($_GET['sort'] ?? '', ['title', 'target_audience', 'status', 'created_at'], true) ? $_GET['sort'] : 'created_at';
+        $sortOrder  = (strtoupper($_GET['order'] ?? '') === 'ASC') ? 'ASC' : 'DESC';
         $limit      = 10;
 
-        $paginated  = $this->service->getPaginatedNotices($page, $limit, $search);
+        $paginated  = $this->service->getPaginatedNotices($page, $limit, $search, $sortField, $sortOrder);
         $notices    = $paginated['data'];
         $totalPages = $paginated['pages'];
 

@@ -15,7 +15,7 @@ class NoticeRepository
         $this->db = $db;
     }
 
-    public function getPaginatedNotices(int $limit, int $offset, string $search = ''): array
+    public function getPaginatedNotices(int $limit, int $offset, string $search = '', string $sortField = 'created_at', string $sortOrder = 'DESC'): array
     {
         $whereClause = "1=1";
         $params = [];
@@ -25,12 +25,20 @@ class NoticeRepository
             $params['search'] = $search;
         }
 
+        // Whitelist allowed sort fields to prevent SQL injection
+        $allowedSortFields = ['title', 'target_audience', 'status', 'created_at'];
+        if (!in_array($sortField, $allowedSortFields, true)) {
+            $sortField = 'created_at';
+        }
+        $sortOrder = strtoupper($sortOrder) === 'ASC' ? 'ASC' : 'DESC';
+        $orderBy = "n.{$sortField} {$sortOrder}";
+
         $stmt = $this->db->prepare("
             SELECT n.id, n.title, n.content, n.target_audience, n.status, n.created_at, n.updated_at, u.username as creator_name 
             FROM notices n 
             LEFT JOIN users u ON n.created_by = u.id 
             WHERE $whereClause 
-            ORDER BY n.created_at DESC 
+            ORDER BY $orderBy 
             LIMIT :limit OFFSET :offset
         ");
 

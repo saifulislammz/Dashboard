@@ -193,7 +193,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     </button>
                                 </form>
                                 <!-- Delete -->
-                                <form action="teachers.php?action=delete" method="POST" class="inline" onsubmit="return confirm('Are you sure?');">
+                                <form action="teachers.php?action=delete" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Are you sure?');">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $teacher['id']; ?>">
                                     <button type="submit" class="text-red-500 hover:text-red-700 transition-colors">Delete</button>

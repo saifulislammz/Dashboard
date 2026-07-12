@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Admin Quiz Edit View ” pre-fills existing questions & options
  */
@@ -208,7 +208,9 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
                 });
             },
             removeQuestion(idx) {
-                if (confirm('Are you sure you want to delete this question?')) this.questions.splice(idx, 1);
+                confirmAsync('Are you sure you want to delete this question?').then(confirmed => {
+                    if(confirmed) this.questions.splice(idx, 1);
+                });
             },
             setCorrect(qIdx, optIdx) {
                 this.questions[qIdx].options.forEach((o, i) => o.is_correct = i === optIdx);

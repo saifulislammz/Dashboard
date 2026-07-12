@@ -131,7 +131,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                     <span class="text-gray-200">|</span>
                                     <a href="/admin/classrooms/edit.php?id=<?= $class['id'] ?>" class="text-primary hover:text-green-700 transition-colors">Edit</a>
                                     <span class="text-gray-200">|</span>
-                                    <form method="POST" action="/admin/classrooms/delete.php?id=<?= $class['id'] ?>" class="inline" onsubmit="return confirm('Are you sure you want to delete this classroom?');">
+                                    <form method="POST" action="/admin/classrooms/delete.php?id=<?= $class['id'] ?>" class="inline" onsubmit="return handleConfirm(event, 'Are you sure you want to delete this classroom?');">
                                         <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
                                         <button type="submit" class="text-[#dc2626] hover:text-[#b91c1c] transition-colors">Delete</button>
                                     </form>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Manage Notices';
 $activeMenu = 'notices_manage';
 require __DIR__ . '/../../layouts/header.php';
@@ -55,11 +55,48 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                 <table class="min-w-full divide-y divide-gray-100">
                     <thead class="bg-white">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Audience</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <?php 
+                            $columns = [
+                                'title' => 'Title',
+                                'target_audience' => 'Audience',
+                                'status' => 'Status'
+                            ];
+                            foreach($columns as $key => $label): 
+                                $isSorted = ($sortField ?? 'created_at') === $key;
+                                $currentOrder = $isSorted ? ($sortOrder ?? 'DESC') : '';
+                                $nextOrder = ($isSorted && $currentOrder === 'ASC') ? 'desc' : 'asc';
+                            ?>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                <a href="index.php?sort=<?php echo $key; ?>&order=<?php echo $nextOrder; ?>&search=<?php echo urlencode($search ?? ''); ?>" class="group inline-flex items-center hover:text-gray-700 transition-colors">
+                                    <span><?php echo $label; ?></span>
+                                    <span class="ml-2 flex flex-col">
+                                        <svg class="w-3 h-3 <?php echo ($isSorted && $currentOrder === 'ASC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?> -mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                        <svg class="w-3 h-3 <?php echo ($isSorted && $currentOrder === 'DESC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?>" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                    </span>
+                                </a>
+                            </th>
+                            <?php endforeach; ?>
+                            
+                            <!-- Created By (Not Sortable) -->
                             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created By</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                            
+                            <!-- Date (Sortable) -->
+                            <?php
+                                $isSorted = ($sortField ?? 'created_at') === 'created_at';
+                                $currentOrder = $isSorted ? ($sortOrder ?? 'DESC') : '';
+                                $nextOrder = ($isSorted && $currentOrder === 'ASC') ? 'desc' : 'asc';
+                            ?>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                <a href="index.php?sort=created_at&order=<?php echo $nextOrder; ?>&search=<?php echo urlencode($search ?? ''); ?>" class="group inline-flex items-center hover:text-gray-700 transition-colors">
+                                    <span>Date</span>
+                                    <span class="ml-2 flex flex-col">
+                                        <svg class="w-3 h-3 <?php echo ($isSorted && $currentOrder === 'ASC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?> -mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                        <svg class="w-3 h-3 <?php echo ($isSorted && $currentOrder === 'DESC') ? 'text-gray-900' : 'text-gray-300 group-hover:text-gray-500'; ?>" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                    </span>
+                                </a>
+                            </th>
+
+                            <!-- Actions (Not Sortable) -->
                             <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -100,7 +137,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <span class="text-gray-200">|</span>
                                 
                                 <!-- Duplicate -->
-                                <form action="index.php?action=duplicate" method="POST" class="inline" onsubmit="return confirm('Duplicate this notice?');">
+                                <form action="index.php?action=duplicate" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Duplicate this notice?');">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $notice['id']; ?>">
                                     <button type="submit" class="text-[#d97706] hover:text-[#b45309] transition-colors">Duplicate</button>
@@ -108,7 +145,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <span class="text-gray-200">|</span>
 
                                 <!-- Delete -->
-                                <form action="index.php?action=delete" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this notice?');">
+                                <form action="index.php?action=delete" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Are you sure you want to delete this notice?');">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $notice['id']; ?>">
                                     <button type="submit" class="text-[#dc2626] hover:text-[#b91c1c] transition-colors">Delete</button>

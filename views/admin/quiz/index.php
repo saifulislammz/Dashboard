@@ -163,7 +163,7 @@ function quizPageUrl(int $p): string
                                                 Edit
                                             </a>
                                             <form method="POST" action="/admin/quiz/delete.php"
-                                                onsubmit="return confirm('Are you sure you want to delete this quiz?')">
+                                                onsubmit="return handleConfirm(event, 'Are you sure you want to delete this quiz?')">
                                                 <input type="hidden" name="csrf_token"
                                                     value="<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="id" value="<?php echo (int) $q['id']; ?>">
