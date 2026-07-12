@@ -41,7 +41,8 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
             <div>
                 <h1 class="text-2xl font-bold text-[#1e293b]">Edit Quiz</h1>
                 <p class="text-sm text-[#64748b] mt-0.5">
-                    <?php echo htmlspecialchars($quizData['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php echo htmlspecialchars($quizData['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                </p>
             </div>
         </div>
 
@@ -79,8 +80,8 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
                     <select name="status"
                         class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669]">
                         <option value="active" <?php echo ($quizData['status'] ?? '') === 'active' ? 'selected' : ''; ?>>
-                            â— Active</option>
-                        <option value="inactive" <?php echo ($quizData['status'] ?? '') === 'inactive' ? 'selected' : ''; ?>>â—‹ Inactive</option>
+                            Active</option>
+                        <option value="inactive" <?php echo ($quizData['status'] ?? '') === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                     </select>
                 </div>
             </div>
@@ -209,7 +210,7 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
             },
             removeQuestion(idx) {
                 confirmAsync('Are you sure you want to delete this question?').then(confirmed => {
-                    if(confirmed) this.questions.splice(idx, 1);
+                    if (confirmed) this.questions.splice(idx, 1);
                 });
             },
             setCorrect(qIdx, optIdx) {
