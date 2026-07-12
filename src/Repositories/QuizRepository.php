@@ -503,18 +503,17 @@ class QuizRepository
     }
 
     /**
-     * Save voice review note and set admin_notified = 1
+     * Set voice_reviewed status and admin_notified = 1
      */
-    public function saveVoiceReviewNote(int $attemptId, string $note): bool
+    public function toggleVoiceReview(int $attemptId, bool $isReviewed): bool
     {
         $stmt = $this->db->prepare(
             'UPDATE quiz_attempts
-             SET voice_note = :note,
-                 voice_reviewed = 1,
+             SET voice_reviewed = :is_reviewed,
                  admin_notified = 1
              WHERE id = :id AND voice_submitted = 1'
         );
-        return $stmt->execute([':note' => $note, ':id' => $attemptId]);
+        return $stmt->execute([':is_reviewed' => (int) $isReviewed, ':id' => $attemptId]);
     }
 
     /**

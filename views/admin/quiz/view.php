@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Admin Quiz Report View ” Stats cards + participant table + voice review
  */
@@ -172,13 +172,13 @@ function rPageUrl(int $p): string
                                 <th class="px-4 py-3 text-center font-semibold text-[#64748b]">Incorrect</th>
                                 <th class="px-4 py-3 text-center font-semibold text-[#64748b]">Score</th>
                                 <th class="px-4 py-3 text-center font-semibold text-[#64748b]">Voice</th>
-                                <th class="px-4 py-3 text-left font-semibold text-[#64748b]">Review Note</th>
+                                <th class="px-4 py-3 text-left font-semibold text-[#64748b]">Review</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
                             <?php foreach ($attempts as $i => $a): ?>
                                 <tr class="hover:bg-[#f8fafc] transition-colors"
-                                    x-data="voiceReview(<?php echo (int) $a['id']; ?>, <?php echo json_encode($a['voice_note'] ?? ''); ?>)">
+                                    x-data="voiceReview(<?php echo (int) $a['id']; ?>, <?php echo $a['voice_reviewed'] ? 'true' : 'false'; ?>)">
                                     <td class="px-4 py-3 text-[#94a3b8] font-medium">
                                         <?php echo (($currentPage - 1) * 20) + $i + 1; ?>
                                     </td>
@@ -229,23 +229,11 @@ function rPageUrl(int $p): string
                                     </td>
                                     <td class="px-4 py-3 min-w-[220px]">
                                         <?php if ($a['voice_submitted']): ?>
-                                            <div class="space-y-2">
-                                                <textarea x-model="note" rows="2" placeholder="Write review note..."
-                                                    class="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#059669] resize-none"></textarea>
-                                                <div class="flex items-center gap-2">
-                                                    <button @click="saveNote()" :disabled="saving"
-                                                        class="px-3 py-1.5 bg-[#059669] text-white text-xs font-semibold rounded-lg hover:bg-[#047857] disabled:opacity-50 transition-colors">
-                                                        <span x-text="saving ? 'Saving...' : 'Save'"></span>
-                                                    </button>
-                                                    <span x-show="saved" x-transition class="text-xs text-[#059669] font-medium">
-                                                        Saved</span>
-                                                    <!-- WhatsApp link -->
-                                                    <a :href="`https://wa.me/<?php echo htmlspecialchars(preg_replace('/[^0-9]/', '', $a['whatsapp_number']), ENT_QUOTES, 'UTF-8'); ?>?text=${encodeURIComponent(note)}`"
-                                                        target="_blank"
-                                                        class="ml-auto px-2.5 py-1.5 bg-green-100 text-green-700 text-xs font-semibold rounded-lg hover:bg-green-200 transition-colors">
-                                                        WA
-                                                    </a>
-                                                </div>
+                                            <div class="flex items-center gap-2">
+                                                <input type="checkbox" x-model="isReviewed" @change="toggleReview()" 
+                                                    class="w-4 h-4 text-[#059669] bg-gray-100 border-gray-300 rounded focus:ring-[#059669] focus:ring-2 cursor-pointer">
+                                                <span class="text-sm font-medium text-[#1e293b]" x-text="isReviewed ? 'Reviewed' : 'Review pending'"></span>
+                                                <span x-show="saving" class="text-xs text-[#64748b] ml-2">Saving...</span>
                                             </div>
                                         <?php else: ?>
                                             <span class="text-xs text-gray-400">Voice not submitted</span>
@@ -280,24 +268,27 @@ function rPageUrl(int $p): string
 <script>
     const CSRF_TOKEN = '<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>';
 
-    function voiceReview(attemptId, existingNote) {
+    function voiceReview(attemptId, initialReviewStatus) {
         return {
-            note: existingNote || '',
+            isReviewed: initialReviewStatus,
             saving: false,
-            saved: false,
-            async saveNote() {
+            async toggleReview() {
                 this.saving = true;
-                this.saved = false;
                 try {
                     const r = await fetch('/admin/quiz/review_voice.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ csrf_token: CSRF_TOKEN, attempt_id: attemptId, note: this.note })
+                        body: JSON.stringify({ csrf_token: CSRF_TOKEN, attempt_id: attemptId, is_reviewed: this.isReviewed })
                     });
                     const d = await r.json();
-                    if (d.success) { this.saved = true; setTimeout(() => this.saved = false, 3000); }
-                    else alert(d.message || 'Failed to save.');
-                } catch (e) { alert('Network error.'); }
+                    if (!d.success) {
+                        alert(d.message || 'Failed to save.');
+                        this.isReviewed = !this.isReviewed; // revert on failure
+                    }
+                } catch (e) { 
+                    alert('Network error.'); 
+                    this.isReviewed = !this.isReviewed; // revert on error
+                }
                 finally { this.saving = false; }
             }
         };

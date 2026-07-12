@@ -95,7 +95,6 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     voice_submitted  TINYINT(1)        NOT NULL DEFAULT 0,
     voice_file_path  VARCHAR(500)      NULL,        -- storage/quiz_voices/yyyy/mm/xxx.webm
     voice_reviewed   TINYINT(1)        NOT NULL DEFAULT 0,
-    voice_note       TEXT              NULL,        -- Admin review note
 
     -- Admin notification badge (0 = new / unseen)
     admin_notified   TINYINT(1)        NOT NULL DEFAULT 0,

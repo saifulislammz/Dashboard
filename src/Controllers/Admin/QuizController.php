@@ -219,8 +219,8 @@ class QuizController
         $csrfToken = $body['csrf_token'] ?? '';
         validateCsrfToken($csrfToken);
 
-        $attemptId = (int) ($body['attempt_id'] ?? 0);
-        $note      = trim($body['note'] ?? '');
+        $attemptId  = (int) ($body['attempt_id'] ?? 0);
+        $isReviewed = (bool) ($body['is_reviewed'] ?? false);
 
         if ($attemptId <= 0) {
             http_response_code(400);
@@ -229,8 +229,8 @@ class QuizController
         }
 
         try {
-            $this->quizService->saveVoiceReviewNote($attemptId, $note);
-            echo json_encode(['success' => true, 'message' => 'Note saved.']);
+            $this->quizService->toggleVoiceReview($attemptId, $isReviewed);
+            echo json_encode(['success' => true, 'message' => 'Review status saved.']);
         } catch (\InvalidArgumentException $e) {
             http_response_code(422);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);

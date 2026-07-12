@@ -196,15 +196,11 @@ class QuizService
     }
 
     /**
-     * Save voice review note
+     * Set voice review status
      */
-    public function saveVoiceReviewNote(int $attemptId, string $note): void
+    public function toggleVoiceReview(int $attemptId, bool $isReviewed): void
     {
-        $note = trim($note);
-        if (mb_strlen($note) > 2000) {
-            throw new \InvalidArgumentException('Note can be at most 2000 characters.');
-        }
-        $this->repo->saveVoiceReviewNote($attemptId, $note);
+        $this->repo->toggleVoiceReview($attemptId, $isReviewed);
     }
 
     /**
