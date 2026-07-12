@@ -5,23 +5,21 @@ $bd        = $breakdown ?? [];
 $correct   = (int) ($a['correct_answers'] ?? 0);
 $total     = (int) ($a['total_questions'] ?? 0);
 
-// Convert numbers to Bengali digits for authentic look
-function toBnNum($num) {
-    $en = ['0','1','2','3','4','5','6','7','8','9'];
-    $bn = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-    return str_replace($en, $bn, (string)$num);
+// Format numbers as strings
+function formatNum($num) {
+    return (string)$num;
 }
 
-$bnCorrect = toBnNum($correct);
-$bnTotal = toBnNum($total);
-$attemptIdBn = toBnNum($a['id'] ?? 1);
+$bnCorrect = formatNum($correct);
+$bnTotal = formatNum($total);
+$attemptIdBn = formatNum($a['id'] ?? 1);
 ?>
 <!DOCTYPE html>
-<html lang="bn" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>আপনার রেজাল্ট — Rahen Azat Institute</title>
+    <title>Your Result — Rahen Azat Institute</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,8 +49,8 @@ $attemptIdBn = toBnNum($a['id'] ?? 1);
         </div>
 
         <div class="mt-8 mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-1">অভিনন্দন!</h2>
-            <p class="text-sm font-semibold text-gray-400">আপনার স্কোর</p>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">Congratulations!</h2>
+            <p class="text-sm font-semibold text-gray-400">Your Score</p>
         </div>
 
         <!-- Large Score text -->
@@ -64,7 +62,7 @@ $attemptIdBn = toBnNum($a['id'] ?? 1);
 
         <!-- Participant Rank Pill -->
         <div class="inline-flex items-center bg-[#eefcf2] text-[#0f5132] px-5 py-2 rounded-full text-sm font-bold mb-10 border border-[#d1f4e0]">
-            আপনি <?php echo $attemptIdBn; ?> তম অংশগ্রহণকারী
+            You are the <?php echo $attemptIdBn; ?>th participant
         </div>
 
         <!-- Breakdown Row -->
@@ -72,26 +70,26 @@ $attemptIdBn = toBnNum($a['id'] ?? 1);
             
             <!-- Letter Card -->
             <div class="bg-gray-50 border border-gray-100 rounded-2xl py-4 px-2 flex flex-col items-center">
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">অক্ষর</span>
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Letter</span>
                 <span class="text-lg font-extrabold text-gray-800">
-                    <?php echo toBnNum((int)($bd['letter']['correct'] ?? 0)); ?>/<?php echo toBnNum((int)($bd['letter']['total'] ?? 0)); ?>
+                    <?php echo formatNum((int)($bd['letter']['correct'] ?? 0)); ?>/<?php echo formatNum((int)($bd['letter']['total'] ?? 0)); ?>
                 </span>
             </div>
 
             <!-- Pronunciation Card -->
             <div class="bg-gray-50 border border-gray-100 rounded-2xl py-4 px-2 flex flex-col items-center">
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">উচ্চারণ</span>
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Pronunciation</span>
                 <span class="text-lg font-extrabold text-gray-800">
-                    <?php echo toBnNum((int)($bd['pronunciation']['correct'] ?? 0)); ?>/<?php echo toBnNum((int)($bd['pronunciation']['total'] ?? 0)); ?>
+                    <?php echo formatNum((int)($bd['pronunciation']['correct'] ?? 0)); ?>/<?php echo formatNum((int)($bd['pronunciation']['total'] ?? 0)); ?>
                 </span>
             </div>
 
             <!-- Voice/Word Card -->
             <div class="bg-gray-50 border border-gray-100 rounded-2xl py-4 px-2 flex flex-col items-center">
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">শব্দার্থ</span>
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Meaning</span>
                 <span class="text-lg font-extrabold text-gray-800">
                     <!-- Defaulting to voice or 1/1 if submitted for UI fidelity -->
-                    <?php echo ($a['voice_submitted'] ?? false) ? '১/১' : '০/০'; ?>
+                    <?php echo ($a['voice_submitted'] ?? false) ? '1/1' : '0/0'; ?>
                 </span>
             </div>
             

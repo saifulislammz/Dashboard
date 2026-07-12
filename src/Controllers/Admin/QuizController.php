@@ -9,8 +9,8 @@ use App\Services\QuizService;
 
 /**
  * QuizController (Admin) — Thin Controller
- * শুধু request নেওয়া, Service call করা, View render করা।
- * কোনো business logic এখানে নেই।
+ * Only take requests, call Service, and render View.
+ * No business logic here.
  */
 class QuizController
 {
@@ -148,7 +148,7 @@ class QuizController
             exit;
         }
 
-        // Report view open করলে সব unread badge clear
+        // Clear all unread badges when Report view is opened
         $this->repo->markAllNotified($quizId);
 
         $created = isset($_GET['created']);
@@ -159,7 +159,7 @@ class QuizController
 
     // ──────────────────────────────────────────────
     // GET /admin/quiz/serve_voice.php?a=ATTEMPT_ID
-    // Auth-protected ভয়েস ফাইল serve করা
+    // Serve Auth-protected voice file
     // ──────────────────────────────────────────────
     public function serveVoice(): void
     {
@@ -179,7 +179,7 @@ class QuizController
         $filePath = __DIR__ . '/../../../storage/' . $attempt['voice_file_path'];
         $realPath = realpath($filePath);
 
-        // Path traversal প্রতিরোধ
+        // Prevent path traversal
         $storageBase = realpath(__DIR__ . '/../../../storage/quiz_voices');
         if (!$realPath || !str_starts_with($realPath, $storageBase)) {
             http_response_code(403);
@@ -214,7 +214,7 @@ class QuizController
             exit;
         }
 
-        // JSON body নেওয়া (Alpine.js fetch করে JSON পাঠায়)
+        // Take JSON body (Alpine.js sends JSON via fetch)
         $body      = json_decode(file_get_contents('php://input'), true) ?? [];
         $csrfToken = $body['csrf_token'] ?? '';
         validateCsrfToken($csrfToken);

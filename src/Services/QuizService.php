@@ -9,12 +9,12 @@ use App\Repositories\QuizRepository;
 /**
  * QuizService — Arabic Quiz System Business Logic Layer
  *
- * Controller শুধু input নেয় এবং output পাঠায়।
- * সব validation, business rule, file handling এখানে।
+ * Controller only takes input and sends output.
+ * All validation, business rules, and file handling happen here.
  */
 class QuizService
 {
-    // অনুমোদিত ভয়েস MIME types
+    // Allowed voice MIME types
     private const ALLOWED_AUDIO_MIMES = [
         'audio/webm',
         'audio/ogg',
@@ -24,13 +24,13 @@ class QuizService
         'audio/x-m4a',
     ];
 
-    // সর্বোচ্চ ভয়েস ফাইল সাইজ (10MB)
+    // Maximum voice file size (10MB)
     private const MAX_VOICE_BYTES = 10 * 1024 * 1024;
 
-    // ভয়েস স্টোরেজ base path
+    // Voice storage base path
     private const VOICE_STORAGE_BASE = __DIR__ . '/../../storage/quiz_voices';
 
-    // প্রশ্নের ধরন — শুধু এই তিনটি valid
+    // Question types — only these three are valid
     private const VALID_QUESTION_TYPES = ['letter', 'pronunciation', 'voice'];
 
     public function __construct(private QuizRepository $repo) {}
@@ -40,15 +40,15 @@ class QuizService
     // ================================================================
 
     /**
-     * নতুন কুইজ তৈরি (validation + DB save, transaction-এ)
+     * Create new quiz (validation + DB save, in transaction)
      *
-     * @throws \InvalidArgumentException validation ব্যর্থ হলে
+     * @throws \InvalidArgumentException on validation failure
      */
     public function createQuiz(array $input, int $adminId): int
     {
         $validated = $this->validateQuizInput($input);
 
-        // Transaction: quiz + questions + options একসাথে
+        // Transaction: quiz + questions + options together
         $this->repo->beginTransaction();
         try {
             $quizId = $this->repo->createQuiz([
@@ -69,16 +69,16 @@ class QuizService
     }
 
     /**
-     * কুইজ আপডেট (সব প্রশ্ন replace করে)
+     * Update quiz (replaces all questions)
      *
      * @throws \InvalidArgumentException
-     * @throws \RuntimeException কুইজ না পাওয়া গেলে
+     * @throws \RuntimeException if quiz is not found
      */
     public function updateQuiz(int $quizId, array $input): void
     {
         $quiz = $this->repo->findQuizById($quizId);
         if (!$quiz) {
-            throw new \RuntimeException('কুইজ পাওয়া যায়নি।');
+            throw new \RuntimeException('Quiz not found.');
         }
 
         $validated = $this->validateQuizInput($input);
@@ -91,7 +91,7 @@ class QuizService
                 'status'      => $validated['status'],
             ]);
 
-            // পুরানো সব প্রশ্ন মুছে নতুন সেভ
+            // Delete old questions and save new ones
             $this->repo->deleteQuestionsByQuizId($quizId);
             $this->saveQuestionsWithOptions($quizId, $validated['questions']);
 
@@ -103,7 +103,7 @@ class QuizService
     }
 
     /**
-     * কুইজ সফট ডিলিট
+     * Soft delete quiz
      *
      * @throws \RuntimeException
      */
@@ -111,13 +111,13 @@ class QuizService
     {
         $quiz = $this->repo->findQuizById($quizId);
         if (!$quiz) {
-            throw new \RuntimeException('কুইজ পাওয়া যায়নি।');
+            throw new \RuntimeException('Quiz not found.');
         }
         $this->repo->softDeleteQuiz($quizId);
     }
 
     /**
-     * Admin-এর জন্য কুইজ তালিকা (paginated)
+     * Quiz list for Admin (paginated)
      */
     public function getQuizList(array $filters, int $page, int $perPage = 15): array
     {
@@ -134,13 +134,13 @@ class QuizService
     }
 
     /**
-     * কুইজ edit ফর্মের জন্য — questions + options সহ
+     * For quiz edit form — including questions + options
      */
     public function getQuizForEdit(int $quizId): array
     {
         $quiz = $this->repo->findQuizById($quizId);
         if (!$quiz) {
-            throw new \RuntimeException('কুইজ পাওয়া যায়নি।');
+            throw new \RuntimeException('Quiz not found.');
         }
 
         $questions = $this->repo->getQuestionsByQuizId($quizId);
@@ -160,20 +160,20 @@ class QuizService
     // ================================================================
 
     /**
-     * Admin report page-এর সব ডেটা
+     * All data for Admin report page
      */
     public function getAdminReport(int $quizId, int $page, int $perPage = 20): array
     {
         $quiz = $this->repo->findQuizById($quizId);
         if (!$quiz) {
-            throw new \RuntimeException('কুইজ পাওয়া যায়নি।');
+            throw new \RuntimeException('Quiz not found.');
         }
 
         $stats    = $this->repo->getDashboardStats($quizId);
         $attempts = $this->repo->getAttemptList($quizId, $page, $perPage);
         $total    = $this->repo->countAttempts($quizId);
 
-        // Score percentage প্রতিটি attempt-এ যোগ করা
+        // Add score percentage to each attempt
         foreach ($attempts as &$a) {
             $a['score_pct'] = $a['total_questions'] > 0
                 ? round(($a['correct_answers'] / $a['total_questions']) * 100, 1)
@@ -193,13 +193,13 @@ class QuizService
     }
 
     /**
-     * ভয়েস রিভিউ নোট সেভ
+     * Save voice review note
      */
     public function saveVoiceReviewNote(int $attemptId, string $note): void
     {
         $note = trim($note);
         if (mb_strlen($note) > 2000) {
-            throw new \InvalidArgumentException('নোট সর্বোচ্চ ২০০০ অক্ষর হতে পারবে।');
+            throw new \InvalidArgumentException('Note can be at most 2000 characters.');
         }
         $this->repo->saveVoiceReviewNote($attemptId, $note);
     }
@@ -226,35 +226,35 @@ class QuizService
     {
         $errors = [];
 
-        // নাম
+        // Name
         $name = trim($input['participant_name'] ?? '');
         if ($name === '') {
-            $errors[] = 'নাম আবশ্যক।';
+            $errors[] = 'Name is required.';
         } elseif (mb_strlen($name) > 150) {
-            $errors[] = 'নাম সর্বোচ্চ ১৫০ অক্ষর।';
+            $errors[] = 'Name can be at most 150 characters.';
         }
 
-        // জেন্ডার — whitelist
+        // Gender — whitelist
         $gender = trim($input['gender'] ?? '');
         if (!in_array($gender, ['male', 'female'], true)) {
-            $errors[] = 'জেন্ডার সঠিকভাবে নির্বাচন করুন।';
+            $errors[] = 'Please select a valid gender.';
         }
 
-        // WhatsApp নম্বর
+        // WhatsApp Number
         $whatsapp = trim($input['whatsapp_number'] ?? '');
         if ($whatsapp === '') {
-            $errors[] = 'WhatsApp নম্বর আবশ্যক।';
+            $errors[] = 'WhatsApp Number is required.';
         } elseif (!preg_match('/^\+?[0-9]{10,15}$/', $whatsapp)) {
-            $errors[] = 'সঠিক WhatsApp নম্বর দিন (১০-১৫ সংখ্যা)।';
+            $errors[] = 'Please provide a valid WhatsApp Number (10-15 digits).';
         }
 
         // Email — optional
         $email = trim($input['email'] ?? '');
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'সঠিক Email ঠিকানা দিন।';
+            $errors[] = 'Please provide a valid Email address.';
         }
         if ($email !== '' && mb_strlen($email) > 150) {
-            $errors[] = 'Email সর্বোচ্চ ১৫০ অক্ষর।';
+            $errors[] = 'Email can be at most 150 characters.';
         }
 
         if (!empty($errors)) {
@@ -270,38 +270,38 @@ class QuizService
     }
 
     /**
-     * কুইজ শুরু করা:
-     * - চিরতরে block? → error
-     * - আগের in_progress আছে? → রিসেট করে নতুন token দিয়ে শুরু
-     * - নতুন participant → নতুন attempt তৈরি
+     * Start Quiz:
+     * - Blocked forever? → error
+     * - Existing in_progress? → reset and start with new token
+     * - New participant → create new attempt
      *
      * @return array ['token' => string, 'attempt_id' => int]
      * @throws \RuntimeException
      */
     public function startOrResumeAttempt(int $quizId, array $participant): array
     {
-        // চিরতরে block চেক
+        // Check permanently blocked
         if ($this->repo->isPhoneBlockedForQuiz($quizId, $participant['whatsapp_number'])) {
             throw new \RuntimeException(
-                'এই WhatsApp নম্বর দিয়ে আগেই কুইজ সম্পন্ন হয়েছে। আর অংশগ্রহণ সম্ভব নয়।'
+                'This WhatsApp Number has already completed the quiz. Participation is no longer possible.'
             );
         }
 
-        // প্রশ্নের সংখ্যা
+        // Number of questions
         $questions   = $this->repo->getQuestionsByQuizId($quizId);
         $totalCount  = count($questions);
         $newToken    = bin2hex(random_bytes(32));
 
-        // আগের in_progress attempt চেক
+        // Check previous in_progress attempt
         $existing = $this->repo->findInProgressAttempt($quizId, $participant['whatsapp_number']);
 
         if ($existing) {
-            // রিসেট করো — নতুন token দিয়ে পুরো নতুন করে শুরু
+            // Reset — start completely fresh with a new token
             $this->repo->deleteAnswersForAttempt((int) $existing['id']);
             $this->repo->resetAttempt((int) $existing['id'], $newToken, $totalCount);
             $attemptId = (int) $existing['id'];
         } else {
-            // নতুন attempt তৈরি
+            // Create new attempt
             $attemptId = $this->repo->createAttempt([
                 'quiz_id'          => $quizId,
                 'participant_name' => $participant['participant_name'],
@@ -324,15 +324,15 @@ class QuizService
     // ================================================================
 
     /**
-     * Quiz player-এর জন্য প্রশ্ন লোড করা
-     * ক্রম: letter → pronunciation → voice
-     * Options: প্রতিটি request-এ shuffle
+     * Load questions for Quiz player
+     * Order: letter → pronunciation → voice
+     * Options: shuffle on every request
      */
     public function getQuestionsForPlayer(int $quizId): array
     {
         $questions = $this->repo->getQuestionsByQuizId($quizId);
 
-        // ধরন অনুযায়ী ক্রম নিশ্চিত করা
+        // Ensure order based on type
         $typeOrder = ['letter' => 0, 'pronunciation' => 1, 'voice' => 2];
         usort($questions, fn($a, $b) =>
             ($typeOrder[$a['type']] ?? 99) <=> ($typeOrder[$b['type']] ?? 99)
@@ -341,7 +341,7 @@ class QuizService
         foreach ($questions as &$q) {
             if ($q['type'] !== 'voice') {
                 $options = $this->repo->getOptionsForQuestion((int) $q['id']);
-                shuffle($options); // প্রতিবার র‍্যান্ডম ক্রম
+                shuffle($options); // Random order each time
                 $q['options'] = $options;
             } else {
                 $q['options'] = [];
@@ -353,10 +353,10 @@ class QuizService
     }
 
     /**
-     * MCQ উত্তর যাচাই ও সেভ করা
+     * Verify and save MCQ answer
      *
      * @return array ['correct' => bool, 'correct_option_id' => int]
-     * @throws \RuntimeException attempt বা question invalid হলে
+     * @throws \RuntimeException if attempt or question is invalid
      */
     public function submitMCQAnswer(
         int $attemptId,
@@ -364,10 +364,10 @@ class QuizService
         int $selectedOptionId,
         int $quizId
     ): array {
-        // সঠিক উত্তর DB থেকে নেওয়া (client trust করা হবে না)
+        // Get correct answer from DB (client will not be trusted)
         $correctOption = $this->repo->getCorrectOptionForQuestion($questionId);
         if (!$correctOption) {
-            throw new \RuntimeException('প্রশ্নটি পাওয়া যায়নি।');
+            throw new \RuntimeException('Question not found.');
         }
 
         $isCorrect = ((int) $correctOption['id'] === $selectedOptionId);
@@ -381,14 +381,14 @@ class QuizService
     }
 
     /**
-     * MCQ শেষ — স্কোর calculate করে attempt finalize
+     * MCQ finished — calculate score and finalize attempt
      */
     public function finalizeAttempt(int $attemptId): array
     {
-        // DB থেকে সঠিক উত্তরের সংখ্যা গণনা
+        // Count correct answers from DB
         $attempt = $this->repo->findAttemptById($attemptId);
         if (!$attempt) {
-            throw new \RuntimeException('Attempt পাওয়া যায়নি।');
+            throw new \RuntimeException('Attempt not found.');
         }
 
         $stats = $this->repo->getAnswerStats($attemptId);
@@ -405,70 +405,70 @@ class QuizService
     }
 
     /**
-     * ভয়েস রেকর্ডিং আপলোড, যাচাই, সেভ
+     * Upload, verify, and save voice recording
      *
-     * @throws \InvalidArgumentException ফাইল invalid হলে
-     * @throws \RuntimeException save ব্যর্থ হলে
+     * @throws \InvalidArgumentException if file is invalid
+     * @throws \RuntimeException on save failure
      */
     public function uploadVoiceRecording(int $attemptId, array $file): string
     {
-        // ফাইল upload error
+        // File upload error
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            throw new \InvalidArgumentException('ফাইল আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+            throw new \InvalidArgumentException('File upload failed. Please try again.');
         }
 
-        // সাইজ চেক
+        // Size check
         if ($file['size'] > self::MAX_VOICE_BYTES) {
-            throw new \InvalidArgumentException('ভয়েস ফাইল সর্বোচ্চ ১০ MB হতে পারবে।');
+            throw new \InvalidArgumentException('Voice file can be at most 10 MB.');
         }
 
-        // MIME যাচাই (finfo দিয়ে — client header trust করা হয় না)
+        // Validate MIME (with finfo — client header is not trusted)
         $finfo    = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($file['tmp_name']);
         if (!in_array($mimeType, self::ALLOWED_AUDIO_MIMES, true)) {
-            throw new \InvalidArgumentException('অনুমোদিত audio format নয়।');
+            throw new \InvalidArgumentException('Not an allowed audio format.');
         }
 
-        // নিরাপদ random filename
+        // Secure random filename
         $ext      = $this->getExtensionFromMime($mimeType);
         $filename = bin2hex(random_bytes(16)) . '.' . $ext;
 
-        // মাসভিত্তিক directory তৈরি
+        // Create month-based directory
         $dirPath = self::VOICE_STORAGE_BASE . '/' . date('Y/m');
         if (!is_dir($dirPath) && !mkdir($dirPath, 0755, true)) {
-            throw new \RuntimeException('Storage directory তৈরি করা সম্ভব হয়নি।');
+            throw new \RuntimeException('Could not create storage directory.');
         }
 
         $fullPath = $dirPath . '/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $fullPath)) {
-            throw new \RuntimeException('ফাইল সেভ করা সম্ভব হয়নি।');
+            throw new \RuntimeException('Could not save file.');
         }
 
-        // DB-তে relative path সেভ (storage root থেকে)
+        // Save relative path in DB (from storage root)
         $relativePath = 'quiz_voices/' . date('Y/m') . '/' . $filename;
         $saved = $this->repo->saveVoiceSubmission($attemptId, $relativePath);
 
         if (!$saved) {
-            // DB save ব্যর্থ হলে ফাইল মুছে ফেলো
+            // If DB save fails, delete the file
             @unlink($fullPath);
-            throw new \RuntimeException('তথ্য সংরক্ষণ করা সম্ভব হয়নি।');
+            throw new \RuntimeException('Could not save data.');
         }
 
         return $relativePath;
     }
 
     /**
-     * Result page-এর জন্য attempt + per-type breakdown
+     * attempt + per-type breakdown for result page
      */
     public function getResultData(string $token): array
     {
         $attempt = $this->repo->findAttemptByToken($token);
         if (!$attempt) {
-            throw new \RuntimeException('রেজাল্ট পাওয়া যায়নি।');
+            throw new \RuntimeException('Result not found.');
         }
 
-        // ধরন অনুযায়ী স্কোর breakdown
+        // Score breakdown by type
         $breakdown = $this->repo->getAnswerBreakdown((int) $attempt['id']);
 
         return [
@@ -482,7 +482,7 @@ class QuizService
     // ================================================================
 
     /**
-     * Quiz input validation (create & update-এ ব্যবহার হয়)
+     * Quiz input validation (used in create & update)
      */
     private function validateQuizInput(array $input): array
     {
@@ -490,9 +490,9 @@ class QuizService
 
         $title = trim($input['title'] ?? '');
         if ($title === '') {
-            $errors[] = 'শিরোনাম আবশ্যক।';
+            $errors[] = 'Title is required.';
         } elseif (mb_strlen($title) > 255) {
-            $errors[] = 'শিরোনাম সর্বোচ্চ ২৫৫ অক্ষর।';
+            $errors[] = 'Title can be at most 255 characters.';
         }
 
         $status = $input['status'] ?? 'active';
@@ -502,13 +502,13 @@ class QuizService
 
         $description = trim($input['description'] ?? '');
         if (mb_strlen($description) > 5000) {
-            $errors[] = 'বিবরণ সর্বোচ্চ ৫০০০ অক্ষর।';
+            $errors[] = 'Description can be at most 5000 characters.';
         }
 
-        // প্রশ্ন যাচাই
+        // Validate questions
         $questions = $input['questions'] ?? [];
         if (empty($questions) || !is_array($questions)) {
-            $errors[] = 'কমপক্ষে একটি প্রশ্ন যোগ করুন।';
+            $errors[] = 'Add at least one question.';
         }
 
         $hasVoice = false;
@@ -516,23 +516,23 @@ class QuizService
             $no   = $i + 1;
             $type = $q['type'] ?? '';
             if (!in_array($type, self::VALID_QUESTION_TYPES, true)) {
-                $errors[] = "প্রশ্ন #{$no}: অনুমোদিত type নয়।";
+                $errors[] = "Question #{$no}: Invalid type.";
                 continue;
             }
             if (empty(trim($q['question_text'] ?? ''))) {
-                $errors[] = "প্রশ্ন #{$no}: বিষয়বস্তু আবশ্যক।";
+                $errors[] = "Question #{$no}: Content is required.";
             }
             if ($type === 'voice') {
                 $hasVoice = true;
             } else {
-                // MCQ: অন্তত একটি সঠিক অপশন এবং ৪টি অপশন
+                // MCQ: at least 2 options and 1 correct option
                 $opts    = $q['options'] ?? [];
                 $correct = array_filter($opts, fn($o) => !empty($o['is_correct']));
                 if (count($opts) < 2) {
-                    $errors[] = "প্রশ্ন #{$no}: কমপক্ষে ২টি অপশন লাগবে।";
+                    $errors[] = "Question #{$no}: At least 2 options are required.";
                 }
                 if (count($correct) !== 1) {
-                    $errors[] = "প্রশ্ন #{$no}: ঠিক একটি সঠিক অপশন চিহ্নিত করুন।";
+                    $errors[] = "Question #{$no}: Mark exactly one correct option.";
                 }
             }
         }
@@ -550,7 +550,7 @@ class QuizService
     }
 
     /**
-     * প্রশ্ন ও অপশন DB-তে সেভ করা
+     * Save questions and options in DB
      */
     private function saveQuestionsWithOptions(int $quizId, array $questions): void
     {
@@ -569,7 +569,7 @@ class QuizService
     }
 
     /**
-     * MIME type থেকে ফাইল extension নির্ণয়
+     * Determine file extension from MIME type
      */
     private function getExtensionFromMime(string $mime): string
     {

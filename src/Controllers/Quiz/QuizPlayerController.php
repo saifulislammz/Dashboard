@@ -9,7 +9,7 @@ use App\Services\QuizService;
 
 /**
  * QuizPlayerController — Public (No Login Required)
- * Guest ফর্ম থেকে quiz play পর্যন্ত সব public route handle করে।
+ * Handles all public routes from Guest form to quiz play.
  */
 class QuizPlayerController
 {
@@ -23,13 +23,13 @@ class QuizPlayerController
     }
 
     // ──────────────────────────────────────────────
-    // GET  /quiz/play.php?id=X    → গেস্ট ফর্ম দেখানো
-    // POST /quiz/play.php         → attempt তৈরি → redirect
-    // GET  /quiz/play.php?t=TOKEN → কুইজ প্লেয়ার
+    // GET  /quiz/play.php?id=X    → Show guest form
+    // POST /quiz/play.php         → Create attempt → redirect
+    // GET  /quiz/play.php?t=TOKEN → Quiz player
     // ──────────────────────────────────────────────
     public function play(): void
     {
-        // ─── Quiz player (token দিয়ে)
+        // ─── Quiz player (with token)
         if (isset($_GET['t'])) {
             $this->showPlayer();
             return;
@@ -41,18 +41,18 @@ class QuizPlayerController
             return;
         }
 
-        // ─── Guest form GET (quiz id দিয়ে)
+        // ─── Guest form GET (with quiz id)
         $quizId = (int) ($_GET['id'] ?? 0);
         if ($quizId <= 0) {
             http_response_code(400);
-            echo 'কুইজ পাওয়া যায়নি।';
+            echo 'Quiz not found.';
             exit;
         }
 
         $quiz = $this->repo->findActiveQuizById($quizId);
         if (!$quiz) {
             http_response_code(404);
-            echo 'কুইজটি পাওয়া যায়নি বা বর্তমানে অনুপলব্ধ।';
+            echo 'The quiz was not found or is currently unavailable.';
             exit;
         }
 
@@ -88,7 +88,7 @@ class QuizPlayerController
             exit;
         }
 
-        // Token থেকে attempt যাচাই (IDOR protection)
+        // Verify attempt from Token (IDOR protection)
         $attempt = $this->repo->findAttemptByToken($token);
         if (!$attempt || $attempt['status'] === 'voice_submitted') {
             http_response_code(403);
@@ -107,7 +107,7 @@ class QuizPlayerController
         } catch (\Throwable $e) {
             error_log('[QuizPlayerController::submitAnswer] ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'উত্তর সেভ করা সম্ভব হয়নি।']);
+            echo json_encode(['success' => false, 'message' => 'Could not save the answer.']);
         }
         exit;
     }
@@ -138,17 +138,17 @@ class QuizPlayerController
 
         if ($attempt['voice_submitted']) {
             http_response_code(409);
-            echo json_encode(['success' => false, 'message' => 'ভয়েস ইতিমধ্যে জমা দেওয়া হয়েছে।']);
+            echo json_encode(['success' => false, 'message' => 'Voice has already been submitted.']);
             exit;
         }
 
         if (empty($_FILES['voice_file']) || $_FILES['voice_file']['error'] === UPLOAD_ERR_NO_FILE) {
             http_response_code(422);
-            echo json_encode(['success' => false, 'message' => 'কোনো ভয়েস ফাইল পাওয়া যায়নি।']);
+            echo json_encode(['success' => false, 'message' => 'No voice file found.']);
             exit;
         }
 
-        // MCQ score finalize (voice submit-এর আগে)
+        // MCQ score finalize (before voice submit)
         try {
             $scoreData = $this->quizService->finalizeAttempt((int) $attempt['id']);
         } catch (\Throwable $e) {
@@ -160,7 +160,7 @@ class QuizPlayerController
             $this->quizService->uploadVoiceRecording((int) $attempt['id'], $_FILES['voice_file']);
             echo json_encode([
                 'success'  => true,
-                'message'  => 'ভয়েস সফলভাবে জমা হয়েছে।',
+                'message'  => 'Voice successfully submitted.',
                 'redirect' => '/quiz/result.php?t=' . urlencode($token),
                 'score'    => $scoreData,
             ]);
@@ -170,7 +170,7 @@ class QuizPlayerController
         } catch (\Throwable $e) {
             error_log('[QuizPlayerController::uploadVoice] ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।']);
+            echo json_encode(['success' => false, 'message' => 'Upload failed. Please try again.']);
         }
         exit;
     }
@@ -183,7 +183,7 @@ class QuizPlayerController
         $token = $_GET['t'] ?? '';
         if ($token === '') {
             http_response_code(400);
-            echo 'অনুরোধ সঠিক নয়।';
+            echo 'Invalid request.';
             exit;
         }
 
@@ -206,7 +206,7 @@ class QuizPlayerController
     // ================================================================
 
     /**
-     * Guest form POST → attempt তৈরি → player redirect
+     * Guest form POST → create attempt → player redirect
      */
     private function handleGuestFormSubmit(): void
     {
@@ -217,7 +217,7 @@ class QuizPlayerController
 
         if (!$quiz) {
             http_response_code(404);
-            echo 'কুইজ পাওয়া যায়নি।';
+            echo 'Quiz not found.';
             exit;
         }
 
@@ -229,21 +229,21 @@ class QuizPlayerController
             header('Location: /quiz/play.php?t=' . urlencode($result['token']));
             exit;
         } catch (\RuntimeException $e) {
-            // চিরতরে block হলে → error message
+            // If permanently blocked → error message
             $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         } catch (\InvalidArgumentException $e) {
             $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         } catch (\Throwable $e) {
             error_log('[QuizPlayerController::handleGuestFormSubmit] ' . $e->getMessage());
-            $error = 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+            $error = 'An error occurred. Please try again.';
         }
 
-        // Error হলে form আবার দেখানো
+        // If there is an error, show form again
         require_once __DIR__ . '/../../../views/quiz/guest_form.php';
     }
 
     /**
-     * Token দিয়ে quiz player দেখানো
+     * Show quiz player with Token
      */
     private function showPlayer(): void
     {
@@ -252,11 +252,11 @@ class QuizPlayerController
 
         if (!$attempt) {
             http_response_code(403);
-            echo 'অনুমোদিত নয়। সঠিক লিংক ব্যবহার করুন।';
+            echo 'Not authorized. Please use the correct link.';
             exit;
         }
 
-        // ইতিমধ্যে ভয়েস জমা → redirect to result
+        // Voice already submitted → redirect to result
         if ($attempt['voice_submitted']) {
             header('Location: /quiz/result.php?t=' . urlencode($token));
             exit;
@@ -268,7 +268,7 @@ class QuizPlayerController
 
         if (!$quiz || empty($questions)) {
             http_response_code(404);
-            echo 'কুইজটি পাওয়া যায়নি বা কোনো প্রশ্ন নেই।';
+            echo 'Quiz not found or there are no questions.';
             exit;
         }
 

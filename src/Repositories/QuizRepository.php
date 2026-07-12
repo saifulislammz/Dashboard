@@ -9,8 +9,8 @@ use PDO;
 /**
  * QuizRepository — Arabic Quiz System Data Access Layer
  *
- * সব DB কুয়েরি এখানে। Controller বা Service কখনো সরাসরি SQL লিখবে না।
- * প্রতিটি মেথড: PDO Prepared Statement, কোনো string concatenation নয়।
+ * All DB queries here. Controller or Service will never write SQL directly.
+ * Each method: PDO Prepared Statement, no string concatenation.
  */
 class QuizRepository
 {
@@ -29,7 +29,7 @@ class QuizRepository
     // ================================================================
 
     /**
-     * নতুন কুইজ তৈরি করে — quiz id রিটার্ন করে
+     * Creates a new quiz — returns quiz id
      */
     public function createQuiz(array $data): int
     {
@@ -47,7 +47,7 @@ class QuizRepository
     }
 
     /**
-     * কুইজ আপডেট
+     * Update quiz
      */
     public function updateQuiz(int $id, array $data): bool
     {
@@ -65,7 +65,7 @@ class QuizRepository
     }
 
     /**
-     * সফট ডিলিট
+     * Soft delete
      */
     public function softDeleteQuiz(int $id): bool
     {
@@ -76,7 +76,7 @@ class QuizRepository
     }
 
     /**
-     * ID দিয়ে একটি কুইজ খোঁজা (soft-deleted বাদে)
+     * Find a quiz by ID (excluding soft-deleted)
      */
     public function findQuizById(int $id): ?array
     {
@@ -91,7 +91,7 @@ class QuizRepository
     }
 
     /**
-     * Active কুইজ — public page-এর জন্য (তালিকা নেই, শুধু direct link)
+     * Active quiz — for public page (no list, direct link only)
      */
     public function findActiveQuizById(int $id): ?array
     {
@@ -106,7 +106,7 @@ class QuizRepository
     }
 
     /**
-     * Admin-এর জন্য paginated কুইজ তালিকা
+     * Paginated quiz list for Admin
      */
     public function findAllQuizzes(array $filters, int $page, int $perPage): array
     {
@@ -145,7 +145,7 @@ class QuizRepository
     }
 
     /**
-     * Admin কুইজ তালিকার মোট সংখ্যা (pagination-এর জন্য)
+     * Total number of Admin quiz list (for pagination)
      */
     public function countAllQuizzes(array $filters): int
     {
@@ -171,7 +171,7 @@ class QuizRepository
     // ================================================================
 
     /**
-     * নতুন প্রশ্ন সেভ — question id রিটার্ন করে
+     * Save new question — returns question id
      */
     public function saveQuestion(array $data): int
     {
@@ -189,7 +189,7 @@ class QuizRepository
     }
 
     /**
-     * একটি প্রশ্নের সব অপশন সেভ করা (batch insert)
+     * Save all options for a question (batch insert)
      */
     public function saveOptions(int $questionId, array $options): void
     {
@@ -208,7 +208,7 @@ class QuizRepository
     }
 
     /**
-     * কুইজের সব প্রশ্ন মুছে ফেলা (edit-এ পুরো replace করার আগে)
+     * Delete all questions for a quiz (before replacing entirely in edit)
      */
     public function deleteQuestionsByQuizId(int $quizId): void
     {
@@ -219,7 +219,7 @@ class QuizRepository
     }
 
     /**
-     * কুইজের সব প্রশ্ন (display_order অনুযায়ী)
+     * All questions for a quiz (by display_order)
      */
     public function getQuestionsByQuizId(int $quizId): array
     {
@@ -234,7 +234,7 @@ class QuizRepository
     }
 
     /**
-     * একটি প্রশ্নের সব অপশন (option_order অনুযায়ী)
+     * All options for a question (by option_order)
      */
     public function getOptionsForQuestion(int $questionId): array
     {
@@ -249,7 +249,7 @@ class QuizRepository
     }
 
     /**
-     * একটি option-এর correct answer যাচাই করা
+     * Verify correct answer of an option
      */
     public function getCorrectOptionForQuestion(int $questionId): ?array
     {
@@ -269,8 +269,8 @@ class QuizRepository
     // ================================================================
 
     /**
-     * একই quiz-এ এই WhatsApp নম্বর দিয়ে voice_submitted attempt আছে কিনা
-     * (চিরতরে block check)
+     * Check if there is a voice_submitted attempt with this WhatsApp number in this quiz
+     * (permanent block check)
      */
     public function isPhoneBlockedForQuiz(int $quizId, string $phone): bool
     {
@@ -286,7 +286,7 @@ class QuizRepository
     }
 
     /**
-     * in_progress attempt খোঁজা (retry হলে এটা রিসেট হবে)
+     * Find in_progress attempt (will be reset on retry)
      */
     public function findInProgressAttempt(int $quizId, string $phone): ?array
     {
@@ -304,7 +304,7 @@ class QuizRepository
     }
 
     /**
-     * নতুন attempt তৈরি
+     * Create new attempt
      */
     public function createAttempt(array $data): int
     {
@@ -329,7 +329,7 @@ class QuizRepository
     }
 
     /**
-     * Retry: পুরানো in_progress attempt রিসেট করে নতুন token দিয়ে শুরু
+     * Retry: reset old in_progress attempt and start with a new token
      */
     public function resetAttempt(int $attemptId, string $newToken, int $totalQuestions): bool
     {
@@ -351,7 +351,7 @@ class QuizRepository
     }
 
     /**
-     * পুরানো attempt-এর answers মুছে ফেলা (retry-এর সময়)
+     * Delete answers for old attempt (during retry)
      */
     public function deleteAnswersForAttempt(int $attemptId): void
     {
@@ -362,7 +362,7 @@ class QuizRepository
     }
 
     /**
-     * Token দিয়ে attempt খোঁজা
+     * Find attempt by Token
      */
     public function findAttemptByToken(string $token): ?array
     {
@@ -380,7 +380,7 @@ class QuizRepository
     }
 
     /**
-     * উত্তর রেকর্ড করা
+     * Record answer
      */
     public function recordAnswer(
         int  $attemptId,
@@ -404,7 +404,7 @@ class QuizRepository
     }
 
     /**
-     * MCQ শেষে attempt-এর স্কোর ও status আপডেট
+     * Update attempt score and status after MCQ
      */
     public function finalizeAttempt(int $attemptId, int $correctCount, int $total): bool
     {
@@ -424,7 +424,7 @@ class QuizRepository
     }
 
     /**
-     * ভয়েস ফাইল পাথ সেভ এবং status → voice_submitted
+     * Save voice file path and set status → voice_submitted
      */
     public function saveVoiceSubmission(int $attemptId, string $filePath): bool
     {
@@ -444,7 +444,7 @@ class QuizRepository
     // ================================================================
 
     /**
-     * Admin ড্যাশবোর্ডের স্ট্যাটস কার্ড
+     * Admin dashboard stats card
      */
     public function getDashboardStats(int $quizId): array
     {
@@ -491,7 +491,7 @@ class QuizRepository
     }
 
     /**
-     * Attempt list মোট সংখ্যা
+     * Total count of Attempt list
      */
     public function countAttempts(int $quizId): int
     {
@@ -503,7 +503,7 @@ class QuizRepository
     }
 
     /**
-     * ভয়েস রিভিউ নোট সেভ এবং admin_notified = 1 করা
+     * Save voice review note and set admin_notified = 1
      */
     public function saveVoiceReviewNote(int $attemptId, string $note): bool
     {
@@ -518,7 +518,7 @@ class QuizRepository
     }
 
     /**
-     * সব admin_notified = 0 attempts-কে 1 করা (badge clear)
+     * Set all admin_notified = 0 attempts to 1 (badge clear)
      */
     public function markAllNotified(int $quizId): void
     {
@@ -531,7 +531,7 @@ class QuizRepository
     }
 
     /**
-     * নতুন (unreviewed) voice count — sidebar badge-এর জন্য
+     * New (unreviewed) voice count — for sidebar badge
      */
     public function getGlobalUnreviewedVoiceCount(): int
     {
@@ -543,11 +543,11 @@ class QuizRepository
     }
 
     // ================================================================
-    // ADDITIONAL QUERY METHODS (Service-এ ব্যবহৃত)
+    // ADDITIONAL QUERY METHODS (Used in Service)
     // ================================================================
 
     /**
-     * ID দিয়ে attempt খোঁজা (internal use)
+     * Find attempt by ID (internal use)
      */
     public function findAttemptById(int $id): ?array
     {
@@ -565,7 +565,7 @@ class QuizRepository
     }
 
     /**
-     * একটি attempt-এর সঠিক/ভুল উত্তরের সংখ্যা
+     * Number of correct/wrong answers for an attempt
      */
     public function getAnswerStats(int $attemptId): array
     {
@@ -582,7 +582,7 @@ class QuizRepository
     }
 
     /**
-     * Result page-এর জন্য ধরন অনুযায়ী breakdown
+     * Breakdown by type for Result page
      */
     public function getAnswerBreakdown(int $attemptId): array
     {

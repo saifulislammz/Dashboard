@@ -54,8 +54,7 @@ function quizPageUrl(int $p): string
             class="flex flex-wrap gap-3 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
             <input type="text" name="search"
                 value="<?php echo htmlspecialchars($_GET['search'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                placeholder="Search title..."
-                oninput="if(this.value.trim() === '') this.form.submit()"
+                placeholder="Search title..." oninput="if(this.value.trim() === '') this.form.submit()"
                 class="flex-1 min-w-[200px] px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669]" />
             <select name="status"
                 class="px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#059669]/30 bg-white">
@@ -86,7 +85,7 @@ function quizPageUrl(int $p): string
                     <p class="font-medium">No quizzes found.</p>
                     <a href="/admin/quiz/create.php"
                         class="mt-3 inline-block text-[#059669] font-semibold hover:underline text-sm">Create new quiz
-                        â†’</a>
+                    </a>
                 </div>
             <?php else: ?>
                 <div class="overflow-x-auto">

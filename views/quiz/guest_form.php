@@ -2,12 +2,12 @@
 // views/quiz/guest_form.php
 ?>
 <!DOCTYPE html>
-<html lang="bn" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title><?php echo htmlspecialchars($quiz['title'] ?? 'কুইজ', ENT_QUOTES, 'UTF-8'); ?> — Rahen Azat Institute</title>
-    <meta name="description" content="আরবি বর্ণমালা কুইজে অংশগ্রহণ করুন। নাম ও WhatsApp নম্বর দিয়ে শুরু করুন।"/>
+    <title><?php echo htmlspecialchars($quiz['title'] ?? 'Quiz', ENT_QUOTES, 'UTF-8'); ?> — Rahen Azat Institute</title>
+    <meta name="description" content="Participate in the Arabic Alphabet Quiz. Start with your name and WhatsApp number."/>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
                     </svg>
                 </div>
                 <h1 class="text-xl font-bold text-gray-800 tracking-tight">
-                    <?php echo htmlspecialchars($quiz['title'] ?? 'আরবি কুইজ', ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars($quiz['title'] ?? 'Arabic Quiz', ENT_QUOTES, 'UTF-8'); ?>
                 </h1>
                 <?php if (!empty($quiz['description'])): ?>
                 <p class="mt-2 text-[13px] text-gray-500 leading-relaxed font-medium">
@@ -47,12 +47,12 @@
                 <div class="mt-5 flex items-center justify-center gap-4 text-xs font-semibold text-gray-400">
                     <span class="flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        MCQ + ভয়েস
+                        MCQ + Voice
                     </span>
                     <span class="text-gray-200">|</span>
                     <span class="flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-[#10b981]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        সর্বোচ্চ ১ মিনিট
+                        Max 1 Minute
                     </span>
                 </div>
             </div>
@@ -73,11 +73,11 @@
                 <!-- Name -->
                 <div class="space-y-2">
                     <label class="text-[13px] font-bold text-gray-700">
-                        পূর্ণ নাম <span class="text-red-500">*</span>
+                        Full Name <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="participant_name" id="participant_name"
                            required maxlength="150"
-                           placeholder="আপনার পূর্ণ নাম লিখুন"
+                           placeholder="Enter your full name"
                            value="<?php echo htmlspecialchars($_POST['participant_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                            class="w-full px-4 py-3 border border-gray-200 rounded-xl text-[15px] font-medium text-gray-800
                                   placeholder-gray-300 bg-gray-50 hover:bg-white
@@ -88,7 +88,7 @@
                 <!-- Gender -->
                 <div class="space-y-3">
                     <label class="text-[13px] font-bold text-gray-700">
-                        লিঙ্গ <span class="text-red-500">*</span>
+                        Gender <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-3">
                         <label class="cursor-pointer">
@@ -100,7 +100,7 @@
                                         peer-checked:border-[#10b981] peer-checked:bg-[#eefcf2] peer-checked:text-[#0f5132]
                                         hover:border-gray-300 transition-all">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                পুরুষ
+                                Male
                             </div>
                         </label>
                         <label class="cursor-pointer">
@@ -112,7 +112,7 @@
                                         peer-checked:border-[#10b981] peer-checked:bg-[#eefcf2] peer-checked:text-[#0f5132]
                                         hover:border-gray-300 transition-all">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                মহিলা
+                                Female
                             </div>
                         </label>
                     </div>
@@ -121,7 +121,7 @@
                 <!-- WhatsApp -->
                 <div class="space-y-2">
                     <label class="text-[13px] font-bold text-gray-700">
-                        WhatsApp নম্বর <span class="text-red-500">*</span>
+                        WhatsApp Number <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[15px]">📱</span>
@@ -135,13 +135,13 @@
                                       focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#10b981]/20 focus:border-[#10b981]
                                       transition-all"/>
                     </div>
-                    <p class="text-[11px] font-medium text-gray-400 pt-1">এই নম্বরে শুধুমাত্র একবার অংশগ্রহণ করা যাবে।</p>
+                    <p class="text-[11px] font-medium text-gray-400 pt-1">You can only participate once with this number.</p>
                 </div>
 
                 <!-- Email (optional) -->
                 <div class="space-y-2">
                     <label class="text-[13px] font-bold text-gray-700">
-                        ইমেইল <span class="text-gray-400 font-medium text-xs">(ঐচ্ছিক)</span>
+                        Email <span class="text-gray-400 font-medium text-xs">(Optional)</span>
                     </label>
                     <input type="email" name="email" id="email"
                            maxlength="150"
@@ -161,7 +161,7 @@
                                transition-all duration-200
                                focus:outline-none focus:ring-2 focus:ring-[#0f5132]/30
                                active:scale-[0.98]">
-                    কুইজ শুরু করুন
+                    Start Quiz
                 </button>
             </form>
         </div>

@@ -7,7 +7,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ------------------------------------------------------------
--- 1. quizzes — কুইজের মূল রেকর্ড
+-- 1. quizzes — Main quiz records
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quizzes (
     id            BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS quizzes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- 2. quiz_questions — প্রতিটি প্রশ্ন
+-- 2. quiz_questions — Each question
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_questions (
     id            BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
     quiz_id       BIGINT UNSIGNED   NOT NULL,
     type          VARCHAR(30)       NOT NULL,   -- 'letter' | 'pronunciation' | 'voice'
-    question_text TEXT              NOT NULL,   -- আরবি অক্ষর / শব্দ / প্যারাগ্রাফ
+    question_text TEXT              NOT NULL,   -- Arabic letter / word / paragraph
     display_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     created_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -49,12 +49,12 @@ CREATE TABLE IF NOT EXISTS quiz_questions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- 3. quiz_options — MCQ অপশন (letter & pronunciation প্রশ্নের জন্য)
+-- 3. quiz_options — MCQ options (for letter & pronunciation questions)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_options (
     id            BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
     question_id   BIGINT UNSIGNED   NOT NULL,
-    option_text   VARCHAR(255)      NOT NULL,   -- বাংলা / আরবি উচ্চারণ টেক্সট
+    option_text   VARCHAR(255)      NOT NULL,   -- Bengali / Arabic pronunciation text
     is_correct    TINYINT(1)        NOT NULL DEFAULT 0,
     option_order  TINYINT UNSIGNED  NOT NULL DEFAULT 0,
 
@@ -68,39 +68,39 @@ CREATE TABLE IF NOT EXISTS quiz_options (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- 4. quiz_attempts — অংশগ্রহণকারীর কুইজ সেশন
---    Guest-based: login ছাড়া, participant info stored here
+-- 4. quiz_attempts — Participant's quiz session
+--    Guest-based: without login, participant info stored here
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_attempts (
     id               BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
     quiz_id          BIGINT UNSIGNED   NOT NULL,
 
-    -- অংশগ্রহণকারীর তথ্য (guest — কোনো user account নেই)
+    -- Participant information (guest — no user account)
     participant_name VARCHAR(150)      NOT NULL,
     gender           VARCHAR(10)       NOT NULL,   -- 'male' | 'female'
     whatsapp_number  VARCHAR(20)       NOT NULL,
-    email            VARCHAR(150)      NULL,        -- অপশনাল
+    email            VARCHAR(150)      NULL,        -- Optional
 
-    -- কুইজের অবস্থা
-    -- 'in_progress'     → মাঝে ছেড়ে গেছে (retry করা যাবে)
-    -- 'completed'       → MCQ শেষ, ভয়েস বাকি
-    -- 'voice_submitted' → সম্পূর্ণ শেষ, এই নম্বর চিরতরে block
+    -- Quiz status
+    -- 'in_progress'     → Left in middle (can be retried)
+    -- 'completed'       → MCQ finished, voice remaining
+    -- 'voice_submitted' → Completely finished, this number is permanently blocked
     status           VARCHAR(20)       NOT NULL DEFAULT 'in_progress',
 
-    -- স্কোর
+    -- Score
     total_questions  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     correct_answers  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
 
-    -- ভয়েস রেকর্ডিং
+    -- Voice recording
     voice_submitted  TINYINT(1)        NOT NULL DEFAULT 0,
     voice_file_path  VARCHAR(500)      NULL,        -- storage/quiz_voices/yyyy/mm/xxx.webm
     voice_reviewed   TINYINT(1)        NOT NULL DEFAULT 0,
-    voice_note       TEXT              NULL,        -- অ্যাডমিনের রিভিউ নোট
+    voice_note       TEXT              NULL,        -- Admin review note
 
-    -- অ্যাডমিন notification badge (0 = নতুন / অদেখা)
+    -- Admin notification badge (0 = new / unseen)
     admin_notified   TINYINT(1)        NOT NULL DEFAULT 0,
 
-    -- সেশন token (IDOR প্রতিরোধ — URL-এ DB id expose হয় না)
+    -- Session token (IDOR prevention — DB id not exposed in URL)
     session_token    VARCHAR(64)       NOT NULL,
 
     started_at       DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
 
     PRIMARY KEY (id),
 
-    -- Token unique — প্রতিটি attempt-এর আলাদা token
+    -- Token unique — different token for each attempt
     UNIQUE KEY uq_attempt_token       (session_token),
 
     INDEX idx_qa_quiz_id              (quiz_id),
@@ -126,19 +126,19 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------
--- 5. quiz_answers — প্রতিটি MCQ উত্তরের লগ
+-- 5. quiz_answers — Log of each MCQ answer
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS quiz_answers (
     id                   BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
     attempt_id           BIGINT UNSIGNED  NOT NULL,
     question_id          BIGINT UNSIGNED  NOT NULL,
-    selected_option_id   BIGINT UNSIGNED  NULL,   -- voice প্রশ্নে NULL
+    selected_option_id   BIGINT UNSIGNED  NULL,   -- NULL for voice questions
     is_correct           TINYINT(1)       NOT NULL DEFAULT 0,
     answered_at          DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
 
-    -- একটি attempt-এ একটি প্রশ্নের একটিই উত্তর
+    -- Only one answer per question in an attempt
     UNIQUE KEY uq_ans_attempt_question (attempt_id, question_id),
     INDEX idx_ans_attempt_id           (attempt_id),
     INDEX idx_ans_question_id          (question_id),

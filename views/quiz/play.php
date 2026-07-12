@@ -2,11 +2,11 @@
 // views/quiz/play.php
 ?>
 <!DOCTYPE html>
-<html lang="bn" dir="ltr">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title><?php echo htmlspecialchars($quiz['title'] ?? 'কুইজ', ENT_QUOTES, 'UTF-8'); ?> — Rahen Azat Institute</title>
+    <title><?php echo htmlspecialchars($quiz['title'] ?? 'Quiz', ENT_QUOTES, 'UTF-8'); ?> — Rahen Azat Institute</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,9 +67,9 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                 <!-- Header: Question Title & Counter -->
                 <div class="flex justify-between items-start mb-10">
                     <h2 class="text-gray-500 font-semibold text-[15px]">
-                        <span x-show="currentQuestion?.type === 'letter'">নিচের অক্ষরটি কী?</span>
-                        <span x-show="currentQuestion?.type === 'pronunciation'">সঠিক উচ্চারণ কোনটি?</span>
-                        <span x-show="currentQuestion?.type === 'voice'">নিচের আর্টিকেলটি পড়ুন এবং আপনার ভয়েস রেকর্ড করুন</span>
+                        <span x-show="currentQuestion?.type === 'letter'">What is the letter below?</span>
+                        <span x-show="currentQuestion?.type === 'pronunciation'">Which is the correct pronunciation?</span>
+                        <span x-show="currentQuestion?.type === 'voice'">Read the article below and record your voice</span>
                     </h2>
                     <div class="bg-[#f1f5f9] text-[#64748b] text-[13px] font-bold px-4 py-1.5 rounded-full flex-shrink-0">
                         <span x-text="`${currentIndex + 1}/${questions.length}`"></span>
@@ -148,7 +148,7 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                             </div>
 
                             <!-- Instructions -->
-                            <p class="text-[#94a3b8] text-[15px] font-medium mb-8">আপনার ভয়েস রেকর্ড করুন (সর্বোচ্চ 1 মিনিট)</p>
+                            <p class="text-[#94a3b8] text-[15px] font-medium mb-8">Record your voice (Max 1 minute)</p>
 
                             <!-- Voice Recorder UI -->
                             <div class="flex items-center justify-center gap-6 mb-5 w-full" :class="{'recording': isRecording}">
@@ -187,12 +187,12 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                             <div class="text-[#374151] font-semibold text-[15px] mb-2 font-mono tracking-wider"
                                  x-text="`00:${recordingSeconds.toString().padStart(2, '0')} / 01:00`"></div>
                             
-                            <p class="text-[#cbd5e1] text-[13px] font-medium" x-show="!audioBlob && !isRecording">রেকর্ড শুরু করতে মাইক্রোফোনে ক্লিক করুন</p>
+                            <p class="text-[#cbd5e1] text-[13px] font-medium" x-show="!audioBlob && !isRecording">Click the microphone to start recording</p>
                             
                             <!-- Audio Preview & Reset -->
                             <div x-show="audioBlob && !isRecording" class="mt-6 flex flex-col items-center gap-4 w-full max-w-sm">
                                 <audio :src="audioUrl" controls class="w-full h-10 rounded-full bg-gray-50"></audio>
-                                <button @click="resetRecording()" class="text-sm text-[#94a3b8] hover:text-red-500 font-medium underline underline-offset-2">পুনরায় রেকর্ড করুন</button>
+                                <button @click="resetRecording()" class="text-sm text-[#94a3b8] hover:text-red-500 font-medium underline underline-offset-2">Record Again</button>
                             </div>
                             
                             <p class="text-red-500 text-sm mt-4 font-medium" x-show="voiceError" x-text="voiceError"></p>
@@ -209,7 +209,7 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                         <button x-show="currentQuestion?.type !== 'voice' && !answered"
                                 @click="skipQuestion()"
                                 class="text-[#64748b] hover:text-[#334155] font-semibold text-[15px] transition-colors">
-                            স্কিপ করুন
+                            Skip
                         </button>
                     </div>
 
@@ -218,14 +218,14 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                         <button x-show="answered && currentQuestion?.type !== 'voice'"
                                 @click="nextQuestion()"
                                 class="bg-[#0f5132] hover:bg-[#0a3622] text-white px-8 py-3 rounded-xl font-semibold text-[15px] transition-colors shadow-sm">
-                            পরবর্তী
+                            Next
                         </button>
                         
                         <button x-show="currentQuestion?.type === 'voice' && audioBlob && !isRecording"
                                 @click="submitVoice()"
                                 :disabled="uploading"
                                 class="bg-[#0f5132] hover:bg-[#0a3622] text-white px-8 py-3 rounded-xl font-semibold text-[15px] transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2">
-                            <span x-text="uploading ? 'জমা হচ্ছে...' : 'সাবমিট করুন'"></span>
+                            <span x-text="uploading ? 'Submitting...' : 'Submit'"></span>
                         </button>
                     </div>
                 </div>
@@ -241,8 +241,8 @@ $attemptToken   = htmlspecialchars($attempt['session_token'], ENT_QUOTES, 'UTF-8
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">সম্পন্ন হয়েছে!</h3>
-                <p class="text-gray-500 font-medium">আপনাকে ফলাফল পেজে নিয়ে যাওয়া হচ্ছে...</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Completed!</h3>
+                <p class="text-gray-500 font-medium">Taking you to the result page...</p>
             </div>
         </template>
 
@@ -360,7 +360,7 @@ function quizPlayer() {
                     if (this.recordingSeconds >= 60) this.stopRecording();
                 }, 1000);
             } catch(e) {
-                this.voiceError = 'মাইক্রোফোন অ্যাক্সেস দিন এবং আবার চেষ্টা করুন।';
+                this.voiceError = 'Please allow microphone access and try again.';
             }
         },
 
@@ -397,10 +397,10 @@ function quizPlayer() {
                     this.quizDone = true;
                     setTimeout(() => { window.location.href = data.redirect; }, 500);
                 } else {
-                    this.voiceError = data.message || 'আপলোড ব্যর্থ। আবার চেষ্টা করুন।';
+                    this.voiceError = data.message || 'Upload failed. Please try again.';
                 }
             } catch(e) {
-                this.voiceError = 'নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।';
+                this.voiceError = 'Network error. Please try again.';
             } finally {
                 this.uploading = false;
             }
