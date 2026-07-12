@@ -216,6 +216,10 @@ if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
             </button>
             <div id="menu-quiz"
                 class="<?php echo $isQuizActive ? 'flex' : 'hidden'; ?> flex-col mt-1 pl-12 pr-4 space-y-1">
+                <a href="/admin/quiz/create.php"
+                    class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'quiz_create' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
+                    <i class="ph ph-plus-circle text-lg"></i> Create Quiz
+                </a>
                 <a href="/admin/quiz/index.php"
                     class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'quiz_list' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
                     <i class="ph ph-list-numbers text-lg"></i> Quiz List

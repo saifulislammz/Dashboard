@@ -127,7 +127,7 @@ class QuizRepository
             "SELECT q.id, q.title, q.status, q.created_at,
                     COUNT(DISTINCT qa.id)                               AS total_attempts,
                     SUM(qa.voice_submitted = 1)                         AS voice_count,
-                    SUM(qa.voice_submitted = 1 AND qa.admin_notified = 0) AS unreviewed_count
+                    SUM(qa.voice_submitted = 1 AND qa.voice_reviewed = 0) AS unreviewed_count
              FROM quizzes q
              LEFT JOIN quiz_attempts qa ON qa.quiz_id = q.id
              {$where}
@@ -453,7 +453,7 @@ class QuizRepository
                 COUNT(id)                                              AS total_participants,
                 SUM(voice_submitted = 1)                               AS completed_count,
                 SUM(voice_submitted = 0)                               AS abandoned_count,
-                SUM(voice_submitted = 1 AND admin_notified = 0)        AS unreviewed_count,
+                SUM(voice_submitted = 1 AND voice_reviewed = 0)        AS unreviewed_count,
                 ROUND(
                     SUM(voice_submitted = 1) / NULLIF(COUNT(id), 0) * 100, 1
                 )                                                      AS completion_pct,
