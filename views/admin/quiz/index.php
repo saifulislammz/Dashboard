@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Admin Quiz List View
  * Shows all quizzes with status, attempt counts, and actions.
@@ -55,6 +55,7 @@ function quizPageUrl(int $p): string
             <input type="text" name="search"
                 value="<?php echo htmlspecialchars($_GET['search'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                 placeholder="Search title..."
+                oninput="if(this.value.trim() === '') this.form.submit()"
                 class="flex-1 min-w-[200px] px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#059669]/30 focus:border-[#059669]" />
             <select name="status"
                 class="px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#059669]/30 bg-white">

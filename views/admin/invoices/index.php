@@ -160,6 +160,7 @@ function pageUrl(int $p): string
                         <input type="text" name="search" id="filter-search"
                             value="<?= htmlspecialchars($activeFilters['search'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                             placeholder="Invoice # or student name¦"
+                            oninput="if(this.value.trim() === '') this.form.submit()"
                             class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">

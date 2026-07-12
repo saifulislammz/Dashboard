@@ -21,8 +21,9 @@ class NoticeRepository
         $params = [];
 
         if (!empty($search)) {
-            $whereClause .= " AND MATCH(n.title, n.content) AGAINST(:search IN BOOLEAN MODE)";
-            $params['search'] = $search;
+            $whereClause .= " AND (n.title LIKE :search1 OR n.content LIKE :search2)";
+            $params['search1'] = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
         }
 
         // Whitelist allowed sort fields to prevent SQL injection
@@ -58,8 +59,9 @@ class NoticeRepository
         $params = [];
 
         if (!empty($search)) {
-            $whereClause .= " AND MATCH(n.title, n.content) AGAINST(:search IN BOOLEAN MODE)";
-            $params['search'] = $search;
+            $whereClause .= " AND (n.title LIKE :search1 OR n.content LIKE :search2)";
+            $params['search1'] = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
         }
 
         $stmt = $this->db->prepare("SELECT COUNT(id) FROM notices n WHERE $whereClause");

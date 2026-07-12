@@ -88,11 +88,14 @@ class ClassroomRepository
         $params = [];
 
         if (!empty($search)) {
-            $query .= " WHERE c.class_name LIKE :search 
-                           OR c.class_title LIKE :search 
-                           OR t.username LIKE :search 
-                           OR s.username LIKE :search";
-            $params['search'] = "%$search%";
+            $query .= " WHERE c.class_name LIKE :search1 
+                           OR c.class_title LIKE :search2 
+                           OR t.username LIKE :search3 
+                           OR s.username LIKE :search4";
+            $params['search1'] = "%$search%";
+            $params['search2'] = "%$search%";
+            $params['search3'] = "%$search%";
+            $params['search4'] = "%$search%";
         }
 
         $query .= " ORDER BY c.created_at DESC LIMIT :limit OFFSET :offset";
@@ -121,11 +124,14 @@ class ClassroomRepository
         
         $params = [];
         if (!empty($search)) {
-            $query .= " WHERE c.class_name LIKE :search 
-                           OR c.class_title LIKE :search 
-                           OR t.username LIKE :search 
-                           OR s.username LIKE :search";
-            $params['search'] = "%$search%";
+            $query .= " WHERE c.class_name LIKE :search1 
+                           OR c.class_title LIKE :search2 
+                           OR t.username LIKE :search3 
+                           OR s.username LIKE :search4";
+            $params['search1'] = "%$search%";
+            $params['search2'] = "%$search%";
+            $params['search3'] = "%$search%";
+            $params['search4'] = "%$search%";
         }
 
         $stmt = $this->db->prepare($query);
