@@ -46,7 +46,7 @@
                     </a>
                     <a href="/admin/settings/meetings.php"
                         class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors">
-                        <i class="ph ph-gear text-lg"></i> Settings
+                        <i class="ph ph-video-camera text-lg"></i> Meetings
                     </a>
                 </div>
                 <div class="border-t border-gray-100 my-1"></div>

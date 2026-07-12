@@ -29,7 +29,12 @@ class AdminClassroomController
         $search  = trim($_GET['search'] ?? '');
         $limit   = 20;
 
-        $result      = $this->service->getPaginatedClassrooms($page, $limit, $search);
+        $sort    = $_GET['sort'] ?? 'created_at';
+        $order   = strtoupper($_GET['order'] ?? 'DESC');
+        if (!in_array($sort, ['id', 'status', 'created_at'])) $sort = 'created_at';
+        if (!in_array($order, ['ASC', 'DESC'])) $order = 'DESC';
+
+        $result      = $this->service->getPaginatedClassrooms($page, $limit, $search, $sort, $order);
         $classrooms  = $result['data'];
         $totalPages  = $result['pages'];
         $currentPage = $result['current_page'];

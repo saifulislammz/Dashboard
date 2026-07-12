@@ -69,10 +69,10 @@ class ClassroomService
         return $this->repository->findById($id);
     }
 
-    public function getPaginatedClassrooms(int $page, int $limit, string $search = ''): array
+    public function getPaginatedClassrooms(int $page, int $limit, string $search = '', string $sort = 'created_at', string $order = 'DESC'): array
     {
         $offset = ($page - 1) * $limit;
-        $classrooms = $this->repository->getPaginatedClassrooms($limit, $offset, $search);
+        $classrooms = $this->repository->getPaginatedClassrooms($limit, $offset, $search, $sort, $order);
         $total = $this->repository->countTotalClassrooms($search);
 
         return [

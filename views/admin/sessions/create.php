@@ -58,14 +58,14 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div class="sm:col-span-2">
                         <label class="block text-sm font-medium text-gray-700">Classroom</label>
                         <div class="mt-1">
-                            <input type="text" value="<?= htmlspecialchars($classroom['class_name']) ?>" disabled class="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                            <input type="text" value="<?= htmlspecialchars($classroom['class_name']) ?>" disabled class="shadow-sm block w-full px-4 py-2.5 sm:text-sm border-2 border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
                         </div>
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="provider" class="block text-sm font-medium text-gray-700">Meeting Provider <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <select id="provider" name="provider" required class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <select id="provider" name="provider" required class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                                 <option value="zoom">Zoom</option>
                                 <option value="google_meet">Google Meet</option>
                             </select>
@@ -76,22 +76,22 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div class="sm:col-span-2" id="singleDateWrapper">
                         <label for="session_date" class="block text-sm font-medium text-gray-700">Date <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <input type="date" name="session_date" id="session_date" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="date" name="session_date" id="session_date" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                         </div>
                     </div>
 
                     <!-- Bulk Dates Input -->
                     <div class="sm:col-span-2 hidden" id="bulkDateWrapper">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Selected Dates <span class="text-red-500">*</span></label>
-                        <div id="dateList" class="space-y-2">
-                            <div class="flex gap-2 date-row">
-                                <input type="date" name="dates[]" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
-                                <button type="button" onclick="removeDate(this)" class="px-3 py-2 border border-gray-300 text-red-500 rounded-md hover:bg-red-50 hidden remove-btn">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        <div id="dateList" class="space-y-3">
+                            <div class="flex gap-3 date-row">
+                                <input type="date" name="dates[]" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
+                                <button type="button" onclick="removeDate(this)" class="px-4 py-2.5 border-2 border-gray-300 text-red-500 rounded-md hover:bg-red-50 hidden remove-btn transition-colors">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                 </button>
                             </div>
                         </div>
-                        <button type="button" onclick="addDate()" class="mt-3 text-sm text-primary font-medium hover:underline flex items-center">
+                        <button type="button" onclick="addDate()" class="mt-4 text-sm text-primary font-medium hover:underline flex items-center">
                             + Add another date
                         </button>
                     </div>
@@ -99,21 +99,21 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div>
                         <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <input type="time" name="start_time" id="start_time" required class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="time" name="start_time" id="start_time" required class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                         </div>
                     </div>
 
                     <div>
                         <label for="end_time" class="block text-sm font-medium text-gray-700">End Time <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <input type="time" name="end_time" id="end_time" required class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="time" name="end_time" id="end_time" required class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                         </div>
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
                         <div class="mt-1">
-                            <select id="timezone" name="timezone" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <select id="timezone" name="timezone" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                                 <option value="Asia/Dhaka">Asia/Dhaka</option>
                                 <?php foreach ($timezones as $tz): if ($tz === 'Asia/Dhaka') continue; ?>
                                     <option value="<?= $tz ?>"><?= $tz ?></option>
@@ -125,14 +125,14 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div class="sm:col-span-2">
                         <label for="topic" class="block text-sm font-medium text-gray-700">Topic / Title (Optional)</label>
                         <div class="mt-1">
-                            <input type="text" name="topic" id="topic" placeholder="e.g. Grammar Lesson 1" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="text" name="topic" id="topic" placeholder="e.g. Grammar Lesson 1" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                         </div>
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="agenda" class="block text-sm font-medium text-gray-700">Agenda / Notes (Optional)</label>
                         <div class="mt-1">
-                            <textarea name="agenda" id="agenda" rows="3" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                            <textarea name="agenda" id="agenda" rows="4" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900"></textarea>
                         </div>
                     </div>
                 </div>

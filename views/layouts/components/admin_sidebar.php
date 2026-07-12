@@ -40,9 +40,8 @@ if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
         <?php
         $isUserMgmtActive = in_array($activeMenu ?? '', ['teachers', 'students']);
         $isNoticeActive = in_array($activeMenu ?? '', ['notices_create', 'notices_manage']);
-        $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage']);
+        $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage', 'classrooms_meetings']);
         $isAttendanceActive = in_array($activeMenu ?? '', ['admin_attendance']);
-        $isSettingsActive = in_array($activeMenu ?? '', ['settings_meetings']);
         $isInvoiceActive = in_array($activeMenu ?? '', ['invoice_create', 'invoice_dashboard', 'invoice_settings']);
         $isQuizActive = in_array($activeMenu ?? '', ['quiz_list', 'quiz_create', 'quiz_view'], true);
         $isAccountActive = in_array($activeMenu ?? '', ['profile']);
@@ -131,6 +130,10 @@ if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
                     class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'classrooms_manage' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
                     <i class="ph ph-kanban text-lg"></i> Manage Classrooms
                 </a>
+                <a href="/admin/settings/meetings.php"
+                    class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'classrooms_meetings' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
+                    <i class="ph ph-video-camera text-lg"></i> Meetings
+                </a>
             </div>
         </div>
 
@@ -158,26 +161,7 @@ if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
         <div class="text-[11px] font-bold text-gray-400 mt-5 mb-2 px-4 uppercase tracking-widest">Configuration
         </div>
 
-        <!-- SETTINGS -->
-        <div>
-            <button onclick="toggleMenu('menu-settings', 'icon-settings')"
-                class="w-full flex items-center justify-between px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-xl transition-colors group focus:outline-none <?php echo $isSettingsActive ? 'text-primary' : ''; ?>">
-                <div class="flex items-center gap-3">
-                    <i
-                        class="ph ph-gear text-xl <?php echo $isSettingsActive ? 'text-primary' : 'group-hover:text-primary'; ?>"></i>
-                    <span class="font-medium text-sm">SETTINGS</span>
-                </div>
-                <i id="icon-settings"
-                    class="ph ph-caret-down text-sm transition-transform duration-300 <?php echo $isSettingsActive ? 'rotate-180' : ''; ?>"></i>
-            </button>
-            <div id="menu-settings"
-                class="<?php echo $isSettingsActive ? 'flex' : 'hidden'; ?> flex-col mt-1 pl-12 pr-4 space-y-1">
-                <a href="/admin/settings/meetings.php"
-                    class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'settings_meetings' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
-                    <i class="ph ph-video-camera text-lg"></i> Meetings
-                </a>
-            </div>
-        </div>
+        <!-- SETTINGS removed -->
 
         <!-- INVOICES -->
         <div>

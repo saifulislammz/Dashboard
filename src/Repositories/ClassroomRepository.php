@@ -74,7 +74,7 @@ class ClassroomRepository
         return $result ?: null;
     }
 
-    public function getPaginatedClassrooms(int $limit, int $offset, string $search = ''): array
+    public function getPaginatedClassrooms(int $limit, int $offset, string $search = '', string $sort = 'created_at', string $order = 'DESC'): array
     {
         $query = "
             SELECT c.id, c.class_code, c.class_name, c.class_title, c.status, c.created_at,
@@ -98,7 +98,16 @@ class ClassroomRepository
             $params['search4'] = "%$search%";
         }
 
-        $query .= " ORDER BY c.created_at DESC LIMIT :limit OFFSET :offset";
+        // Map allowed sort columns to table aliases to prevent SQL injection
+        $sortMap = [
+            'id' => 'c.id',
+            'status' => 'c.status',
+            'created_at' => 'c.created_at'
+        ];
+        $orderBy = $sortMap[$sort] ?? 'c.created_at';
+        $orderDir = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+
+        $query .= " ORDER BY $orderBy $orderDir LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($query);
 

@@ -22,7 +22,7 @@ class AdminMeetingSettingsController
     {
         global $auth;
         $pageTitle  = 'Meeting Integrations Settings';
-        $activeMenu = 'settings_meetings';
+        $activeMenu = 'classrooms_meetings';
 
         $googleAccount = $this->providerRepo->findByProvider('google_meet');
         $zoomAccount   = $this->providerRepo->findByProvider('zoom');

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 
@@ -84,11 +84,11 @@ $error   = $_GET['error'] ?? $error ?? '';
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
                                     <label for="google_client_id" class="block text-sm font-medium text-gray-700">Client ID</label>
-                                    <input type="text" name="google_client_id" id="google_client_id" value="<?= htmlspecialchars($googleAccount['client_id'] ?? '') ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <input type="text" name="google_client_id" id="google_client_id" value="<?= htmlspecialchars($googleAccount['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 </div>
                                 <div class="sm:col-span-2">
                                     <label for="google_client_secret" class="block text-sm font-medium text-gray-700">Client Secret</label>
-                                    <input type="password" name="google_client_secret" id="google_client_secret" value="<?= htmlspecialchars($googleAccount['client_secret'] ?? '') ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <input type="password" name="google_client_secret" id="google_client_secret" value="<?= htmlspecialchars($googleAccount['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 </div>
                             </div>
 
@@ -146,15 +146,15 @@ $error   = $_GET['error'] ?? $error ?? '';
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
                                 <label for="zoom_account_id" class="block text-sm font-medium text-gray-700">Account ID</label>
-                                <input type="text" name="zoom_account_id" id="zoom_account_id" value="<?= htmlspecialchars($zoomAccount['zoom_account_id'] ?? '') ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <input type="text" name="zoom_account_id" id="zoom_account_id" value="<?= htmlspecialchars($zoomAccount['zoom_account_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                             </div>
                             <div class="sm:col-span-2">
                                 <label for="zoom_client_id" class="block text-sm font-medium text-gray-700">Client ID</label>
-                                <input type="text" name="zoom_client_id" id="zoom_client_id" value="<?= htmlspecialchars($zoomAccount['client_id'] ?? '') ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <input type="text" name="zoom_client_id" id="zoom_client_id" value="<?= htmlspecialchars($zoomAccount['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                             </div>
                             <div class="sm:col-span-2">
                                 <label for="zoom_client_secret" class="block text-sm font-medium text-gray-700">Client Secret</label>
-                                <input type="password" name="zoom_client_secret" id="zoom_client_secret" value="<?= htmlspecialchars($zoomAccount['client_secret'] ?? '') ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <input type="password" name="zoom_client_secret" id="zoom_client_secret" value="<?= htmlspecialchars($zoomAccount['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                             </div>
                         </div>
 
@@ -175,7 +175,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div class="sm:col-span-2">
                                 <label for="default_provider" class="block text-sm font-medium text-gray-700">Default Meeting Provider</label>
-                                <select id="default_provider" name="default_provider" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <select id="default_provider" name="default_provider" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                     <option value="zoom" <?= ($settings['default_provider'] === 'zoom') ? 'selected' : '' ?>>Zoom</option>
                                     <option value="google_meet" <?= ($settings['default_provider'] === 'google_meet') ? 'selected' : '' ?>>Google Meet</option>
                                 </select>
@@ -183,7 +183,7 @@ $error   = $_GET['error'] ?? $error ?? '';
 
                             <div class="sm:col-span-2">
                                 <label for="default_timezone" class="block text-sm font-medium text-gray-700">System Default Timezone</label>
-                                <select id="default_timezone" name="default_timezone" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <select id="default_timezone" name="default_timezone" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                     <option value="Asia/Dhaka" <?= ($settings['default_timezone'] === 'Asia/Dhaka') ? 'selected' : '' ?>>Asia/Dhaka</option>
                                     <?php foreach (\DateTimeZone::listIdentifiers() as $tz): if ($tz === 'Asia/Dhaka') continue; ?>
                                         <option value="<?= $tz ?>" <?= ($settings['default_timezone'] === $tz) ? 'selected' : '' ?>><?= $tz ?></option>
@@ -193,13 +193,13 @@ $error   = $_GET['error'] ?? $error ?? '';
 
                             <div>
                                 <label for="join_open_minutes_before" class="block text-sm font-medium text-gray-700">Join Window (minutes before start)</label>
-                                <input type="number" name="join_open_minutes_before" id="join_open_minutes_before" value="<?= htmlspecialchars($settings['join_open_minutes_before']) ?>" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <input type="number" name="join_open_minutes_before" id="join_open_minutes_before" value="<?= htmlspecialchars($settings['join_open_minutes_before']) ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 <p class="mt-1 text-xs text-gray-500">Students can click 'Join' this many minutes before the session starts.</p>
                             </div>
 
                             <div>
                                 <label for="expose_direct_link" class="block text-sm font-medium text-gray-700">Expose Direct Join Link</label>
-                                <select id="expose_direct_link" name="expose_direct_link" class="mt-1 shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                                <select id="expose_direct_link" name="expose_direct_link" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                     <option value="0" <?= ($settings['expose_direct_link'] === '0') ? 'selected' : '' ?>>No (Use Secure Redirect Only)</option>
                                     <option value="1" <?= ($settings['expose_direct_link'] === '1') ? 'selected' : '' ?>>Yes (Show Raw Provider URL)</option>
                                 </select>

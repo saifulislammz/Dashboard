@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 ?>
@@ -74,7 +74,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
             <form action="" method="GET" class="flex flex-col sm:flex-row gap-4">
                 <input type="hidden" name="classroom_id" value="<?= $classroom['id'] ?>">
                 <div class="w-full sm:w-64">
-                    <select name="status" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                    <select name="status" class="shadow-sm focus:ring-primary focus:border-primary block w-full py-2.5 pl-3 pr-10 sm:text-sm border-gray-300 rounded-md text-gray-900">
                         <option value="">All Statuses</option>
                         <option value="scheduled" <?= $status === 'scheduled' ? 'selected' : '' ?>>Scheduled</option>
                         <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
@@ -178,25 +178,25 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex items-center justify-end gap-2.5">
                                         <?php if ($session['generation_status'] === 'failed' && $session['status'] !== 'cancelled'): ?>
-                                            <form action="/admin/sessions/retry.php" method="POST" class="inline">
+                                            <form action="/admin/sessions/retry.php" method="POST" class="inline-flex m-0">
                                                 <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
                                                 <input type="hidden" name="session_id" value="<?= $session['id'] ?>">
                                                 <input type="hidden" name="classroom_id" value="<?= $classroom['id'] ?>">
-                                                <button type="submit" class="text-yellow-600 hover:text-yellow-900" title="Retry meeting generation">
-                                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                <button type="submit" class="inline-flex items-center justify-center p-2 text-yellow-600 bg-yellow-50 hover:bg-yellow-100 hover:text-yellow-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-sm hover:shadow" title="Retry meeting generation">
+                                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
 
                                         <?php if ($session['status'] !== 'cancelled' && $session['status'] !== 'completed'): ?>
-                                            <a href="/admin/sessions/edit.php?id=<?= $session['id'] ?>" class="text-primary hover:text-primary/80" title="Edit Session">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                            <a href="/admin/sessions/edit.php?id=<?= $session['id'] ?>" class="inline-flex items-center justify-center p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm hover:shadow" title="Edit Session">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </a>
                                             
-                                            <button type="button" onclick="confirmCancel(<?= $session['id'] ?>)" class="text-red-500 hover:text-red-700" title="Cancel Session">
-                                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            <button type="button" onclick="confirmCancel(<?= $session['id'] ?>)" class="inline-flex items-center justify-center p-2 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm hover:shadow" title="Cancel Session">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                             </button>
                                         <?php endif; ?>
                                     </div>

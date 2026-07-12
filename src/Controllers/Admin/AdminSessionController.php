@@ -167,18 +167,17 @@ class AdminSessionController
     {
         global $auth;
 
-        $sessionId = (int) ($_POST['session_id'] ?? 0);
-        $reason    = htmlspecialchars(trim($_POST['reason'] ?? ''));
+        $sessionId   = (int) ($_POST['session_id'] ?? 0);
+        $classroomId = (int) ($_POST['classroom_id'] ?? 0);
+        $reason      = htmlspecialchars(trim($_POST['reason'] ?? ''));
 
         try {
             validateCsrfToken($_POST['csrf_token'] ?? '');
             $this->sessionService->cancelSession($sessionId, $auth->getUserId(), $reason);
-            $classroomId = (int) ($_POST['classroom_id'] ?? 0);
         } catch (\Exception $e) {
             // Log error in production
         }
 
-        $classroomId = $classroomId ?? 0;
         header("Location: /admin/sessions/index.php?classroom_id={$classroomId}&cancelled=1");
         exit;
     }
