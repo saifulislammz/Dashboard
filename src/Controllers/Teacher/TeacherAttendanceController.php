@@ -95,6 +95,6 @@ class TeacherAttendanceController
         $pageTitle  = 'Session Report — ' . htmlspecialchars($report['session']['topic'] ?? 'Session', ENT_QUOTES, 'UTF-8');
         $activeMenu = 'teacher_attendance';
 
-        require __DIR__ . '/../../../views/admin/attendance/session_report.php';
+        require __DIR__ . '/../../../views/teacher/attendance_session_report.php';
     }
 }

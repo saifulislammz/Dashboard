@@ -45,10 +45,6 @@ require __DIR__ . '/../layouts/sidebar_student.php';
                         <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($classroom['teacher_name'] ?? 'N/A') ?></dd>
                     </div>
 
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Assigned Teacher Email</dt>
-                        <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($classroom['teacher_email'] ?? 'N/A') ?></dd>
-                    </div>
                     
                     <div class="sm:col-span-1">
                         <dt class="text-sm font-medium text-gray-500">Created Date</dt>
