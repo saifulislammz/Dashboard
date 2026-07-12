@@ -207,7 +207,7 @@ function quizPageUrl(int $p): string
             // Simple toast
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-6 right-6 z-50 bg-[#059669] text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg transition-all';
-            toast.textContent = 'âœ“ Link copied!';
+            toast.textContent = 'Link copied!';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
         });

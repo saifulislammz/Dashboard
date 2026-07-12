@@ -15,7 +15,7 @@ header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: geolocation=(), microphone=(self), camera=()");
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; img-src 'self' data: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com https://unpkg.com;");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; img-src 'self' data: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com https://unpkg.com; media-src 'self' blob:;");
 header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
 
 // XSS Protection for older browsers (though CSP covers this)

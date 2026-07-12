@@ -16,6 +16,7 @@
     "tailwindcss": "^4.3.1"
   },
   "dependencies": {
-    "@phosphor-icons/web": "^2.1.2"
+    "@phosphor-icons/web": "^2.1.2",
+    "puppeteer": "^25.3.0"
   }
 }

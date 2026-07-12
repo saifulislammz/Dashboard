@@ -9,9 +9,15 @@ function generateCsrfToken() {
 }
 
 function validateCsrfToken($token) {
-    if (empty($_SESSION['csrf_token']) || empty($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
-        throw new \Exception("Invalid Security Token.");
+    if (empty($_SESSION['csrf_token'])) {
+        throw new \Exception("Invalid Security Token: Session token is empty.");
     }
-    // Rotate token after successful use
-    unset($_SESSION['csrf_token']);
+    if (empty($token)) {
+        throw new \Exception("Invalid Security Token: Provided token is empty.");
+    }
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        throw new \Exception("Invalid Security Token: Token mismatch.");
+    }
+    // Token rotation is removed to support multiple tabs and back button.
+    // The token remains valid for the duration of the user's session.
 }

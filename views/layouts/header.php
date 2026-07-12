@@ -20,7 +20,7 @@
         }
     </style>
     <!-- Alpine.js for dynamic UI components (like quiz builder) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/js/alpine.min.js"></script>
     
     <!-- SweetAlert2 for Universal Modals -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

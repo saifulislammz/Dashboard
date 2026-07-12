@@ -39,7 +39,8 @@ function rPageUrl(int $p): string
                 </a>
                 <div>
                     <h1 class="text-2xl font-bold text-[#1e293b]">
-                        <?php echo htmlspecialchars($quiz['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h1>
+                        <?php echo htmlspecialchars($quiz['title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                    </h1>
                     <p class="text-sm text-[#64748b] mt-0.5">Quiz Report and Participant Details</p>
                 </div>
             </div>
@@ -53,7 +54,7 @@ function rPageUrl(int $p): string
         <?php if (isset($created) && $created): ?>
             <div
                 class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium">
-                âœ“ Quiz created successfully!
+                Quiz created successfully!
             </div>
         <?php endif; ?>
 
@@ -92,7 +93,8 @@ function rPageUrl(int $p): string
                     <span class="text-sm font-medium text-[#64748b]">Total Participants</span>
                 </div>
                 <p class="text-3xl font-bold text-[#1e293b]">
-                    <?php echo number_format((int) ($stats['total_participants'] ?? 0)); ?></p>
+                    <?php echo number_format((int) ($stats['total_participants'] ?? 0)); ?>
+                </p>
             </div>
 
             <div class="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
@@ -106,7 +108,8 @@ function rPageUrl(int $p): string
                     <span class="text-sm font-medium text-[#64748b]">Completed</span>
                 </div>
                 <p class="text-3xl font-bold text-[#059669]">
-                    <?php echo number_format((int) ($stats['completed_count'] ?? 0)); ?></p>
+                    <?php echo number_format((int) ($stats['completed_count'] ?? 0)); ?>
+                </p>
                 <p class="text-xs text-[#64748b] mt-1"><?php echo $stats['completion_pct'] ?? 0; ?>%</p>
             </div>
 
@@ -121,7 +124,8 @@ function rPageUrl(int $p): string
                     <span class="text-sm font-medium text-[#64748b]">Abandoned</span>
                 </div>
                 <p class="text-3xl font-bold text-red-500">
-                    <?php echo number_format((int) ($stats['abandoned_count'] ?? 0)); ?></p>
+                    <?php echo number_format((int) ($stats['abandoned_count'] ?? 0)); ?>
+                </p>
                 <p class="text-xs text-[#64748b] mt-1"><?php echo $stats['abandoned_pct'] ?? 0; ?>%</p>
             </div>
 
@@ -136,7 +140,8 @@ function rPageUrl(int $p): string
                     <span class="text-sm font-medium text-[#64748b]">Unreviewed Voice</span>
                 </div>
                 <p class="text-3xl font-bold text-red-600">
-                    <?php echo number_format((int) ($stats['unreviewed_count'] ?? 0)); ?></p>
+                    <?php echo number_format((int) ($stats['unreviewed_count'] ?? 0)); ?>
+                </p>
             </div>
         </div>
 
@@ -174,29 +179,36 @@ function rPageUrl(int $p): string
                             <?php foreach ($attempts as $i => $a): ?>
                                 <tr class="hover:bg-[#f8fafc] transition-colors"
                                     x-data="voiceReview(<?php echo (int) $a['id']; ?>, <?php echo json_encode($a['voice_note'] ?? ''); ?>)">
-                                    <td class="px-4 py-3 text-[#94a3b8] font-medium"><?php echo (($currentPage - 1) * 20) + $i + 1; ?>
+                                    <td class="px-4 py-3 text-[#94a3b8] font-medium">
+                                        <?php echo (($currentPage - 1) * 20) + $i + 1; ?>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="font-semibold text-[#1e293b]">
-                                            <?php echo htmlspecialchars($a['participant_name'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                            <?php echo htmlspecialchars($a['participant_name'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </div>
                                         <div class="text-xs text-[#64748b]">
-                                            <?php echo $a['gender'] === 'male' ? 'Male' : 'Female'; ?></div>
+                                            <?php echo $a['gender'] === 'male' ? 'Male' : 'Female'; ?>
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="text-sm text-[#1e293b]">
-                                            <?php echo htmlspecialchars($a['whatsapp_number'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                            <?php echo htmlspecialchars($a['whatsapp_number'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </div>
                                         <?php if (!empty($a['email'])): ?>
                                             <div class="text-xs text-[#64748b]">
-                                                <?php echo htmlspecialchars($a['email'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                                <?php echo htmlspecialchars($a['email'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </div>
                                         <?php endif; ?>
                                     </td>
                                     <td class="px-4 py-3 text-[#64748b] text-xs whitespace-nowrap">
                                         <?php echo date('d M Y H:i', strtotime($a['started_at'])); ?>
                                     </td>
                                     <td class="px-4 py-3 text-center font-bold text-[#059669]">
-                                        <?php echo (int) $a['correct_answers']; ?></td>
+                                        <?php echo (int) $a['correct_answers']; ?>
+                                    </td>
                                     <td class="px-4 py-3 text-center font-bold text-red-500">
-                                        <?php echo max(0, (int) $a['total_questions'] - (int) $a['correct_answers']); ?></td>
+                                        <?php echo max(0, (int) $a['total_questions'] - (int) $a['correct_answers']); ?>
+                                    </td>
                                     <td class="px-4 py-3 text-center">
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
                                 <?php
@@ -225,7 +237,7 @@ function rPageUrl(int $p): string
                                                         class="px-3 py-1.5 bg-[#059669] text-white text-xs font-semibold rounded-lg hover:bg-[#047857] disabled:opacity-50 transition-colors">
                                                         <span x-text="saving ? 'Saving...' : 'Save'"></span>
                                                     </button>
-                                                    <span x-show="saved" x-transition class="text-xs text-[#059669] font-medium">âœ“
+                                                    <span x-show="saved" x-transition class="text-xs text-[#059669] font-medium">
                                                         Saved</span>
                                                     <!-- WhatsApp link -->
                                                     <a :href="`https://wa.me/<?php echo htmlspecialchars(preg_replace('/[^0-9]/', '', $a['whatsapp_number']), ENT_QUOTES, 'UTF-8'); ?>?text=${encodeURIComponent(note)}`"
@@ -296,7 +308,7 @@ function rPageUrl(int $p): string
         navigator.clipboard.writeText(url).then(() => {
             const toast = document.createElement('div');
             toast.className = 'fixed bottom-6 right-6 z-50 bg-[#059669] text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-lg';
-            toast.textContent = 'âœ“ Link copied!';
+            toast.textContent = 'Link copied!';
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
         });

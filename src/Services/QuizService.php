@@ -17,9 +17,12 @@ class QuizService
     // Allowed voice MIME types
     private const ALLOWED_AUDIO_MIMES = [
         'audio/webm',
+        'video/webm',
         'audio/ogg',
+        'video/ogg',
         'audio/wav',
         'audio/mp4',
+        'video/mp4',
         'audio/mpeg',
         'audio/x-m4a',
     ];
@@ -574,13 +577,13 @@ class QuizService
     private function getExtensionFromMime(string $mime): string
     {
         return match ($mime) {
-            'audio/webm'  => 'webm',
-            'audio/ogg'   => 'ogg',
-            'audio/wav'   => 'wav',
-            'audio/mp4'   => 'mp4',
-            'audio/mpeg'  => 'mp3',
-            'audio/x-m4a' => 'm4a',
-            default       => 'webm',
+            'audio/webm', 'video/webm' => 'webm',
+            'audio/ogg', 'video/ogg'   => 'ogg',
+            'audio/wav'                => 'wav',
+            'audio/mp4', 'video/mp4'   => 'mp4',
+            'audio/mpeg'               => 'mp3',
+            'audio/x-m4a'              => 'm4a',
+            default                    => 'webm',
         };
     }
 }
