@@ -1,26 +1,26 @@
-<?php 
-global $auth, $db; 
+<?php
+global $auth, $db;
 ?>
 <!-- Overlay for mobile sidebar -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 
 <!-- Sidebar / Navigation -->
 <aside id="sidebar"
-    class="bg-cardBg w-72 h-full flex-shrink-0 border-r border-gray-100 flex flex-col fixed lg:relative z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    class="bg-white w-72 h-full flex-shrink-0 border-r border-gray-100 flex flex-col fixed lg:relative z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
 
     <!-- Sidebar Header / Logo (Desktop) -->
     <div class="h-20 flex items-center px-6 border-b border-transparent lg:border-gray-100 hidden lg:flex">
         <div class="flex items-center gap-2">
-            <i class="ph-fill ph-stack text-3xl text-primary"></i>
-            <span class="font-bold text-lg tracking-tight">Rohen Azat Institute</span>
+            <img src="/images/rahe_nazat.png" alt="Rahe Nazat Logo" class="h-10 w-auto object-contain">
+            <span class="font-bold text-lg tracking-tight">Rahe Nazat Institute</span>
         </div>
     </div>
 
     <!-- Sidebar Header / Logo (Mobile) -->
     <div class="lg:hidden flex items-center justify-between h-20 px-6 border-b border-gray-100">
         <div class="flex items-center gap-2">
-            <i class="ph-fill ph-stack text-2xl text-primary"></i>
-            <span class="font-bold text-lg tracking-tight">Rohen Azat Institute</span>
+            <img src="/images/rahe_nazat.png" alt="Rahe Nazat Logo" class="h-8 w-auto object-contain">
+            <span class="font-bold text-lg tracking-tight">Rahe Nazat Institute</span>
         </div>
         <button id="closeSidebar" class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
             <i class="ph ph-x text-xl"></i>
@@ -28,7 +28,8 @@ global $auth, $db;
     </div>
 
     <!-- Navigation Links Wrapper -->
-    <div class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1 [scrollbar-width:auto] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-300">
+    <div
+        class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1 [scrollbar-width:auto] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-300">
 
         <div class="mb-2">
             <a href="/teacher/dashboard.php"
@@ -53,7 +54,7 @@ global $auth, $db;
             <span class="text-sm">Live Sessions</span>
         </a>
 
-        <a href="/teacher/attendance.php<?php echo isset($classroom) ? '?classroom_id=' . (int)$classroom['id'] : ''; ?>"
+        <a href="/teacher/attendance.php<?php echo isset($classroom) ? '?classroom_id=' . (int) $classroom['id'] : ''; ?>"
             class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors <?php echo ($activeMenu ?? '') === 'teacher_attendance' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium'; ?>">
             <i class="ph ph-calendar-check text-xl"></i>
             <span class="text-sm">Attendance</span>

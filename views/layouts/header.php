@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo e($pageTitle ?? 'Dashboard'); ?> - Rahen Azat Institute</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png">
     <link href="/css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link href="/css/universal.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">

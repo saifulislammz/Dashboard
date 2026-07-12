@@ -89,9 +89,7 @@
             font-weight: var(--font-weight-medium);
         }
 
-        .login-logo {
-            background-color: var(--color-primary-green);
-        }
+
 
         .login-checkbox:checked {
             background-color: var(--color-primary-green);
@@ -114,13 +112,13 @@
         <!-- Header with Logo -->
         <div class="mb-6 flex justify-center">
             <div
-                class="login-logo w-20 h-20 rounded-full flex items-center justify-center shadow-inner border-[6px] border-green-50 ring-1 ring-gray-100">
-                <i class="ph ph-book-open text-white text-[32px]"></i>
+                class="login-logo w-24 h-24 rounded-full flex items-center justify-center shadow-inner border-4 border-green-500 ring-1 ring-gray-100 overflow-hidden bg-white">
+                <img src="images/rahe_nazat.png" alt="Rahenazat Institute Logo" class="w-full h-full object-cover">
             </div>
         </div>
 
         <h1 class="login-title mb-2 text-center tracking-tight">Login</h1>
-        <p class="login-subtitle mb-10 text-center">RahenazatInstitute</p>
+        <p class="login-subtitle mb-10 text-center">Rahe Nazat Institute</p>
 
         <?php if (!empty($error)): ?>
             <div class="login-error bg-red-50 border-l-4 p-4 rounded-md mb-8 w-full max-w-[480px]">
@@ -151,13 +149,8 @@
                     <input type="email" id="email" name="email" value="<?php echo e($oldEmail ?? ''); ?>"
                         placeholder="Enter your email address"
                         class="login-input w-full py-3.5 pr-4 outline-none placeholder:text-gray-400 bg-transparent"
-                        maxlength="254"
-                        autocomplete="email"
-                        inputmode="email"
-                        spellcheck="false"
-                        autocorrect="off"
-                        autocapitalize="off"
-                        required>
+                        maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" autocorrect="off"
+                        autocapitalize="off" required>
                 </div>
             </div>
 
@@ -175,12 +168,8 @@
                     </div>
                     <input type="password" id="password" name="password" placeholder="Enter your password"
                         class="login-input w-full py-3.5 outline-none placeholder:text-gray-400 bg-transparent"
-                        minlength="8"
-                        maxlength="128"
-                        autocomplete="current-password"
-                        pattern="[\x20-\x7E]+"
-                        title="Password must be 8–128 characters using standard keyboard characters only"
-                        required>
+                        minlength="8" maxlength="128" autocomplete="current-password" pattern="[\x20-\x7E]+"
+                        title="Password must be 8–128 characters using standard keyboard characters only" required>
                     <button type="button" id="togglePassword"
                         class="pr-4 pl-3 flex items-center justify-center text-gray-400 hover:text-[#6B7280] transition-colors focus:outline-none">
                         <i id="eyeIcon" class="ph ph-eye-slash text-[22px]"></i>
@@ -209,7 +198,7 @@
 
         <!-- Footer -->
         <div class="login-footer mt-12 text-center">
-            &copy; <?php echo date('Y'); ?> Rahenazat Institute. All rights reserved.
+            &copy; <?php echo date('Y'); ?> Rahe Nazat Institute. All rights reserved.
         </div>
 
     </div>
@@ -218,10 +207,10 @@
     <script>
         // ── Password Toggle ───────────────────────────────────────────────
         const togglePasswordBtn = document.getElementById('togglePassword');
-        const passwordInput     = document.getElementById('password');
-        const eyeIcon           = document.getElementById('eyeIcon');
-        const emailInput        = document.getElementById('email');
-        const loginForm         = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const emailInput = document.getElementById('email');
+        const loginForm = document.getElementById('loginForm');
 
         togglePasswordBtn.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -251,7 +240,7 @@
             }
 
             // 3. Password: strip null-bytes & control characters (ASCII < 32 except none allowed)
-            const rawPass   = passwordInput.value;
+            const rawPass = passwordInput.value;
             // Allow only printable ASCII (0x20–0x7E)
             const cleanPass = rawPass.replace(/[^\x20-\x7E]/g, '');
 

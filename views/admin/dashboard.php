@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Admin Dashboard';
 $activeMenu = 'dashboard';
 require __DIR__ . '/../layouts/header.php';
@@ -16,7 +16,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     
             <!-- Stat Card 1: Students -->
-            <a href="/admin/students.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+            <a href="/admin/students.php" class="bg-white rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-600">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">group</span>
@@ -39,7 +39,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             </a>
 
             <!-- Stat Card 2: Teachers -->
-            <a href="/admin/teachers.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+            <a href="/admin/teachers.php" class="bg-white rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-600">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">school</span>
@@ -62,7 +62,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             </a>
 
             <!-- Stat Card 3: Notices -->
-            <a href="/admin/notices/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+            <a href="/admin/notices/index.php" class="bg-white rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 rounded-xl bg-iconBgYellow flex items-center justify-center text-yellow-500">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">notifications</span>
@@ -85,7 +85,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             </a>
 
             <!-- Stat Card 4: Classrooms -->
-            <a href="/admin/classrooms/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+            <a href="/admin/classrooms/index.php" class="bg-white rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 rounded-xl bg-iconBgGreen flex items-center justify-center text-green-500">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">business</span>
@@ -108,7 +108,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
             </a>
 
             <!-- Stat Card 5: Quizzes -->
-            <a href="/admin/quiz/index.php" class="bg-cardBg rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
+            <a href="/admin/quiz/index.php" class="bg-white rounded-2xl p-6 shadow-sm shadow-gray-200/50 border border-gray-100/50 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-300 block group">
                 <div class="flex justify-between items-start mb-4">
                     <div class="w-12 h-12 rounded-xl bg-iconBgRed flex items-center justify-center text-red-600">
                         <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">quiz</span>
