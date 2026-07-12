@@ -206,33 +206,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                                 <p class="mt-1 text-xs text-gray-500">Secure redirect prevents link sharing.</p>
                             </div>
 
-                            <div class="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
-                                <h4 class="text-sm font-medium text-gray-900 mb-4">Future Readiness Features</h4>
-                                
-                                <div class="space-y-4">
-                                    <div class="flex items-start">
-                                        <div class="flex items-center h-5">
-                                            <input type="hidden" name="recording_sync_enabled" value="0">
-                                            <input id="recording_sync_enabled" name="recording_sync_enabled" type="checkbox" value="1" <?= ($settings['recording_sync_enabled'] === '1') ? 'checked' : '' ?> class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded">
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            <label for="recording_sync_enabled" class="font-medium text-gray-700">Enable Cloud Recording Sync</label>
-                                            <p class="text-gray-500">Allows the system to save recording URLs via provider webhook.</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-start">
-                                        <div class="flex items-center h-5">
-                                            <input type="hidden" name="attendance_sync_enabled" value="0">
-                                            <input id="attendance_sync_enabled" name="attendance_sync_enabled" type="checkbox" value="1" <?= ($settings['attendance_sync_enabled'] === '1') ? 'checked' : '' ?> class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded">
-                                        </div>
-                                        <div class="ml-3 text-sm">
-                                            <label for="attendance_sync_enabled" class="font-medium text-gray-700">Enable Automated Attendance</label>
-                                            <p class="text-gray-500">Sync participant join/leave times automatically.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
 
                         <div class="pt-5 border-t border-gray-200 flex justify-end">

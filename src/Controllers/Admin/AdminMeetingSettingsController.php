@@ -37,8 +37,6 @@ class AdminMeetingSettingsController
             'reminder_enabled'          => '1',
             'reminder_minutes_before'   => '30',
             'expose_direct_link'        => '0',
-            'recording_sync_enabled'    => '0',
-            'attendance_sync_enabled'   => '0',
             'default_provider'          => 'zoom',
         ], $settingsDb);
 
@@ -76,8 +74,7 @@ class AdminMeetingSettingsController
                     ");
                     $keysToSave = [
                         'default_timezone', 'join_open_minutes_before', 'reminder_enabled',
-                        'reminder_minutes_before', 'expose_direct_link', 'recording_sync_enabled',
-                        'attendance_sync_enabled', 'default_provider'
+                        'reminder_minutes_before', 'expose_direct_link', 'default_provider'
                     ];
                     foreach ($keysToSave as $k) {
                         $val = $_POST[$k] ?? '';
