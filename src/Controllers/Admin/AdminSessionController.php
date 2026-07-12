@@ -67,7 +67,7 @@ class AdminSessionController
      */
     public function create(): void
     {
-        global $auth;
+        global $auth, $db;
 
         $classroomId = isset($_GET['classroom_id']) ? (int) $_GET['classroom_id'] : 0;
         $classroom   = $this->classroomRepo->findById($classroomId);
@@ -120,6 +120,11 @@ class AdminSessionController
         $pageTitle  = "Schedule Sessions — {$classroom['class_name']}";
         $activeMenu = 'classrooms_manage';
         $timezones  = \DateTimeZone::listIdentifiers();
+
+        $stmtSet = $db->query("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key IN ('default_provider', 'default_timezone')");
+        $settingsDb = $stmtSet->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+        $defaultProvider = $settingsDb['default_provider'] ?? 'zoom';
+        $defaultTimezone = $settingsDb['default_timezone'] ?? 'Asia/Dhaka';
 
         require __DIR__ . '/../../../views/admin/sessions/create.php';
     }

@@ -43,7 +43,7 @@ class StudentSessionController
             // For student view, only show active or recently completed sessions.
             // Wait, maybe show all so they know the schedule? Yes, show all not cancelled.
             $stmt = $this->db->prepare("
-                SELECT cs.*, sm.generation_status, c.class_name, u.username AS teacher_name
+                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, u.username AS teacher_name
                 FROM class_sessions cs 
                 LEFT JOIN session_meetings sm ON sm.session_id = cs.id
                 JOIN classrooms c ON c.id = cs.classroom_id
@@ -65,7 +65,7 @@ class StudentSessionController
         } else {
             // All upcoming sessions for this student across all their classrooms
             $stmt = $this->db->prepare("
-                SELECT cs.*, sm.generation_status, c.class_name, u.username AS teacher_name
+                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, u.username AS teacher_name
                 FROM class_sessions cs 
                 LEFT JOIN session_meetings sm ON sm.session_id = cs.id
                 JOIN classrooms c ON c.id = cs.classroom_id
@@ -100,8 +100,10 @@ class StudentSessionController
         $pages = (int) ceil($total / $limit);
 
         // Fetch join open minutes to display helpful hints
-        $stmtSet = $this->db->query("SELECT setting_val FROM meeting_settings WHERE setting_key = 'join_open_minutes_before'");
-        $joinOpenMinutes = (int) ($stmtSet->fetchColumn() ?: 10);
+        $stmtSet = $this->db->query("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key IN ('join_open_minutes_before', 'expose_direct_link')");
+        $settingsDb = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+        $joinOpenMinutes = (int) ($settingsDb['join_open_minutes_before'] ?? 10);
+        $exposeDirectLink = (int) ($settingsDb['expose_direct_link'] ?? 0);
 
         $activeMenu = 'student_sessions';
 

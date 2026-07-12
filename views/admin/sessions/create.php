@@ -66,8 +66,8 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         <label for="provider" class="block text-sm font-medium text-gray-700">Meeting Provider <span class="text-red-500">*</span></label>
                         <div class="mt-1">
                             <select id="provider" name="provider" required class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
-                                <option value="zoom">Zoom</option>
-                                <option value="google_meet">Google Meet</option>
+                                <option value="zoom" <?= (isset($defaultProvider) && $defaultProvider === 'zoom') ? 'selected' : '' ?>>Zoom</option>
+                                <option value="google_meet" <?= (isset($defaultProvider) && $defaultProvider === 'google_meet') ? 'selected' : '' ?>>Google Meet</option>
                             </select>
                         </div>
                     </div>
@@ -114,9 +114,9 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
                         <div class="mt-1">
                             <select id="timezone" name="timezone" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
-                                <option value="Asia/Dhaka">Asia/Dhaka</option>
+                                <option value="Asia/Dhaka" <?= (isset($defaultTimezone) && $defaultTimezone === 'Asia/Dhaka') ? 'selected' : '' ?>>Asia/Dhaka</option>
                                 <?php foreach ($timezones as $tz): if ($tz === 'Asia/Dhaka') continue; ?>
-                                    <option value="<?= $tz ?>"><?= $tz ?></option>
+                                    <option value="<?= $tz ?>" <?= (isset($defaultTimezone) && $defaultTimezone === $tz) ? 'selected' : '' ?>><?= $tz ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
