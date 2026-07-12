@@ -437,6 +437,7 @@ CREATE TABLE IF NOT EXISTS `session_attendance` (
     `user_id`       INT UNSIGNED    NOT NULL COMMENT 'FK → users.id',
     `role`          ENUM('teacher', 'student') NOT NULL,
     `join_time`     DATETIME        DEFAULT NULL,
+    `ip_address`    VARCHAR(45)     COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `leave_time`    DATETIME        DEFAULT NULL,
     `duration_seconds` INT UNSIGNED DEFAULT NULL,
     `source`        ENUM('provider_sync', 'manual', 'webhook') NOT NULL DEFAULT 'manual',
