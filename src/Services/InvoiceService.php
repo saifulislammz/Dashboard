@@ -253,6 +253,21 @@ class InvoiceService
             return ['success' => false, 'errors' => $errors];
         }
 
+        // Handle logo upload
+        if (isset($_FILES['institution_logo']) && $_FILES['institution_logo']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $ext = strtolower(pathinfo($_FILES['institution_logo']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'svg', 'gif', 'webp'])) {
+                $filename = 'invoice_logo_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['institution_logo']['tmp_name'], $uploadDir . $filename)) {
+                    $data['institution_logo'] = '/uploads/' . $filename;
+                }
+            }
+        }
+
         foreach ($allowedKeys as $key) {
             if (array_key_exists($key, $data)) {
                 $this->repo->saveSetting($key, trim((string) $data[$key]));

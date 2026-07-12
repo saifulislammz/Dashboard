@@ -38,14 +38,14 @@ function serr(string $key): string {
             </a>
         </div>
 
-        <?php if ($success): ?>
+        <?php if ($success || isset($_GET['saved'])): ?>
         <div class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-green-700">
             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             Settings saved successfully!
         </div>
         <?php endif; ?>
 
-        <form method="POST" action="/admin/invoices/settings.php">
+        <form method="POST" action="/admin/invoices/settings.php" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
 
             <div class="space-y-6">
@@ -110,6 +110,19 @@ function serr(string $key): string {
                                    value="<?= s('invoice_footer_note') ?>"
                                    placeholder="e.g. Thank you for your payment. Please retain this invoice."
                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        </div>
+                        
+                        <!-- Institution Logo -->
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-[#374151] mb-1.5" for="institution_logo">Institution Logo (Optional)</label>
+                            <?php if (s('institution_logo')): ?>
+                                <div class="mb-3">
+                                    <img src="<?= s('institution_logo') ?>" alt="Logo" class="h-16 object-contain">
+                                </div>
+                            <?php endif; ?>
+                            <input type="file" id="institution_logo" name="institution_logo" accept="image/*"
+                                   class="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <p class="text-xs text-gray-500 mt-1">Upload a logo to appear on the invoice. Recommended size: 200x200px max.</p>
                         </div>
                     </div>
                 </div>

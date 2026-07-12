@@ -215,10 +215,14 @@ class InvoiceController
                 $result = $this->invoiceService->saveSettings($_POST);
 
                 if ($result['success']) {
-                    $settings = $this->invoiceService->getSettings(); // reload fresh
-                    $success  = true;
+                    header('Location: /admin/invoices/settings.php?saved=1');
+                    exit;
                 } else {
                     $errors = $result['errors'];
+                    // Merge POST data into settings so user doesn't lose input
+                    foreach ($_POST as $k => $v) {
+                        $settings[$k] = $v;
+                    }
                 }
             }
         }
