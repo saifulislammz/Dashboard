@@ -17,6 +17,7 @@ pnpm-debug.log
 /storage/logs/
 /storage/sessions/
 /storage/views/
+/storage/quiz_voices/
 *.log
 
 # User Uploads (Ignore user uploaded files so they don't go to public repo)
