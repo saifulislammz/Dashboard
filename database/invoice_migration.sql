@@ -80,10 +80,10 @@ INSERT IGNORE INTO `invoice_settings` (`setting_key`, `setting_value`) VALUES
   ('invoice_number_format', '{PREFIX}{YEAR}{MONTH}{SEQ4}'),
   ('institution_name',      'Rahe Nazat Institute'),
   ('institution_tagline',   'Excellence in Education'),
-  ('institution_address',   ''),
-  ('institution_phone',     ''),
-  ('institution_email',     ''),
-  ('institution_logo',      ''),
+  ('institution_address',   '123 Education Road, Dhaka, Bangladesh'),
+  ('institution_phone',     '+880 1XXX-XXXXXX'),
+  ('institution_email',     'info@institute.edu'),
+  ('institution_logo',      '/uploads/logo.png'),
   ('invoice_footer_note',   'Thank you for your payment. Please retain this invoice for your records.');
 
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

@@ -125,6 +125,15 @@ function serr(string $key): string {
                             <p class="text-xs text-gray-500 mt-1">Upload a logo to appear on the invoice. Recommended size: 200x200px max.</p>
                         </div>
                     </div>
+
+                    <!-- Save Button for Section 1 -->
+                    <div class="flex justify-end pt-4 border-t border-gray-50 mt-6">
+                        <button type="submit"
+                                class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Save Details
+                        </button>
+                    </div>
                 </div>
 
                 <!-- =============================================
