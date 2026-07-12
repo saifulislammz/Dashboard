@@ -206,8 +206,8 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
 <script>
-    function quizBuilder() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('quizBuilder', () => ({
             questions: [],
             uid: 0,
 
@@ -238,8 +238,8 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     opt.is_correct = i === optIdx;
                 });
             }
-        };
-    }
+        }));
+    });
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

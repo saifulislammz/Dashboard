@@ -192,8 +192,8 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
 <script>
-    function quizBuilder(initial = []) {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('quizBuilder', (initial = []) => ({
             questions: initial.map((q, i) => ({ ...q, uid: i })),
             uid: initial.length,
             addQuestion(type) {
@@ -216,8 +216,8 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
             setCorrect(qIdx, optIdx) {
                 this.questions[qIdx].options.forEach((o, i) => o.is_correct = i === optIdx);
             }
-        };
-    }
+        }));
+    });
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
