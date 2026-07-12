@@ -117,6 +117,23 @@ class InvoiceRepository
     }
 
     /**
+     * Update the status of an existing invoice.
+     *
+     * @param int    $id     Invoice ID
+     * @param string $status New status
+     * @return bool
+     */
+    public function updateStatus(int $id, string $status): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE invoices
+            SET status = :status
+            WHERE id = :id AND deleted_at IS NULL
+        ");
+        return $stmt->execute(['id' => $id, 'status' => $status]);
+    }
+
+    /**
      * Soft-delete an invoice (sets deleted_at timestamp).
      *
      * @param int $id Invoice ID

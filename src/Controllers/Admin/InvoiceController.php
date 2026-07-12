@@ -121,7 +121,8 @@ class InvoiceController
         $items      = $data['items'];
         $settings   = $this->invoiceService->getSettings();
         $currencies = $this->invoiceService->getCurrencies();
-        $created    = isset($_GET['created']) && $_GET['created'] === '1';
+        $created       = isset($_GET['created']) && $_GET['created'] === '1';
+        $statusUpdated = isset($_GET['status_updated']) && $_GET['status_updated'] === '1';
 
         $pageTitle  = 'Invoice #' . htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8');
         $activeMenu = 'invoice_dashboard';
@@ -181,6 +182,34 @@ class InvoiceController
         }
 
         header('Location: /admin/invoices/index.php?error=delete_failed');
+        exit;
+    }
+
+    // ===========================================================
+    // UPDATE STATUS
+    // ===========================================================
+
+    /**
+     * Update invoice status.
+     * POST /admin/invoices/update_status.php
+     */
+    public function updateStatus(): void
+    {
+        $id = (int) ($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? '';
+        
+        if ($id <= 0) {
+            $this->sendJsonError('Invalid invoice ID.');
+        }
+
+        $result = $this->invoiceService->updateStatus($id, $status);
+
+        if ($result['success']) {
+            header('Location: /admin/invoices/view.php?id=' . $id . '&status_updated=1');
+            exit;
+        }
+
+        header('Location: /admin/invoices/view.php?id=' . $id . '&error=status_update_failed');
         exit;
     }
 

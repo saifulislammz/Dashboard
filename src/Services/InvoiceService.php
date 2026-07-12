@@ -137,6 +137,26 @@ class InvoiceService
     }
 
     /**
+     * Update the status of an invoice.
+     *
+     * @param int    $id
+     * @param string $status
+     * @return array ['success' => bool, 'errors' => array]
+     */
+    public function updateStatus(int $id, string $status): array
+    {
+        $status = $this->sanitizeStatus($status);
+        
+        try {
+            $ok = $this->repo->updateStatus($id, $status);
+            return ['success' => $ok, 'errors' => $ok ? [] : ['system' => 'Invoice not found or already deleted.']];
+        } catch (\RuntimeException $e) {
+            error_log('[InvoiceService] Update status failed: ' . $e->getMessage());
+            return ['success' => false, 'errors' => ['system' => 'Failed to update invoice status. Please try again.']];
+        }
+    }
+
+    /**
      * Soft-delete an invoice.
      *
      * @param int $id
