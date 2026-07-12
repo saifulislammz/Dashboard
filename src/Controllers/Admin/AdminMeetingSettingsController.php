@@ -63,7 +63,16 @@ class AdminMeetingSettingsController
                         'client_secret'   => trim($_POST['zoom_client_secret'] ?? ''),
                         'zoom_account_id' => trim($_POST['zoom_account_id'] ?? ''),
                     ]);
-                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom credentials saved successfully.'));
+                    
+                    // Immediately fetch token and verify connection
+                    $account = $this->providerRepo->findByProvider('zoom');
+                    $zoomProvider = new \App\Integrations\Zoom\ZoomProvider($this->db, $account);
+                    
+                    if ($zoomProvider->refreshToken()) {
+                        header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom credentials saved and connected successfully.'));
+                    } else {
+                        header('Location: /admin/settings/meetings.php?error=' . urlencode('Zoom credentials saved, but connection failed. Check your API details.'));
+                    }
                     exit;
                 }
                 elseif ($action === 'save_settings') {
