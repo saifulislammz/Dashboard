@@ -21,8 +21,9 @@ class UserRepository
         $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
-            $whereClause .= " AND MATCH(username, email) AGAINST(:search IN BOOLEAN MODE)";
-            $params['search'] = $search;
+            $whereClause .= " AND (username LIKE :search1 OR email LIKE :search2)";
+            $params['search1'] = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
         }
 
         $stmt = $this->db->prepare("
@@ -49,8 +50,9 @@ class UserRepository
         $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
-            $whereClause .= " AND MATCH(username, email) AGAINST(:search IN BOOLEAN MODE)";
-            $params['search'] = $search;
+            $whereClause .= " AND (username LIKE :search1 OR email LIKE :search2)";
+            $params['search1'] = '%' . $search . '%';
+            $params['search2'] = '%' . $search . '%';
         }
 
         $stmt = $this->db->prepare("SELECT COUNT(id) FROM users WHERE $whereClause");
