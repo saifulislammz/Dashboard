@@ -35,7 +35,7 @@ class StudentSessionController
         if ($classroomId > 0) {
             // Verify student is enrolled in this classroom
             $classroom = $this->classroomRepo->findById($classroomId);
-            if (!$classroom || $classroom['student_id'] !== $studentId) {
+            if (!$classroom || (int) $classroom['student_id'] !== $studentId) {
                 http_response_code(403);
                 die('<h1>Access denied.</h1>');
             }

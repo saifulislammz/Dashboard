@@ -54,8 +54,8 @@ class AdminMeetingSettingsController
                         'client_id'     => trim($_POST['google_client_id'] ?? ''),
                         'client_secret' => trim($_POST['google_client_secret'] ?? ''),
                     ]);
-                    $success = 'Google credentials saved successfully.';
-                    $googleAccount = $this->providerRepo->findByProvider('google_meet'); // refresh
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google credentials saved successfully.'));
+                    exit;
                 }
                 elseif ($action === 'save_zoom') {
                     $this->providerRepo->upsertCredentials('zoom', [
@@ -63,8 +63,8 @@ class AdminMeetingSettingsController
                         'client_secret'   => trim($_POST['zoom_client_secret'] ?? ''),
                         'zoom_account_id' => trim($_POST['zoom_account_id'] ?? ''),
                     ]);
-                    $success = 'Zoom credentials saved successfully.';
-                    $zoomAccount = $this->providerRepo->findByProvider('zoom'); // refresh
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom credentials saved successfully.'));
+                    exit;
                 }
                 elseif ($action === 'save_settings') {
                     $stmt = $this->db->prepare("
@@ -79,22 +79,23 @@ class AdminMeetingSettingsController
                     foreach ($keysToSave as $k) {
                         $val = $_POST[$k] ?? '';
                         $stmt->execute(['key' => $k, 'val' => $val]);
-                        $settings[$k] = $val; // update local array
                     }
-                    $success = 'Global settings saved successfully.';
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Global settings saved successfully.'));
+                    exit;
                 }
                 elseif ($action === 'disconnect_google') {
                     $this->providerRepo->disconnect('google_meet');
-                    $success = 'Google account disconnected.';
-                    $googleAccount = $this->providerRepo->findByProvider('google_meet');
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google account disconnected.'));
+                    exit;
                 }
                 elseif ($action === 'disconnect_zoom') {
                     $this->providerRepo->disconnect('zoom');
-                    $success = 'Zoom account disconnected.';
-                    $zoomAccount = $this->providerRepo->findByProvider('zoom');
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom account disconnected.'));
+                    exit;
                 }
             } catch (\Exception $e) {
-                $error = $e->getMessage();
+                header('Location: /admin/settings/meetings.php?error=' . urlencode($e->getMessage()));
+                exit;
             }
         }
 

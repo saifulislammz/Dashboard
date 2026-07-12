@@ -49,8 +49,8 @@ class MeetingService
 
         // Build DTO from session row
         $dto = new SessionDTO(
-            sessionId:     $sessionData['id'],
-            classroomId:   $sessionData['classroom_id'],
+            sessionId:     (int) $sessionData['id'],
+            classroomId:   (int) $sessionData['classroom_id'],
             classroomName: $sessionData['class_name'],
             classTitle:    $sessionData['class_title'],
             topic:         $sessionData['topic'] ?? '',
@@ -72,7 +72,7 @@ class MeetingService
         try {
             $provider = $this->factory->make($dto->provider);
             $result   = $provider->createMeeting($dto);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $result = MeetingResultDTO::failure($dto->provider, $e->getMessage());
         }
 
@@ -109,8 +109,8 @@ class MeetingService
         }
 
         $dto = new SessionDTO(
-            sessionId:     $sessionData['id'],
-            classroomId:   $sessionData['classroom_id'],
+            sessionId:     (int) $sessionData['id'],
+            classroomId:   (int) $sessionData['classroom_id'],
             classroomName: $sessionData['class_name'],
             classTitle:    $sessionData['class_title'],
             topic:         $sessionData['topic'] ?? '',
@@ -129,7 +129,7 @@ class MeetingService
         try {
             $provider = $this->factory->make($dto->provider);
             return $provider->updateMeeting($meeting['provider_meeting_id'], $dto);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -153,7 +153,7 @@ class MeetingService
                 $this->meetingRepo->markCancelled($sessionId);
             }
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Even if provider delete fails, mark as cancelled in our system
             $this->meetingRepo->markCancelled($sessionId);
             return false;

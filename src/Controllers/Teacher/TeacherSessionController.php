@@ -36,7 +36,7 @@ class TeacherSessionController
         if ($classroomId > 0) {
             // Verify teacher has access to this classroom
             $classroom = $this->classroomRepo->findById($classroomId);
-            if (!$classroom || $classroom['teacher_id'] !== $teacherId) {
+            if (!$classroom || (int) $classroom['teacher_id'] !== $teacherId) {
                 http_response_code(403);
                 die('<h1>Access denied.</h1>');
             }
