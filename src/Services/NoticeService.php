@@ -46,7 +46,56 @@ class NoticeService
             'created_by' => $adminId
         ];
 
-        return $this->repository->create($noticeData);
+        $noticeId = $this->repository->create($noticeData);
+
+        if ($noticeId && !empty($data['attachments'])) {
+            $this->handleAttachments((int) $noticeId, $data['attachments']);
+        }
+
+        return (bool) $noticeId;
+    }
+
+    private function handleAttachments(int $noticeId, array $files): void
+    {
+        $allowedExtensions = ['txt', 'pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        $maxFileSize = 10 * 1024 * 1024; // 10MB
+        $uploadDir = __DIR__ . '/../../storage/uploads/notices/';
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $fileCount = count($files['name']);
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                $originalName = basename($files['name'][$i]);
+                $fileSize = $files['size'][$i];
+                $tmpName = $files['tmp_name'][$i];
+                $fileType = $files['type'][$i];
+
+                $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+                if (!in_array($ext, $allowedExtensions)) {
+                    throw new Exception("Invalid file type: $originalName. Allowed: " . implode(', ', $allowedExtensions));
+                }
+
+                if ($fileSize > $maxFileSize) {
+                    throw new Exception("File too large: $originalName. Maximum size is 10MB.");
+                }
+
+                $uniqueName = uniqid('notice_', true) . '.' . $ext;
+                $destination = $uploadDir . $uniqueName;
+
+                if (move_uploaded_file($tmpName, $destination)) {
+                    $this->repository->createAttachment($noticeId, [
+                        'file_name' => $originalName,
+                        'file_path' => $uniqueName,
+                        'file_type' => $fileType,
+                        'file_size' => $fileSize
+                    ]);
+                }
+            }
+        }
     }
 
     public function updateNotice(int $id, array $data): bool
@@ -80,7 +129,11 @@ class NoticeService
             'status' => $status
         ];
 
-        return $this->repository->update($id, $noticeData);
+        $updated = $this->repository->update($id, $noticeData);
+        if ($updated && !empty($data['attachments'])) {
+            $this->handleAttachments($id, $data['attachments']);
+        }
+        return $updated;
     }
 
     public function updateStatus(int $id, string $status): bool
@@ -91,6 +144,16 @@ class NoticeService
 
     public function deleteNotice(int $id): bool
     {
+        $attachments = $this->repository->getAttachmentsByNoticeId($id);
+        $uploadDir = __DIR__ . '/../../storage/uploads/notices/';
+        
+        foreach ($attachments as $attachment) {
+            $filePath = $uploadDir . $attachment['file_path'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        
         return $this->repository->delete($id);
     }
 
@@ -114,7 +177,11 @@ class NoticeService
 
     public function getNoticeDetails(int $id): ?array
     {
-        return $this->repository->findById($id);
+        $notice = $this->repository->findById($id);
+        if ($notice) {
+            $notice['attachments'] = $this->repository->getAttachmentsByNoticeId($id);
+        }
+        return $notice;
     }
 
     public function getPaginatedNotices(int $page, int $limit, string $search = '', string $sortField = 'created_at', string $sortOrder = 'DESC'): array

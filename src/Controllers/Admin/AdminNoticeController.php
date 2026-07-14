@@ -101,7 +101,9 @@ class AdminNoticeController
                     'audience_teacher' => !empty($_POST['audience_teacher']),
                 ];
 
-                $this->service->createNotice($_POST, (int) $auth->getUserId());
+                $data = $_POST;
+                $data['attachments'] = $_FILES['attachments'] ?? [];
+                $this->service->createNotice($data, (int) $auth->getUserId());
 
                 $_SESSION['success_message'] = 'Notice created successfully.';
                 header('Location: index.php');
@@ -141,7 +143,9 @@ class AdminNoticeController
             try {
                 validateCsrfToken($_POST['csrf_token'] ?? '');
 
-                $this->service->updateNotice($id, $_POST);
+                $data = $_POST;
+                $data['attachments'] = $_FILES['attachments'] ?? [];
+                $this->service->updateNotice($id, $data);
 
                 $_SESSION['success_message'] = 'Notice updated successfully.';
                 header('Location: index.php');

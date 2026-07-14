@@ -13,11 +13,8 @@ pnpm-debug.log
 !.env.sample
 
 # Storage, Caches & Logs
-/storage/cache/
-/storage/logs/
-/storage/sessions/
-/storage/views/
-/storage/quiz_voices/
+/storage/*
+!/storage/.gitkeep
 *.log
 
 # User Uploads (Ignore user uploaded files so they don't go to public repo)

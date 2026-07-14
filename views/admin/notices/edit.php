@@ -30,7 +30,7 @@ $audienceTeacher = ($targetAudience === 'teacher' || $targetAudience === 'both')
         <?php endif; ?>
 
         <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
-            <form action="edit.php" method="POST" class="space-y-6">
+            <form action="edit.php" method="POST" enctype="multipart/form-data" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                 <input type="hidden" name="id" value="<?php echo (int)($notice['id'] ?? 0); ?>">
                 
@@ -76,6 +76,39 @@ $audienceTeacher = ($targetAudience === 'teacher' || $targetAudience === 'both')
                             </label>
                         </div>
                     </div>
+                </div>
+
+                <div class="space-y-2 border-t border-gray-200 pt-6">
+                    <label class="block text-sm font-semibold text-gray-800">Add Attachments (Optional)</label>
+                    <p class="text-xs text-gray-500 mb-3">Allowed types: .txt, .pdf, .jpg, .png, .doc. Max size: 10MB per file.</p>
+                    
+                    <div class="flex items-center justify-center w-full">
+                        <label for="dropzone-file-edit" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-primary transition-all duration-200">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-3 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                </svg>
+                                <p class="mb-1 text-sm text-gray-600"><span class="font-semibold text-primary">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-500">Any supported file (Max 10MB)</p>
+                            </div>
+                            <input id="dropzone-file-edit" name="attachments[]" type="file" multiple accept=".txt,.pdf,.jpg,.jpeg,.png,.doc,.docx" class="hidden" onchange="document.getElementById('file-count-edit').textContent = this.files.length > 0 ? this.files.length + ' file(s) selected' : '';" />
+                        </label>
+                    </div>
+                    <div id="file-count-edit" class="text-sm text-primary mt-2 font-medium"></div>
+                    
+                    <?php if (!empty($notice['attachments'])): ?>
+                        <div class="mt-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Existing Attachments</h4>
+                            <ul class="space-y-2">
+                                <?php foreach ($notice['attachments'] as $attachment): ?>
+                                    <li class="flex items-center text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-100">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                        <?php echo e($attachment['file_name']); ?> (<?php echo round($attachment['file_size'] / 1024, 2); ?> KB)
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="flex justify-end pt-4 border-t border-gray-200 gap-3">

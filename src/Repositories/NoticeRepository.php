@@ -80,16 +80,19 @@ class NoticeRepository
         return $row ?: null;
     }
 
-    public function create(array $data): bool
+    public function create(array $data): int|false
     {
         $stmt = $this->db->prepare("INSERT INTO notices (title, content, target_audience, status, created_by) VALUES (:title, :content, :target_audience, :status, :created_by)");
-        return $stmt->execute([
+        if ($stmt->execute([
             'title' => $data['title'],
             'content' => $data['content'],
             'target_audience' => $data['target_audience'],
             'status' => $data['status'],
             'created_by' => $data['created_by']
-        ]);
+        ])) {
+            return (int) $this->db->lastInsertId();
+        }
+        return false;
     }
 
     public function update(int $id, array $data): bool
@@ -128,7 +131,7 @@ class NoticeRepository
         }
 
         $stmt = $this->db->prepare(
-            "SELECT title, content, created_at
+            "SELECT id, title, content, created_at
              FROM notices
              WHERE status = 'active'
                AND target_audience IN (:audience, 'both')
@@ -138,7 +141,41 @@ class NoticeRepository
         $stmt->bindValue(':audience', $audience);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
+        $notices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Fetch attachments for these notices
+        foreach ($notices as &$notice) {
+            $notice['attachments'] = $this->getAttachmentsByNoticeId((int) $notice['id']);
+        }
+
+        return $notices;
+    }
+
+    public function createAttachment(int $noticeId, array $fileData): bool
+    {
+        $stmt = $this->db->prepare("INSERT INTO notice_attachments (notice_id, file_name, file_path, file_type, file_size) VALUES (:notice_id, :file_name, :file_path, :file_type, :file_size)");
+        return $stmt->execute([
+            'notice_id' => $noticeId,
+            'file_name' => $fileData['file_name'],
+            'file_path' => $fileData['file_path'],
+            'file_type' => $fileData['file_type'],
+            'file_size' => $fileData['file_size']
+        ]);
+    }
+
+    public function getAttachmentsByNoticeId(int $noticeId): array
+    {
+        $stmt = $this->db->prepare("SELECT id, file_name, file_path, file_type, file_size, created_at FROM notice_attachments WHERE notice_id = :notice_id ORDER BY created_at ASC");
+        $stmt->execute(['notice_id' => $noticeId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAttachmentById(int $id): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, notice_id, file_name, file_path, file_type, file_size FROM notice_attachments WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 }
 
