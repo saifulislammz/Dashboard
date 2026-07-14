@@ -66,9 +66,6 @@ require __DIR__ . '/../layouts/sidebar_student.php';
                                     <?php if ($session['generation_status'] === 'success'): ?>
                                         <?php 
                                             $joinUrl = '/session/join.php?id=' . $session['id'];
-                                            if (isset($exposeDirectLink) && $exposeDirectLink === 1 && !empty($session['join_url'])) {
-                                                $joinUrl = $session['join_url'];
-                                            }
                                         ?>
                                         <a href="<?= htmlspecialchars($joinUrl) ?>" target="_blank" class="inline-flex items-center justify-center py-1.5 px-3 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-primary hover:bg-primary/90 transition-colors" title="Link opens <?= $joinOpenMinutes ?> mins before start">
                                             Join Class

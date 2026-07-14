@@ -100,10 +100,8 @@ class StudentSessionController
         $pages = (int) ceil($total / $limit);
 
         // Fetch join open minutes to display helpful hints
-        $stmtSet = $this->db->query("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key IN ('join_open_minutes_before', 'expose_direct_link')");
-        $settingsDb = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
-        $joinOpenMinutes = (int) ($settingsDb['join_open_minutes_before'] ?? 10);
-        $exposeDirectLink = (int) ($settingsDb['expose_direct_link'] ?? 0);
+        $stmtSet = $this->db->query("SELECT setting_val FROM meeting_settings WHERE setting_key = 'join_open_minutes_before'");
+        $joinOpenMinutes = (int) ($stmtSet->fetchColumn() ?: 10);
 
         $activeMenu = 'student_sessions';
 

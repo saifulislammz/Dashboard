@@ -191,19 +191,10 @@ $error   = $_GET['error'] ?? $error ?? '';
                                 </select>
                             </div>
 
-                            <div>
+                            <div class="sm:col-span-2">
                                 <label for="join_open_minutes_before" class="block text-sm font-medium text-gray-700">Join Window (minutes before start)</label>
                                 <input type="number" name="join_open_minutes_before" id="join_open_minutes_before" value="<?= htmlspecialchars($settings['join_open_minutes_before']) ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 <p class="mt-1 text-xs text-gray-500">Students can click 'Join' this many minutes before the session starts.</p>
-                            </div>
-
-                            <div>
-                                <label for="expose_direct_link" class="block text-sm font-medium text-gray-700">Expose Direct Join Link</label>
-                                <select id="expose_direct_link" name="expose_direct_link" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
-                                    <option value="0" <?= ($settings['expose_direct_link'] === '0') ? 'selected' : '' ?>>No (Use Secure Redirect Only)</option>
-                                    <option value="1" <?= ($settings['expose_direct_link'] === '1') ? 'selected' : '' ?>>Yes (Show Raw Provider URL)</option>
-                                </select>
-                                <p class="mt-1 text-xs text-gray-500">Secure redirect prevents link sharing.</p>
                             </div>
 
 

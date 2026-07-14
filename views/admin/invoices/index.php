@@ -71,7 +71,7 @@ function pageUrl(int $p): string
         <!-- =============================================
              STATS CARDS
         ============================================== -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
             <!-- Total Invoices -->
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
@@ -91,7 +91,7 @@ function pageUrl(int $p): string
             <!-- Total Amount by Currency -->
             <?php if (empty($currencyTotals)): ?>
                 <div
-                    class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5 sm:col-span-2">
+                    class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
                     <div class="w-14 h-14 rounded-2xl bg-yellow-50 flex items-center justify-center shrink-0">
                         <svg class="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -104,8 +104,7 @@ function pageUrl(int $p): string
                     </div>
                 </div>
             <?php else: ?>
-                <div
-                    class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:col-span-<?= count($currencyTotals) > 1 ? '1' : '2' ?>">
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                     <p class="text-xs font-bold text-[#94a3b8] uppercase tracking-wider mb-4">Total Revenue</p>
                     <div class="space-y-2">
                         <?php foreach ($currencyTotals as $ct):
@@ -125,24 +124,6 @@ function pageUrl(int $p): string
                         <?php endforeach; ?>
                     </div>
                 </div>
-
-                <?php if (count($currencyTotals) > 1): ?>
-                    <div class="bg-gradient-to-br from-primary to-primary rounded-2xl shadow-sm p-6 flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">
-                                <?= count($currencyTotals) ?> Currencies</p>
-                            <p class="text-lg font-bold text-white">Multi-Currency</p>
-                            <p class="text-xs text-white/70 mt-0.5">Amounts shown separately</p>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
             <?php endif; ?>
         </div><!-- /stats -->
 
@@ -341,11 +322,11 @@ function pageUrl(int $p): string
                                     <td class="px-4 py-3.5 text-center text-[#64748b] hidden lg:table-cell"><?= $dDate ?></td>
                                     <!-- Actions -->
                                     <td class="px-4 py-3.5">
-                                        <div class="flex items-center justify-center gap-1">
+                                        <div class="flex items-center justify-center gap-2">
                                             <!-- View -->
                                             <a href="/admin/invoices/view.php?id=<?= $id ?>" title="View Invoice"
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-primary hover:bg-red-50 transition-colors">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white hover:shadow-md hover:-translate-y-0.5 transform transition-all duration-200">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -355,8 +336,8 @@ function pageUrl(int $p): string
                                             <!-- Print/Download -->
                                             <a href="/admin/invoices/print.php?id=<?= $id ?>" target="_blank"
                                                 title="Print / Download PDF"
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-green-600 hover:bg-green-50 transition-colors">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-teal-600 bg-teal-50 hover:bg-teal-600 hover:text-white hover:shadow-md hover:-translate-y-0.5 transform transition-all duration-200">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                                 </svg>
@@ -368,8 +349,8 @@ function pageUrl(int $p): string
                                                     value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                                                 <input type="hidden" name="id" value="<?= $id ?>">
                                                 <button type="submit" title="Delete Invoice"
-                                                    class="w-8 h-8 flex items-center justify-center rounded-lg text-[#94a3b8] hover:text-red-500 hover:bg-red-50 transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    class="w-9 h-9 flex items-center justify-center rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white hover:shadow-md hover:-translate-y-0.5 transform transition-all duration-200">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>

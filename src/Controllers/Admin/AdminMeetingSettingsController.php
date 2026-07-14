@@ -36,7 +36,6 @@ class AdminMeetingSettingsController
             'join_open_minutes_before'  => '10',
             'reminder_enabled'          => '1',
             'reminder_minutes_before'   => '30',
-            'expose_direct_link'        => '0',
             'default_provider'          => 'zoom',
         ], $settingsDb);
 
@@ -83,7 +82,7 @@ class AdminMeetingSettingsController
                     ");
                     $keysToSave = [
                         'default_timezone', 'join_open_minutes_before', 'reminder_enabled',
-                        'reminder_minutes_before', 'expose_direct_link', 'default_provider'
+                        'reminder_minutes_before', 'default_provider'
                     ];
                     foreach ($keysToSave as $k) {
                         $val = $_POST[$k] ?? '';
