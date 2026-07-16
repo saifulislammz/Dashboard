@@ -24,8 +24,8 @@ class AdminMeetingSettingsController
         $pageTitle  = 'Meeting Integrations Settings';
         $activeMenu = 'classrooms_meetings';
 
-        $googleAccount = $this->providerRepo->findByProvider('google_meet');
-        $zoomAccount   = $this->providerRepo->findByProvider('zoom');
+        $googleAccounts = $this->providerRepo->findAllByProvider('google_meet');
+        $zoomAccounts   = $this->providerRepo->findAllByProvider('zoom');
 
         // Fetch global settings
         $stmt = $this->db->query("SELECT setting_key, setting_val FROM meeting_settings");
@@ -48,29 +48,60 @@ class AdminMeetingSettingsController
                 
                 $action = $_POST['action'] ?? '';
 
-                if ($action === 'save_google') {
-                    $this->providerRepo->upsertCredentials('google_meet', [
+                if ($action === 'add_google') {
+                    $this->providerRepo->createAccount('google_meet', [
+                        'nickname'      => trim($_POST['nickname'] ?? ''),
                         'client_id'     => trim($_POST['google_client_id'] ?? ''),
                         'client_secret' => trim($_POST['google_client_secret'] ?? ''),
                     ]);
-                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google credentials saved successfully.'));
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google account slot added. Please connect it now.'));
                     exit;
                 }
-                elseif ($action === 'save_zoom') {
-                    $this->providerRepo->upsertCredentials('zoom', [
+                elseif ($action === 'add_zoom') {
+                    $accountId = $this->providerRepo->createAccount('zoom', [
+                        'nickname'        => trim($_POST['nickname'] ?? ''),
                         'client_id'       => trim($_POST['zoom_client_id'] ?? ''),
                         'client_secret'   => trim($_POST['zoom_client_secret'] ?? ''),
                         'zoom_account_id' => trim($_POST['zoom_account_id'] ?? ''),
                     ]);
                     
                     // Immediately fetch token and verify connection
-                    $account = $this->providerRepo->findByProvider('zoom');
+                    $account = $this->providerRepo->findById($accountId);
                     $zoomProvider = new \App\Integrations\Zoom\ZoomProvider($this->db, $account);
                     
                     if ($zoomProvider->refreshToken()) {
                         header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom credentials saved and connected successfully.'));
                     } else {
                         header('Location: /admin/settings/meetings.php?error=' . urlencode('Zoom credentials saved, but connection failed. Check your API details.'));
+                    }
+                    exit;
+                }
+                elseif ($action === 'update_google') {
+                    $accountId = (int)($_POST['account_id'] ?? 0);
+                    $this->providerRepo->updateAccountCredentials($accountId, [
+                        'nickname'      => trim($_POST['nickname'] ?? ''),
+                        'client_id'     => trim($_POST['google_client_id'] ?? ''),
+                        'client_secret' => trim($_POST['google_client_secret'] ?? ''),
+                    ]);
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google account updated.'));
+                    exit;
+                }
+                elseif ($action === 'update_zoom') {
+                    $accountId = (int)($_POST['account_id'] ?? 0);
+                    $this->providerRepo->updateAccountCredentials($accountId, [
+                        'nickname'        => trim($_POST['nickname'] ?? ''),
+                        'client_id'       => trim($_POST['zoom_client_id'] ?? ''),
+                        'client_secret'   => trim($_POST['zoom_client_secret'] ?? ''),
+                        'zoom_account_id' => trim($_POST['zoom_account_id'] ?? ''),
+                    ]);
+                    
+                    $account = $this->providerRepo->findById($accountId);
+                    $zoomProvider = new \App\Integrations\Zoom\ZoomProvider($this->db, $account);
+                    
+                    if ($zoomProvider->refreshToken()) {
+                        header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom credentials updated and connected successfully.'));
+                    } else {
+                        header('Location: /admin/settings/meetings.php?error=' . urlencode('Zoom credentials updated, but connection failed. Check your API details.'));
                     }
                     exit;
                 }
@@ -91,14 +122,16 @@ class AdminMeetingSettingsController
                     header('Location: /admin/settings/meetings.php?success=' . urlencode('Global settings saved successfully.'));
                     exit;
                 }
-                elseif ($action === 'disconnect_google') {
-                    $this->providerRepo->disconnect('google_meet');
-                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Google account disconnected.'));
+                elseif ($action === 'disconnect_account') {
+                    $accountId = (int)($_POST['account_id'] ?? 0);
+                    $this->providerRepo->disconnect($accountId);
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Account disconnected.'));
                     exit;
                 }
-                elseif ($action === 'disconnect_zoom') {
-                    $this->providerRepo->disconnect('zoom');
-                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Zoom account disconnected.'));
+                elseif ($action === 'delete_account') {
+                    $accountId = (int)($_POST['account_id'] ?? 0);
+                    $this->providerRepo->deleteAccount($accountId);
+                    header('Location: /admin/settings/meetings.php?success=' . urlencode('Account deleted.'));
                     exit;
                 }
             } catch (\Exception $e) {
@@ -117,15 +150,25 @@ class AdminMeetingSettingsController
     {
         global $auth;
         
-        $code = $_GET['code'] ?? '';
+        $code  = $_GET['code'] ?? '';
+        $state = $_GET['state'] ?? '';
+        
         if (!$code) {
             header('Location: /admin/settings/meetings.php?error=Missing authorization code');
             exit;
         }
+        
+        // Extract account ID from state
+        if (!preg_match('/^account_(\d+)$/', $state, $matches)) {
+            header('Location: /admin/settings/meetings.php?error=Invalid state parameter');
+            exit;
+        }
+        
+        $accountId = (int)$matches[1];
+        $account = $this->providerRepo->findById($accountId);
 
-        $account = $this->providerRepo->findByProvider('google_meet');
-        if (!$account || empty($account['client_id']) || empty($account['client_secret'])) {
-            header('Location: /admin/settings/meetings.php?error=Google credentials not configured');
+        if (!$account || empty($account['client_id']) || empty($account['client_secret']) || $account['provider'] !== 'google_meet') {
+            header('Location: /admin/settings/meetings.php?error=Google credentials not configured or invalid account');
             exit;
         }
 
@@ -172,14 +215,14 @@ class AdminMeetingSettingsController
         $expiresAt = time() + ((int)($json['expires_in'] ?? 3600));
 
         $this->providerRepo->saveTokens(
-            provider:      'google_meet',
+            accountId:     $accountId,
             accessToken:   $accessToken,
             refreshToken:  $json['refresh_token'] ?? null,
             expiresAt:     $expiresAt,
             accountEmail:  $email,
-            accountId:     $sub
+            providerAccountId:     $sub
         );
-        $this->providerRepo->markConnectedBy('google_meet', $auth->getUserId());
+        $this->providerRepo->markConnectedBy($accountId, $auth->getUserId());
 
         header('Location: /admin/settings/meetings.php?success=Google account connected successfully');
         exit;
@@ -192,7 +235,7 @@ class AdminMeetingSettingsController
         return "{$protocol}://{$host}/admin/settings/google_callback.php";
     }
 
-    public function getGoogleAuthUrl(string $clientId): string
+    public function getGoogleAuthUrl(string $clientId, int $accountId): string
     {
         $redirectUri = $this->getGoogleRedirectUri();
         $scopes = [
@@ -207,6 +250,7 @@ class AdminMeetingSettingsController
             'scope'         => implode(' ', $scopes),
             'access_type'   => 'offline',
             'prompt'        => 'consent',
+            'state'         => 'account_' . $accountId,
         ];
 
         return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query($params);

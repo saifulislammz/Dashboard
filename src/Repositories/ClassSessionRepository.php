@@ -30,7 +30,7 @@ class ClassSessionRepository
     {
         $stmt = $this->db->prepare("
             SELECT cs.id, cs.classroom_id, cs.session_date, cs.start_time, cs.end_time,
-                   cs.timezone, cs.topic, cs.agenda, cs.session_number, cs.provider,
+                   cs.timezone, cs.topic, cs.agenda, cs.session_number, cs.provider, cs.provider_account_id,
                    cs.status, cs.job_id, cs.created_by, cs.cancelled_at, cs.cancel_reason,
                    cs.created_at,
                    sm.join_url, sm.start_url, sm.meet_link, sm.passcode,
@@ -200,10 +200,10 @@ class ClassSessionRepository
         $stmt = $this->db->prepare("
             INSERT INTO class_sessions
                 (classroom_id, session_date, start_time, end_time, timezone,
-                 topic, agenda, session_number, provider, status, job_id, created_by)
+                 topic, agenda, session_number, provider, provider_account_id, status, job_id, created_by)
             VALUES
                 (:classroom_id, :session_date, :start_time, :end_time, :timezone,
-                 :topic, :agenda, :session_number, :provider, 'scheduled', :job_id, :created_by)
+                 :topic, :agenda, :session_number, :provider, :provider_account_id, 'scheduled', :job_id, :created_by)
         ");
         $stmt->execute([
             'classroom_id'   => $data['classroom_id'],
@@ -215,6 +215,7 @@ class ClassSessionRepository
             'agenda'         => $data['agenda'] ?? null,
             'session_number' => $data['session_number'] ?? null,
             'provider'       => $data['provider'],
+            'provider_account_id' => $data['provider_account_id'] ?? null,
             'job_id'         => $data['job_id'] ?? null,
             'created_by'     => $data['created_by'],
         ]);
@@ -231,10 +232,10 @@ class ClassSessionRepository
         $stmt = $this->db->prepare("
             INSERT INTO class_sessions
                 (classroom_id, session_date, start_time, end_time, timezone,
-                 topic, agenda, session_number, provider, status, job_id, created_by)
+                 topic, agenda, session_number, provider, provider_account_id, status, job_id, created_by)
             VALUES
                 (:classroom_id, :session_date, :start_time, :end_time, :timezone,
-                 :topic, :agenda, :session_number, :provider, 'scheduled', :job_id, :created_by)
+                 :topic, :agenda, :session_number, :provider, :provider_account_id, 'scheduled', :job_id, :created_by)
         ");
 
         foreach ($sessions as $s) {
@@ -248,6 +249,7 @@ class ClassSessionRepository
                 'agenda'         => $s['agenda'] ?? null,
                 'session_number' => $s['session_number'] ?? null,
                 'provider'       => $s['provider'],
+                'provider_account_id' => $s['provider_account_id'] ?? null,
                 'job_id'         => $s['job_id'] ?? null,
                 'created_by'     => $s['created_by'],
             ]);
@@ -301,6 +303,17 @@ class ClassSessionRepository
             'topic'        => $data['topic'] ?? null,
             'agenda'       => $data['agenda'] ?? null,
             'id'           => $id,
+        ]);
+    }
+
+    public function updateProviderAccount(int $id, ?int $providerAccountId): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE class_sessions SET provider_account_id = :provider_account_id WHERE id = :id"
+        );
+        return $stmt->execute([
+            'provider_account_id' => $providerAccountId,
+            'id'                  => $id
         ]);
     }
 }

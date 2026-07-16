@@ -29,6 +29,7 @@ final class SessionDTO
         public readonly ?string $teacherName,
         public readonly ?string $studentEmail = null,
         public readonly ?string $studentName = null,
+        public ?int $providerAccountId = null,
     ) {
         try {
             new \DateTimeZone($this->timezone);

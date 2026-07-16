@@ -65,10 +65,20 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div class="sm:col-span-2">
                         <label for="provider" class="block text-sm font-medium text-gray-700">Meeting Provider <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <select id="provider" name="provider" required class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
+                            <select id="provider" name="provider" required onchange="updateAccountDropdown()" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-primary rounded-md text-gray-900">
                                 <option value="zoom" <?= (isset($defaultProvider) && $defaultProvider === 'zoom') ? 'selected' : '' ?>>Zoom</option>
                                 <option value="google_meet" <?= (isset($defaultProvider) && $defaultProvider === 'google_meet') ? 'selected' : '' ?>>Google Meet</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="provider_account_id" class="block text-sm font-medium text-gray-700">Provider Account (Optional)</label>
+                        <div class="mt-1">
+                            <select id="provider_account_id" name="provider_account_id" class="shadow-sm focus:ring-primary focus:border-primary block w-full px-4 py-2.5 sm:text-sm border-2 border-gray-300 rounded-md text-gray-900">
+                                <option value="">-- Auto (Smart Account Selection) --</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Leave as Auto to let the system pick an available account, or force a specific account.</p>
                         </div>
                     </div>
 
@@ -206,8 +216,39 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
         });
     }
 
+    // Provider Accounts Data
+    const accountsData = {
+        'google_meet': [
+            <?php foreach ($googleAccounts as $acc): ?>
+                {id: <?= $acc['id'] ?>, text: '<?= htmlspecialchars(($acc['nickname'] ? $acc['nickname'] . ' - ' : '') . $acc['account_email']) ?>'},
+            <?php endforeach; ?>
+        ],
+        'zoom': [
+            <?php foreach ($zoomAccounts as $acc): ?>
+                {id: <?= $acc['id'] ?>, text: '<?= htmlspecialchars(($acc['nickname'] ? $acc['nickname'] . ' - ' : '') . $acc['account_email']) ?>'},
+            <?php endforeach; ?>
+        ]
+    };
+
+    function updateAccountDropdown() {
+        const provider = document.getElementById('provider').value;
+        const dropdown = document.getElementById('provider_account_id');
+        
+        // Clear current options except Auto
+        dropdown.innerHTML = '<option value="">-- Auto (Smart Account Selection) --</option>';
+        
+        const accounts = accountsData[provider] || [];
+        accounts.forEach(acc => {
+            const option = document.createElement('option');
+            option.value = acc.id;
+            option.textContent = acc.text;
+            dropdown.appendChild(option);
+        });
+    }
+
     // Init
     setMode('single');
+    updateAccountDropdown();
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

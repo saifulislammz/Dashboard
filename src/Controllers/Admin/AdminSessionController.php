@@ -126,6 +126,10 @@ class AdminSessionController
         $defaultProvider = $settingsDb['default_provider'] ?? 'zoom';
         $defaultTimezone = $settingsDb['default_timezone'] ?? 'Asia/Dhaka';
 
+        $providerRepo = new \App\Repositories\ProviderAccountRepository($db);
+        $googleAccounts = $providerRepo->findAllByProvider('google_meet');
+        $zoomAccounts = $providerRepo->findAllByProvider('zoom');
+
         require __DIR__ . '/../../../views/admin/sessions/create.php';
     }
 

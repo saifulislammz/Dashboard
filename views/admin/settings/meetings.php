@@ -62,53 +62,114 @@ $error   = $_GET['error'] ?? $error ?? '';
                         </div>
                     </div>
 
-                    <?php if ($googleAccount && $googleAccount['is_connected']): ?>
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-5">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-sm font-medium text-green-800">Status: Connected</h3>
-                                    <p class="mt-1 text-sm text-green-700">Account: <strong><?= htmlspecialchars($googleAccount['account_email'] ?? '') ?></strong></p>
+                    <?php if (!empty($googleAccounts)): ?>
+                        <div class="space-y-4">
+                            <?php foreach ($googleAccounts as $account): ?>
+                                <div class="bg-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-50 border border-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-200 rounded-lg p-5 relative">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900"><?= htmlspecialchars($account['nickname'] ?? 'Unnamed Account') ?></h3>
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                Status: <strong class="text-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-700"><?= $account['is_connected'] ? 'Connected' : 'Not Connected' ?></strong>
+                                            </p>
+                                            <?php if ($account['is_connected']): ?>
+                                                <p class="text-sm text-gray-500">Email: <strong><?= htmlspecialchars($account['account_email'] ?? '') ?></strong></p>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <?php if ($account['is_connected']): ?>
+                                                <form action="" method="POST" class="inline">
+                                                    <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                                    <input type="hidden" name="action" value="disconnect_account">
+                                                    <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                                    <button type="submit" onclick="return confirm('Disconnect this account?')" class="text-sm font-medium text-yellow-600 hover:text-yellow-500 bg-white border border-yellow-200 py-1.5 px-3 rounded-md shadow-sm">Disconnect</button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <button type="button" onclick="document.getElementById('edit-google-<?= $account['id'] ?>').classList.toggle('hidden')" class="text-sm font-medium text-primary hover:text-primary/80 bg-white border border-gray-200 py-1.5 px-3 rounded-md shadow-sm">Edit</button>
+                                            <form action="" method="POST" class="inline">
+                                                <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                                <input type="hidden" name="action" value="delete_account">
+                                                <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                                <button type="submit" onclick="return confirm('Permanently delete this account?')" class="text-sm font-medium text-red-600 hover:text-red-500 bg-white border border-red-200 py-1.5 px-3 rounded-md shadow-sm">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="edit-google-<?= $account['id'] ?>" class="hidden mt-4 pt-4 border-t border-gray-200">
+                                        <form action="" method="POST" class="space-y-4">
+                                            <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                            <input type="hidden" name="action" value="update_google">
+                                            <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                            
+                                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Nickname</label>
+                                                    <input type="text" name="nickname" value="<?= htmlspecialchars($account['nickname'] ?? '') ?>" placeholder="e.g. Science Dept" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Client ID</label>
+                                                    <input type="text" name="google_client_id" value="<?= htmlspecialchars($account['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Client Secret</label>
+                                                    <input type="password" name="google_client_secret" value="<?= htmlspecialchars($account['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                            </div>
+
+                                            <div class="flex items-center gap-3">
+                                                <button type="submit" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Save</button>
+                                                <?php if (!empty($account['client_id'])): ?>
+                                                    <a href="<?= htmlspecialchars($this->getGoogleAuthUrl($account['client_id'], $account['id'])) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                                        <?= $account['is_connected'] ? 'Reconnect' : 'Connect Account' ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                                <form action="" method="POST">
-                                    <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
-                                    <input type="hidden" name="action" value="disconnect_google">
-                                    <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-500 bg-white border border-red-200 py-1.5 px-3 rounded-md shadow-sm">Disconnect</button>
-                                </form>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php else: ?>
+                    <?php endif; ?>
+                    
+                    <div class="mt-6">
+                        <button type="button" onclick="document.getElementById('add-google-form').classList.toggle('hidden')" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
+                            + Add Google Account
+                        </button>
+                    </div>
+
+                    <div id="add-google-form" class="hidden mt-6 bg-white border border-gray-200 rounded-lg p-5">
+                        <h3 class="text-md font-medium text-gray-900 mb-4">Add New Google Account</h3>
                         <form action="" method="POST" class="space-y-4">
                             <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
-                            <input type="hidden" name="action" value="save_google">
+                            <input type="hidden" name="action" value="add_google">
                             
                             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
-                                    <label for="google_client_id" class="block text-sm font-medium text-gray-700">Client ID</label>
-                                    <input type="text" name="google_client_id" id="google_client_id" value="<?= htmlspecialchars($googleAccount['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                    <label class="block text-sm font-medium text-gray-700">Nickname</label>
+                                    <input type="text" name="nickname" placeholder="e.g. Main School Account" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 </div>
                                 <div class="sm:col-span-2">
-                                    <label for="google_client_secret" class="block text-sm font-medium text-gray-700">Client Secret</label>
-                                    <input type="password" name="google_client_secret" id="google_client_secret" value="<?= htmlspecialchars($googleAccount['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                    <label class="block text-sm font-medium text-gray-700">Client ID</label>
+                                    <input type="text" name="google_client_id" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Client Secret</label>
+                                    <input type="password" name="google_client_secret" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
                                 </div>
                             </div>
 
-                            <div class="bg-green-50 border-l-4 border-green-400 p-4">
-                                <p class="text-sm text-green-700"><strong>Redirect URI:</strong> Set this exactly in Google Cloud Console:</p>
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4">
+                                <p class="text-sm text-blue-700"><strong>Redirect URI:</strong> Ensure this is added in Google Cloud Console:</p>
                                 <code class="mt-2 block bg-white p-2 rounded text-xs"><?= htmlspecialchars($this->getGoogleRedirectUri()) ?></code>
                             </div>
 
-                            <div class="flex items-center gap-3">
-                                <button type="submit" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
-                                    Save Credentials
+                            <div class="pt-2">
+                                <button type="submit" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    Create Slot
                                 </button>
-                                <?php if (!empty($googleAccount['client_id'])): ?>
-                                    <a href="<?= htmlspecialchars($this->getGoogleAuthUrl($googleAccount['client_id'])) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none transition-colors">
-                                        Connect Google Account
-                                    </a>
-                                <?php endif; ?>
                             </div>
                         </form>
-                    <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- TAB 2: Zoom -->
@@ -123,47 +184,111 @@ $error   = $_GET['error'] ?? $error ?? '';
                         </div>
                     </div>
 
-                    <?php if ($zoomAccount && $zoomAccount['is_connected']): ?>
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-5">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h3 class="text-sm font-medium text-green-800">Status: Connected</h3>
-                                    <p class="mt-1 text-sm text-green-700">Token is actively caching and valid.</p>
+                    <?php if (!empty($zoomAccounts)): ?>
+                        <div class="space-y-4">
+                            <?php foreach ($zoomAccounts as $account): ?>
+                                <div class="bg-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-50 border border-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-200 rounded-lg p-5 relative">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 class="text-sm font-medium text-gray-900"><?= htmlspecialchars($account['nickname'] ?? 'Unnamed Account') ?></h3>
+                                            <p class="mt-1 text-sm text-gray-500">
+                                                Status: <strong class="text-<?= $account['is_connected'] ? 'green' : 'yellow' ?>-700"><?= $account['is_connected'] ? 'Connected' : 'Not Connected' ?></strong>
+                                            </p>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <?php if ($account['is_connected']): ?>
+                                                <form action="" method="POST" class="inline">
+                                                    <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                                    <input type="hidden" name="action" value="disconnect_account">
+                                                    <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                                    <button type="submit" onclick="return confirm('Disconnect this account?')" class="text-sm font-medium text-yellow-600 hover:text-yellow-500 bg-white border border-yellow-200 py-1.5 px-3 rounded-md shadow-sm">Disconnect</button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <button type="button" onclick="document.getElementById('edit-zoom-<?= $account['id'] ?>').classList.toggle('hidden')" class="text-sm font-medium text-primary hover:text-primary/80 bg-white border border-gray-200 py-1.5 px-3 rounded-md shadow-sm">Edit</button>
+                                            <form action="" method="POST" class="inline">
+                                                <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                                <input type="hidden" name="action" value="delete_account">
+                                                <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                                <button type="submit" onclick="return confirm('Permanently delete this account?')" class="text-sm font-medium text-red-600 hover:text-red-500 bg-white border border-red-200 py-1.5 px-3 rounded-md shadow-sm">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="edit-zoom-<?= $account['id'] ?>" class="hidden mt-4 pt-4 border-t border-gray-200">
+                                        <form action="" method="POST" class="space-y-4">
+                                            <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                                            <input type="hidden" name="action" value="update_zoom">
+                                            <input type="hidden" name="account_id" value="<?= $account['id'] ?>">
+                                            
+                                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Nickname</label>
+                                                    <input type="text" name="nickname" value="<?= htmlspecialchars($account['nickname'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Account ID</label>
+                                                    <input type="text" name="zoom_account_id" value="<?= htmlspecialchars($account['zoom_account_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Client ID</label>
+                                                    <input type="text" name="zoom_client_id" value="<?= htmlspecialchars($account['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-sm font-medium text-gray-700">Client Secret</label>
+                                                    <input type="password" name="zoom_client_secret" value="<?= htmlspecialchars($account['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-gray-300 focus:border-primary block w-full sm:text-sm rounded-md">
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+                                                    Save & Test Zoom Connection
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
-                                <form action="" method="POST">
-                                    <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
-                                    <input type="hidden" name="action" value="disconnect_zoom">
-                                    <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-500 bg-white border border-red-200 py-1.5 px-3 rounded-md shadow-sm">Disconnect</button>
-                                </form>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
 
-                    <form action="" method="POST" class="space-y-4">
-                        <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
-                        <input type="hidden" name="action" value="save_zoom">
-                        
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div class="sm:col-span-2">
-                                <label for="zoom_account_id" class="block text-sm font-medium text-gray-700">Account ID</label>
-                                <input type="text" name="zoom_account_id" id="zoom_account_id" value="<?= htmlspecialchars($zoomAccount['zoom_account_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label for="zoom_client_id" class="block text-sm font-medium text-gray-700">Client ID</label>
-                                <input type="text" name="zoom_client_id" id="zoom_client_id" value="<?= htmlspecialchars($zoomAccount['client_id'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label for="zoom_client_secret" class="block text-sm font-medium text-gray-700">Client Secret</label>
-                                <input type="password" name="zoom_client_secret" id="zoom_client_secret" value="<?= htmlspecialchars($zoomAccount['client_secret'] ?? '') ?>" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
-                            </div>
-                        </div>
+                    <div class="mt-6">
+                        <button type="button" onclick="document.getElementById('add-zoom-form').classList.toggle('hidden')" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
+                            + Add Zoom Account
+                        </button>
+                    </div>
 
-                        <div>
-                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none transition-colors">
-                                Save & Test Zoom Connection
-                            </button>
-                        </div>
-                    </form>
+                    <div id="add-zoom-form" class="hidden mt-6 bg-white border border-gray-200 rounded-lg p-5">
+                        <h3 class="text-md font-medium text-gray-900 mb-4">Add New Zoom Account</h3>
+                        <form action="" method="POST" class="space-y-4">
+                            <input type="hidden" name="csrf_token" value="<?= e(generateCsrfToken()) ?>">
+                            <input type="hidden" name="action" value="add_zoom">
+                            
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Nickname</label>
+                                    <input type="text" name="nickname" required placeholder="e.g. Finance Zoom" class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Account ID</label>
+                                    <input type="text" name="zoom_account_id" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Client ID</label>
+                                    <input type="text" name="zoom_client_id" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Client Secret</label>
+                                    <input type="password" name="zoom_client_secret" required class="mt-1.5 px-3 py-2 border-2 border-primary shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm rounded-md">
+                                </div>
+                            </div>
+
+                            <div>
+                                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none">
+                                    Save & Connect
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- TAB 3: Global Settings -->

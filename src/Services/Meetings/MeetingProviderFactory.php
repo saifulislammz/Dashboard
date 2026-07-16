@@ -35,14 +35,27 @@ class MeetingProviderFactory
      * @throws InvalidArgumentException if unknown provider
      * @throws \RuntimeException if provider not connected
      */
-    public function make(string $provider): MeetingProviderInterface
+    /**
+     * @param  string $provider  'google_meet' | 'zoom'
+     * @param  int|null $accountId Optional specific account ID to use
+     * @return MeetingProviderInterface
+     * @throws InvalidArgumentException if unknown provider
+     * @throws \RuntimeException if provider not connected
+     */
+    public function make(string $provider, ?int $accountId = null): MeetingProviderInterface
     {
-        $account = $this->providerRepo->findByProvider($provider);
+        if ($accountId) {
+            $account = $this->providerRepo->findById($accountId);
+        } else {
+            // Fallback for older code that doesn't specify an account
+            $account = $this->providerRepo->findByProvider($provider);
+        }
 
         if (!$account || !$account['is_connected']) {
-            throw new \RuntimeException(
-                "Provider '{$provider}' is not connected. Please configure it in Meeting Settings."
-            );
+            $msg = $accountId 
+                ? "Provider account ID '{$accountId}' is not connected or not found."
+                : "No connected account found for provider '{$provider}'.";
+            throw new \RuntimeException($msg);
         }
 
         return match ($provider) {

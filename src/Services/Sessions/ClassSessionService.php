@@ -69,6 +69,7 @@ class ClassSessionService
             'agenda'         => htmlspecialchars(trim($data['agenda'] ?? '')),
             'session_number' => $data['session_number'] ?? null,
             'provider'       => $data['provider'],
+            'provider_account_id' => !empty($data['provider_account_id']) ? (int)$data['provider_account_id'] : null,
             'job_id'         => $jobId,
             'created_by'     => $adminId,
         ]);
@@ -139,6 +140,7 @@ class ClassSessionService
                 'agenda'         => htmlspecialchars(trim($data['agenda'] ?? '')),
                 'session_number' => $dateInfo['session_number'] ?? ($i + 1),
                 'provider'       => $provider,
+                'provider_account_id' => !empty($data['provider_account_id']) ? (int)$data['provider_account_id'] : null,
                 'job_id'         => $jobId,
                 'created_by'     => $adminId,
             ];

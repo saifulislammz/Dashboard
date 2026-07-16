@@ -34,8 +34,9 @@ class ProviderAccountRepository
 
     public function findByProvider(string $provider): ?array
     {
+        // For backward compatibility, return the first one or default
         $stmt = $this->db->prepare(
-            "SELECT id, provider, client_id, client_secret, zoom_account_id, access_token, refresh_token, token_expires_at, account_email, account_id, is_connected, connected_at, last_token_refresh, connected_by FROM provider_accounts WHERE provider = :provider LIMIT 1"
+            "SELECT id, provider, nickname, display_order, client_id, client_secret, zoom_account_id, access_token, refresh_token, token_expires_at, account_email, account_id, is_connected, connected_at, last_token_refresh, connected_by FROM provider_accounts WHERE provider = :provider ORDER BY display_order ASC, id ASC LIMIT 1"
         );
         $stmt->execute(['provider' => $provider]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -53,6 +54,86 @@ class ProviderAccountRepository
         return $row;
     }
 
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT id, provider, nickname, display_order, client_id, client_secret, zoom_account_id, access_token, refresh_token, token_expires_at, account_email, account_id, is_connected, connected_at, last_token_refresh, connected_by FROM provider_accounts WHERE id = :id LIMIT 1"
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        // Decrypt sensitive fields
+        $row['access_token']   = $this->decrypt($row['access_token'] ?? '');
+        $row['refresh_token']  = $this->decrypt($row['refresh_token'] ?? '');
+        $row['client_id']      = $this->decrypt($row['client_id'] ?? '');
+        $row['client_secret']  = $this->decrypt($row['client_secret'] ?? '');
+
+        return $row;
+    }
+
+    public function findAllByProvider(string $provider): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT id, provider, nickname, display_order, client_id, client_secret, zoom_account_id, access_token, refresh_token, token_expires_at, account_email, account_id, is_connected, connected_at, last_token_refresh, connected_by 
+             FROM provider_accounts 
+             WHERE provider = :provider 
+             ORDER BY display_order ASC, id ASC"
+        );
+        $stmt->execute(['provider' => $provider]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as &$row) {
+            $row['access_token']   = $this->decrypt($row['access_token'] ?? '');
+            $row['refresh_token']  = $this->decrypt($row['refresh_token'] ?? '');
+            $row['client_id']      = $this->decrypt($row['client_id'] ?? '');
+            $row['client_secret']  = $this->decrypt($row['client_secret'] ?? '');
+        }
+
+        return $rows;
+    }
+
+    public function findAvailableAccount(string $provider, string $date, string $startTime, string $endTime): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT pa.id, pa.account_email, pa.display_order
+            FROM provider_accounts pa
+            WHERE pa.provider = :provider
+              AND pa.is_connected = 1
+              AND pa.id NOT IN (
+                SELECT cs.provider_account_id
+                FROM class_sessions cs
+                WHERE cs.provider = :provider
+                  AND cs.session_date = :date
+                  AND cs.status NOT IN ('cancelled', 'failed')
+                  AND (
+                    (cs.start_time < :end_time AND cs.end_time > :start_time)
+                  )
+                  AND cs.provider_account_id IS NOT NULL
+              )
+            ORDER BY pa.display_order ASC, pa.id ASC
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            'provider' => $provider,
+            'date'     => $date,
+            'start_time' => $startTime,
+            'end_time'   => $endTime
+        ]);
+
+        $accountId = $stmt->fetchColumn();
+
+        if ($accountId) {
+            return $this->findById((int) $accountId);
+        }
+
+        return null;
+    }
+
     public function getConnectedProviders(): array
     {
         $stmt = $this->db->query(
@@ -65,9 +146,9 @@ class ProviderAccountRepository
     public function findAll(): array
     {
         $stmt = $this->db->query(
-            "SELECT id, provider, account_email, is_connected, connected_at,
+            "SELECT id, provider, nickname, display_order, account_email, is_connected, connected_at,
                     last_token_refresh, token_expires_at
-             FROM provider_accounts ORDER BY provider"
+             FROM provider_accounts ORDER BY provider, display_order ASC, id ASC"
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -76,24 +157,48 @@ class ProviderAccountRepository
     // WRITE
     // -------------------------------------------------------
 
-    public function upsertCredentials(string $provider, array $data): bool
+    public function createAccount(string $provider, array $data): int
     {
         $encrypt = fn($v) => $v ? $this->encrypt($v) : null;
 
         $stmt = $this->db->prepare("
             INSERT INTO provider_accounts
-                (provider, client_id, client_secret, zoom_account_id, updated_at)
+                (provider, nickname, display_order, client_id, client_secret, zoom_account_id, updated_at)
             VALUES
-                (:provider, :client_id, :client_secret, :zoom_account_id, NOW())
-            ON DUPLICATE KEY UPDATE
-                client_id      = VALUES(client_id),
-                client_secret  = VALUES(client_secret),
-                zoom_account_id = VALUES(zoom_account_id),
+                (:provider, :nickname, :display_order, :client_id, :client_secret, :zoom_account_id, NOW())
+        ");
+
+        $stmt->execute([
+            'provider'       => $provider,
+            'nickname'       => $data['nickname'] ?? null,
+            'display_order'  => (int) ($data['display_order'] ?? 0),
+            'client_id'      => $encrypt($data['client_id'] ?? null),
+            'client_secret'  => $encrypt($data['client_secret'] ?? null),
+            'zoom_account_id'=> $data['zoom_account_id'] ?? null,
+        ]);
+        
+        return (int) $this->db->lastInsertId();
+    }
+
+    public function updateAccountCredentials(int $id, array $data): bool
+    {
+        $encrypt = fn($v) => $v ? $this->encrypt($v) : null;
+
+        $stmt = $this->db->prepare("
+            UPDATE provider_accounts
+            SET nickname       = :nickname,
+                display_order  = :display_order,
+                client_id      = :client_id,
+                client_secret  = :client_secret,
+                zoom_account_id= :zoom_account_id,
                 updated_at     = NOW()
+            WHERE id = :id
         ");
 
         return $stmt->execute([
-            'provider'       => $provider,
+            'id'             => $id,
+            'nickname'       => $data['nickname'] ?? null,
+            'display_order'  => (int) ($data['display_order'] ?? 0),
             'client_id'      => $encrypt($data['client_id'] ?? null),
             'client_secret'  => $encrypt($data['client_secret'] ?? null),
             'zoom_account_id'=> $data['zoom_account_id'] ?? null,
@@ -101,12 +206,12 @@ class ProviderAccountRepository
     }
 
     public function saveTokens(
-        string  $provider,
+        int     $accountId,
         string  $accessToken,
         ?string $refreshToken,
         int     $expiresAt,
         string  $accountEmail,
-        ?string $accountId = null
+        ?string $providerAccountId = null
     ): bool {
         $stmt = $this->db->prepare("
             UPDATE provider_accounts
@@ -118,7 +223,7 @@ class ProviderAccountRepository
                 is_connected      = 1,
                 connected_at      = NOW(),
                 last_token_refresh= NOW()
-            WHERE provider = :provider
+            WHERE id = :id
         ");
 
         return $stmt->execute([
@@ -126,29 +231,35 @@ class ProviderAccountRepository
             'refresh_token' => $refreshToken ? $this->encrypt($refreshToken) : null,
             'expires_at'    => $expiresAt,
             'account_email' => $accountEmail,
-            'account_id'    => $accountId,
-            'provider'      => $provider,
+            'account_id'    => $providerAccountId,
+            'id'            => $accountId,
         ]);
     }
 
-    public function disconnect(string $provider): bool
+    public function disconnect(int $accountId): bool
     {
         $stmt = $this->db->prepare("
             UPDATE provider_accounts
             SET access_token = NULL, refresh_token = NULL,
                 is_connected = 0, account_email = NULL,
                 token_expires_at = NULL
-            WHERE provider = :provider
+            WHERE id = :id
         ");
-        return $stmt->execute(['provider' => $provider]);
+        return $stmt->execute(['id' => $accountId]);
     }
 
-    public function markConnectedBy(string $provider, int $adminId): bool
+    public function deleteAccount(int $accountId): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM provider_accounts WHERE id = :id");
+        return $stmt->execute(['id' => $accountId]);
+    }
+
+    public function markConnectedBy(int $accountId, int $adminId): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE provider_accounts SET connected_by = :admin_id WHERE provider = :provider"
+            "UPDATE provider_accounts SET connected_by = :admin_id WHERE id = :id"
         );
-        return $stmt->execute(['admin_id' => $adminId, 'provider' => $provider]);
+        return $stmt->execute(['admin_id' => $adminId, 'id' => $accountId]);
     }
 
     // -------------------------------------------------------

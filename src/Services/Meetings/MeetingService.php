@@ -66,11 +66,32 @@ class MeetingService
             studentName:   $sessionData['student_name'] ?? null,
         );
 
+        $dto->providerAccountId = $sessionData['provider_account_id'] ?? null;
+
+        // Auto-select account if not set (or if this is a fresh generation)
+        if (!$dto->providerAccountId) {
+            $account = $this->providerRepo->findAvailableAccount(
+                $dto->provider,
+                $dto->sessionDate,
+                $dto->startTime,
+                $dto->endTime
+            );
+
+            if (!$account) {
+                return MeetingResultDTO::failure($dto->provider, "No available {$dto->provider} account found for this time slot.");
+            }
+
+            $dto->providerAccountId = (int) $account['id'];
+            
+            // Save the selected account ID to the session
+            $this->sessionRepo->updateProviderAccount($sessionId, $dto->providerAccountId);
+        }
+
         // Ensure pending meeting record exists
         $this->meetingRepo->createPending($sessionId, $dto->provider);
 
         try {
-            $provider = $this->factory->make($dto->provider);
+            $provider = $this->factory->make($dto->provider, $dto->providerAccountId);
             $result   = $provider->createMeeting($dto);
         } catch (\Throwable $e) {
             $result = MeetingResultDTO::failure($dto->provider, $e->getMessage());
@@ -125,9 +146,10 @@ class MeetingService
             studentEmail:  $sessionData['student_email'] ?? null,
             studentName:   $sessionData['student_name'] ?? null,
         );
+        $dto->providerAccountId = $sessionData['provider_account_id'] ?? null;
 
         try {
-            $provider = $this->factory->make($dto->provider);
+            $provider = $this->factory->make($dto->provider, $dto->providerAccountId);
             return $provider->updateMeeting($meeting['provider_meeting_id'], $dto);
         } catch (\Throwable $e) {
             return false;
@@ -147,7 +169,7 @@ class MeetingService
         }
 
         try {
-            $provider = $this->factory->make($sessionData['provider']);
+            $provider = $this->factory->make($sessionData['provider'], $sessionData['provider_account_id'] ?? null);
             $result   = $provider->deleteMeeting($meeting['provider_meeting_id']);
             if ($result) {
                 $this->meetingRepo->markCancelled($sessionId);

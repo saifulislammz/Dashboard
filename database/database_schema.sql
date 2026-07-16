@@ -186,6 +186,8 @@ SET foreign_key_checks = 0;
 CREATE TABLE IF NOT EXISTS `provider_accounts` (
     `id`                   INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `provider`             ENUM('google_meet', 'zoom') NOT NULL,
+    `nickname`             VARCHAR(100)    COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `display_order`        TINYINT UNSIGNED NOT NULL DEFAULT 0,
     -- Google: the connected Google account email
     -- Zoom: the Zoom account email / account ID
     `account_email`        VARCHAR(249)    COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -209,8 +211,8 @@ CREATE TABLE IF NOT EXISTS `provider_accounts` (
     `updated_at`           DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_provider` (`provider`),
-    KEY `idx_provider_connected` (`provider`, `is_connected`)
+    UNIQUE KEY `uq_provider_email` (`provider`, `account_email`),
+    KEY `idx_provider_connected_order` (`provider`, `is_connected`, `display_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='Stores OAuth tokens and credentials for meeting providers';
 
@@ -261,6 +263,7 @@ CREATE TABLE IF NOT EXISTS `class_sessions` (
     `session_number`    SMALLINT UNSIGNED DEFAULT NULL COMMENT 'e.g. Session #3 of 15',
     -- Provider
     `provider`          ENUM('google_meet', 'zoom') NOT NULL DEFAULT 'zoom',
+    `provider_account_id` INT UNSIGNED  DEFAULT NULL COMMENT 'FK → provider_accounts.id — which account was used',
     -- Status lifecycle: scheduled → meeting_pending → active → completed | cancelled | failed
     `status`            ENUM('scheduled','meeting_pending','active','completed','cancelled','failed')
                         NOT NULL DEFAULT 'scheduled',
@@ -279,6 +282,7 @@ CREATE TABLE IF NOT EXISTS `class_sessions` (
     KEY `idx_classroom_status` (`classroom_id`, `status`),
     KEY `idx_session_date`     (`session_date`),
     KEY `idx_provider`         (`provider`),
+    KEY `idx_provider_account_id` (`provider_account_id`),
     KEY `idx_job_id`           (`job_id`),
     KEY `idx_status`           (`status`),
     KEY `idx_session_date_time` (`session_date`, `start_time`),
@@ -461,7 +465,9 @@ ALTER TABLE `class_sessions`
     ADD CONSTRAINT `fk_cs_created_by` FOREIGN KEY (`created_by`)
         REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
     ADD CONSTRAINT `fk_cs_job` FOREIGN KEY (`job_id`)
-        REFERENCES `meeting_generation_jobs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+        REFERENCES `meeting_generation_jobs` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    ADD CONSTRAINT `fk_cs_provider_account` FOREIGN KEY (`provider_account_id`)
+        REFERENCES `provider_accounts` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `session_meetings`
     ADD CONSTRAINT `fk_sm_session` FOREIGN KEY (`session_id`)
