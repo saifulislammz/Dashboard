@@ -1,7 +1,7 @@
-﻿# =================================================================
-# Stage 1 – Node 18: Build Tailwind CSS v4
 # =================================================================
-FROM node:18-alpine AS node-builder
+# Stage 1 – Node 22: Build Tailwind CSS v4
+# =================================================================
+FROM node:22-alpine AS node-builder
 
 WORKDIR /app
 
@@ -16,8 +16,8 @@ COPY views/ ./views/
 COPY public/ ./public/
 COPY src/ ./src/
 
-# Build & minify Tailwind output
-RUN npx tailwindcss \
+# Build & minify Tailwind output (use binary directly — npx may fail in Alpine)
+RUN ./node_modules/.bin/tailwindcss \
       -i ./public/css/input.css \
       -o ./public/css/app.css \
       --minify
