@@ -23,11 +23,8 @@ COPY views/ ./views/
 COPY public/ ./public/
 COPY src/ ./src/
 
-# Build & minify Tailwind CSS output
-RUN ./node_modules/.bin/tailwindcss \
-      -i ./public/css/input.css \
-      -o ./public/css/app.css \
-      --minify
+# Build & minify Tailwind CSS output via npm script
+RUN npm run build:css
 
 # =================================================================
 # Stage 2 – Composer 2: Install PHP production dependencies
