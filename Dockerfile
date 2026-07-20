@@ -6,7 +6,14 @@ FROM node:22-alpine AS node-builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+
+# Prevent Puppeteer from downloading Chromium (we only need Tailwind CSS)
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_CACHE_DIR=/tmp/.puppeteer
+
+# Run full npm ci (without --ignore-scripts) so Tailwind binary links are created
+RUN npm ci
 
 # Copy everything Tailwind needs to scan for classes
 COPY tailwind.config.js postcss.config.js ./
@@ -16,7 +23,7 @@ COPY views/ ./views/
 COPY public/ ./public/
 COPY src/ ./src/
 
-# Build & minify Tailwind output (use binary directly — npx may fail in Alpine)
+# Build & minify Tailwind CSS output
 RUN ./node_modules/.bin/tailwindcss \
       -i ./public/css/input.css \
       -o ./public/css/app.css \
