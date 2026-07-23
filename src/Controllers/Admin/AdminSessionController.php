@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers\Admin;
 
+use App\Exceptions\TimeSlotConflictException;
 use App\Services\Sessions\ClassSessionService;
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\ClassroomRepository;
@@ -77,9 +78,10 @@ class AdminSessionController
             die('<h1>Classroom not found.</h1>');
         }
 
-        $error   = '';
-        $success = '';
-        $result  = null;
+        $error            = '';
+        $success          = '';
+        $result           = null;
+        $timeConflictError = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -112,6 +114,15 @@ class AdminSessionController
                     $success = "Bulk generation complete: {$out['succeeded']} succeeded, {$out['failed']} failed out of {$out['total']} sessions.";
                     $result  = $out;
                 }
+            } catch (TimeSlotConflictException $e) {
+                // Time slot is already booked — do NOT create the session.
+                // Pass structured data to the view so it can render the conflict modal.
+                $timeConflictError = [
+                    'provider'   => $e->getProvider(),
+                    'date'       => $e->getSessionDate(),
+                    'start_time' => $e->getStartTime(),
+                    'end_time'   => $e->getEndTime(),
+                ];
             } catch (\Exception $e) {
                 $error = $e->getMessage();
             }

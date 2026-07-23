@@ -43,6 +43,105 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($timeConflictError)): ?>
+        <!-- Time-slot conflict data passed to JS (sanitised) -->
+        <script>
+            window._conflictData = {
+                provider:  <?= json_encode(htmlspecialchars($timeConflictError['provider'],   ENT_QUOTES, 'UTF-8')) ?>,
+                date:      <?= json_encode(htmlspecialchars($timeConflictError['date'],       ENT_QUOTES, 'UTF-8')) ?>,
+                startTime: <?= json_encode(htmlspecialchars($timeConflictError['start_time'], ENT_QUOTES, 'UTF-8')) ?>,
+                endTime:   <?= json_encode(htmlspecialchars($timeConflictError['end_time'],   ENT_QUOTES, 'UTF-8')) ?>
+            };
+        </script>
+        <?php endif; ?>
+
+        <!-- =========================================================
+             TIME SLOT CONFLICT MODAL
+             Hidden by default. Opened automatically by JS when the
+             server signals a TimeSlotConflictException.
+        ========================================================== -->
+        <div
+            id="conflictModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="conflictModalTitle"
+            class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+        >
+            <!-- Backdrop -->
+            <div
+                id="conflictModalBackdrop"
+                class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+                onclick="closeConflictModal()"
+            ></div>
+
+            <!-- Panel -->
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto overflow-hidden">
+
+                <!-- Coloured header bar -->
+                <div class="bg-amber-500 px-6 py-5 flex items-start gap-4">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="conflictModalTitle" class="text-lg font-bold text-white leading-tight">
+                            Time Slot Already Booked
+                        </h2>
+                        <p class="text-amber-100 text-sm mt-0.5">
+                            No session was created.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="px-6 py-5 space-y-4">
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        All <strong id="conflictProvider" class="text-gray-900"></strong> accounts are already
+                        assigned to another class on
+                        <strong id="conflictDate" class="text-gray-900"></strong>
+                        between
+                        <strong id="conflictStart" class="text-gray-900"></strong> and
+                        <strong id="conflictEnd" class="text-gray-900"></strong>.
+                    </p>
+
+                    <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 flex gap-2">
+                        <svg class="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        <p class="text-amber-800 text-sm">
+                            Click <strong>Choose Another Time</strong> to clear only the time fields so you can pick a different slot. All other details will be kept.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 pb-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                    <button
+                        type="button"
+                        id="conflictModalClose"
+                        onclick="closeConflictModal()"
+                        class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 border-2 border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                    >
+                        Dismiss
+                    </button>
+                    <button
+                        type="button"
+                        id="conflictModalReset"
+                        onclick="resetTimeAndCloseModal()"
+                        class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+                    >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Choose Another Time
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex gap-4">
                 <button type="button" onclick="setMode('single')" id="btnSingle" class="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white transition-colors">Single Session</button>
@@ -249,6 +348,87 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
     // Init
     setMode('single');
     updateAccountDropdown();
+
+    // =========================================================
+    // TIME SLOT CONFLICT MODAL — JS
+    // =========================================================
+
+    /**
+     * Open the conflict modal and populate it with server-side data.
+     * @param {object} data  { provider, date, startTime, endTime }
+     */
+    function openConflictModal(data) {
+        const providerLabel = data.provider === 'google_meet' ? 'Google Meet' : 'Zoom';
+
+        // Format time for display (HH:MM)
+        function fmtTime(t) {
+            if (!t) return t;
+            const parts = t.split(':');
+            let h = parseInt(parts[0], 10);
+            const m = parts[1] || '00';
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return h + ':' + m + ' ' + ampm;
+        }
+
+        // Format date for display
+        function fmtDate(d) {
+            if (!d) return d;
+            const dt = new Date(d + 'T00:00:00');
+            return dt.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        document.getElementById('conflictProvider').textContent = providerLabel;
+        document.getElementById('conflictDate').textContent    = fmtDate(data.date);
+        document.getElementById('conflictStart').textContent   = fmtTime(data.startTime);
+        document.getElementById('conflictEnd').textContent     = fmtTime(data.endTime);
+
+        const modal = document.getElementById('conflictModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+
+        // Focus the primary action button for accessibility
+        document.getElementById('conflictModalReset').focus();
+    }
+
+    /**
+     * Close the modal without resetting anything.
+     */
+    function closeConflictModal() {
+        const modal = document.getElementById('conflictModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    /**
+     * Close the modal AND clear only the time fields so the user
+     * can pick a different slot. All other form data is preserved.
+     */
+    function resetTimeAndCloseModal() {
+        document.getElementById('start_time').value = '';
+        document.getElementById('end_time').value   = '';
+
+        // Scroll the time fields into view so the user notices them
+        document.getElementById('start_time').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('start_time').focus();
+
+        closeConflictModal();
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeConflictModal();
+        }
+    });
+
+    // Auto-open if the server detected a time conflict
+    if (typeof window._conflictData !== 'undefined' && window._conflictData) {
+        openConflictModal(window._conflictData);
+    }
+
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

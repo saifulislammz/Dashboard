@@ -56,7 +56,8 @@ $container->set(\App\Services\Sessions\ClassSessionService::class, fn($c) => new
     $c->get(\App\Repositories\ClassSessionRepository::class),
     $c->get(\App\Repositories\SessionMeetingRepository::class),
     $c->get(\App\Repositories\MeetingJobRepository::class),
-    $c->get(\App\Services\Meetings\MeetingService::class)
+    $c->get(\App\Services\Meetings\MeetingService::class),
+    $c->get(\App\Repositories\ProviderAccountRepository::class)
 ));
 
 $container->set(\App\Services\AttendanceService::class, fn($c) => new \App\Services\AttendanceService(

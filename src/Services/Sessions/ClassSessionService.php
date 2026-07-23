@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\Sessions;
 
+use App\Exceptions\TimeSlotConflictException;
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\SessionMeetingRepository;
 use App\Repositories\MeetingJobRepository;
+use App\Repositories\ProviderAccountRepository;
 use App\Services\Meetings\MeetingService;
 use Exception;
 
@@ -30,17 +32,20 @@ class ClassSessionService
     private SessionMeetingRepository $meetingRepo;
     private MeetingJobRepository     $jobRepo;
     private MeetingService           $meetingService;
+    private ProviderAccountRepository $providerRepo;
 
     public function __construct(
-        ClassSessionRepository   $sessionRepo,
-        SessionMeetingRepository $meetingRepo,
-        MeetingJobRepository     $jobRepo,
-        MeetingService           $meetingService
+        ClassSessionRepository    $sessionRepo,
+        SessionMeetingRepository  $meetingRepo,
+        MeetingJobRepository      $jobRepo,
+        MeetingService            $meetingService,
+        ProviderAccountRepository $providerRepo
     ) {
         $this->sessionRepo    = $sessionRepo;
         $this->meetingRepo    = $meetingRepo;
         $this->jobRepo        = $jobRepo;
         $this->meetingService = $meetingService;
+        $this->providerRepo   = $providerRepo;
     }
 
     // -------------------------------------------------------
@@ -51,6 +56,34 @@ class ClassSessionService
     {
         $this->validateSessionData($data);
 
+        // -------------------------------------------------------
+        // PRE-FLIGHT: Verify a provider account is available for
+        // this exact time slot BEFORE writing anything to the DB.
+        // A specific account was manually chosen — trust it.
+        // Auto-selection: query must confirm availability.
+        // -------------------------------------------------------
+        $explicitAccountId = !empty($data['provider_account_id'])
+            ? (int) $data['provider_account_id']
+            : null;
+
+        if (!$explicitAccountId) {
+            $availableAccount = $this->providerRepo->findAvailableAccount(
+                $data['provider'],
+                $data['session_date'],
+                $data['start_time'],
+                $data['end_time']
+            );
+
+            if (!$availableAccount) {
+                throw new TimeSlotConflictException(
+                    $data['provider'],
+                    $data['session_date'],
+                    $data['start_time'],
+                    $data['end_time']
+                );
+            }
+        }
+
         // Create job record (single session = job with 1 item)
         $jobId = $this->jobRepo->createJob(
             (int) $data['classroom_id'],
@@ -60,18 +93,18 @@ class ClassSessionService
         );
 
         $sessionId = $this->sessionRepo->create([
-            'classroom_id'   => (int) $data['classroom_id'],
-            'session_date'   => $data['session_date'],
-            'start_time'     => $data['start_time'],
-            'end_time'       => $data['end_time'],
-            'timezone'       => $data['timezone'] ?? 'Asia/Dhaka',
-            'topic'          => htmlspecialchars(trim($data['topic'] ?? '')),
-            'agenda'         => htmlspecialchars(trim($data['agenda'] ?? '')),
-            'session_number' => $data['session_number'] ?? null,
-            'provider'       => $data['provider'],
-            'provider_account_id' => !empty($data['provider_account_id']) ? (int)$data['provider_account_id'] : null,
-            'job_id'         => $jobId,
-            'created_by'     => $adminId,
+            'classroom_id'        => (int) $data['classroom_id'],
+            'session_date'        => $data['session_date'],
+            'start_time'          => $data['start_time'],
+            'end_time'            => $data['end_time'],
+            'timezone'            => $data['timezone'] ?? 'Asia/Dhaka',
+            'topic'               => htmlspecialchars(trim($data['topic'] ?? '')),
+            'agenda'              => htmlspecialchars(trim($data['agenda'] ?? '')),
+            'session_number'      => $data['session_number'] ?? null,
+            'provider'            => $data['provider'],
+            'provider_account_id' => $explicitAccountId,
+            'job_id'              => $jobId,
+            'created_by'          => $adminId,
         ]);
 
         $this->jobRepo->bulkCreateItems($jobId, [$sessionId]);
@@ -92,11 +125,11 @@ class ClassSessionService
         }
 
         return [
-            'session_id'   => $sessionId,
-            'job_id'       => $jobId,
-            'meeting_ok'   => $result->success,
-            'meet_link'    => $result->joinUrl,
-            'error'        => $result->errorMessage,
+            'session_id' => $sessionId,
+            'job_id'     => $jobId,
+            'meeting_ok' => $result->success,
+            'meet_link'  => $result->joinUrl,
+            'error'      => $result->errorMessage,
         ];
     }
 
@@ -258,6 +291,9 @@ class ClassSessionService
     {
         if (empty($data['classroom_id'])) {
             throw new Exception('Classroom ID is required.');
+        }
+        if (empty($data['session_date'])) {
+            throw new Exception('Session date is required.');
         }
         if (empty($data['start_time']) || empty($data['end_time'])) {
             throw new Exception('Start and end time are required.');
