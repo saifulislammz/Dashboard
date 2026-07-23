@@ -230,7 +230,7 @@ class ClassSessionRepository
     {
         $ids  = [];
         $stmt = $this->db->prepare("
-            INSERT INTO class_sessions
+            INSERT IGNORE INTO class_sessions
                 (classroom_id, session_date, start_time, end_time, timezone,
                  topic, agenda, session_number, provider, provider_account_id, status, job_id, created_by)
             VALUES
@@ -239,21 +239,32 @@ class ClassSessionRepository
         ");
 
         foreach ($sessions as $s) {
-            $stmt->execute([
-                'classroom_id'   => $s['classroom_id'],
-                'session_date'   => $s['session_date'],
-                'start_time'     => $s['start_time'],
-                'end_time'       => $s['end_time'],
-                'timezone'       => $s['timezone'] ?? 'Asia/Dhaka',
-                'topic'          => $s['topic'] ?? null,
-                'agenda'         => $s['agenda'] ?? null,
-                'session_number' => $s['session_number'] ?? null,
-                'provider'       => $s['provider'],
-                'provider_account_id' => $s['provider_account_id'] ?? null,
-                'job_id'         => $s['job_id'] ?? null,
-                'created_by'     => $s['created_by'],
-            ]);
-            $ids[] = (int) $this->db->lastInsertId();
+            try {
+                $stmt->execute([
+                    'classroom_id'   => $s['classroom_id'],
+                    'session_date'   => $s['session_date'],
+                    'start_time'     => $s['start_time'],
+                    'end_time'       => $s['end_time'],
+                    'timezone'       => $s['timezone'] ?? 'Asia/Dhaka',
+                    'topic'          => $s['topic'] ?? null,
+                    'agenda'         => $s['agenda'] ?? null,
+                    'session_number' => $s['session_number'] ?? null,
+                    'provider'       => $s['provider'],
+                    'provider_account_id' => $s['provider_account_id'] ?? null,
+                    'job_id'         => $s['job_id'] ?? null,
+                    'created_by'     => $s['created_by'],
+                ]);
+                
+                if ($stmt->rowCount() > 0) {
+                    $ids[] = (int) $this->db->lastInsertId();
+                }
+            } catch (\PDOException $e) {
+                // If it's a duplicate entry error, just skip it.
+                if ($e->getCode() == 23000 || strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                    continue;
+                }
+                throw $e;
+            }
         }
         return $ids;
     }

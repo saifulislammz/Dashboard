@@ -181,17 +181,21 @@ class ClassSessionService
 
         // 3. Bulk insert sessions
         $sessionIds = $this->sessionRepo->bulkCreate($sessionRows);
+        $totalCreated = count($sessionIds);
+        $skippedDueToDuplicate = $totalSessions - $totalCreated;
 
-        // 4. Bulk insert job items
-        $this->jobRepo->bulkCreateItems($jobId, $sessionIds);
+        // 4. Bulk insert job items (only for newly created sessions)
+        if ($totalCreated > 0) {
+            $this->jobRepo->bulkCreateItems($jobId, $sessionIds);
+        }
         $this->jobRepo->markJobStarted($jobId);
 
         // 5. Synchronous generation (for ≤5 sessions)
         //    For >5, leave for cron worker (status = queued)
-        $results     = ['total' => $totalSessions, 'succeeded' => 0, 'failed' => 0, 'skipped' => 0];
+        $results     = ['total' => $totalSessions, 'succeeded' => 0, 'failed' => 0, 'skipped' => $skippedDueToDuplicate];
         $processSyncLimit = 5;
 
-        if ($totalSessions <= $processSyncLimit) {
+        if ($totalCreated <= $processSyncLimit && $totalCreated > 0) {
             foreach ($sessionIds as $sessionId) {
                 try {
                     $result = $this->meetingService->generateForSession($sessionId);
@@ -209,12 +213,21 @@ class ClassSessionService
                 }
             }
 
+            // Update processed to be $results['succeeded'] + $results['failed'] + $skippedDueToDuplicate
+            // So that processed == total
             $this->jobRepo->updateJobProgress($jobId, $totalSessions, $results['succeeded'], $results['failed']);
             $this->jobRepo->markJobCompleted($jobId, $results['failed']);
-        } else {
+        } elseif ($totalCreated > $processSyncLimit) {
             // Large batch: let cron handle (job stays in 'processing' state)
-            $results['skipped'] = $totalSessions;
-            // cron/process_meeting_jobs.php will pick this up
+            $results['skipped'] = $skippedDueToDuplicate + $totalCreated; // The $totalCreated are pending via Cron
+            // Since some might be skipped due to duplicates, we update the processed count immediately for those
+            if ($skippedDueToDuplicate > 0) {
+                $this->jobRepo->updateJobProgress($jobId, $skippedDueToDuplicate, 0, 0);
+            }
+        } else {
+            // $totalCreated == 0
+            $this->jobRepo->updateJobProgress($jobId, $totalSessions, 0, 0);
+            $this->jobRepo->markJobCompleted($jobId, 0);
         }
 
         return array_merge($results, ['job_id' => $jobId, 'session_ids' => $sessionIds]);
