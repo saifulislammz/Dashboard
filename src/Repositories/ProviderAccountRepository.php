@@ -99,41 +99,36 @@ class ProviderAccountRepository
 
     public function findAvailableAccount(string $provider, string $date, string $startTime, string $endTime): ?array
     {
+        // Anti-join via LEFT JOIN: avoids duplicate named parameters in subquery
+        // (PDO native prepared statements forbid the same placeholder twice).
+        // One binding for :provider, index-friendly: ref on provider + account_id.
         $stmt = $this->db->prepare("
-            SELECT pa.id, pa.account_email, pa.display_order
+            SELECT pa.id
             FROM provider_accounts pa
-            WHERE pa.provider = :provider
-              AND pa.is_connected = 1
-              AND pa.id NOT IN (
-                SELECT cs.provider_account_id
-                FROM class_sessions cs
-                WHERE cs.provider = :provider2
+            LEFT JOIN class_sessions cs
+                   ON cs.provider_account_id = pa.id
+                  AND cs.provider    = :provider
                   AND cs.session_date = :date
                   AND cs.status NOT IN ('cancelled', 'failed')
-                  AND (
-                    (cs.start_time < :end_time AND cs.end_time > :start_time)
-                  )
-                  AND cs.provider_account_id IS NOT NULL
-              )
+                  AND cs.start_time  < :end_time
+                  AND cs.end_time    > :start_time
+            WHERE pa.provider    = :provider
+              AND pa.is_connected = 1
+              AND cs.id          IS NULL
             ORDER BY pa.display_order ASC, pa.id ASC
             LIMIT 1
         ");
 
         $stmt->execute([
             'provider'   => $provider,
-            'provider2'  => $provider,
             'date'       => $date,
             'start_time' => $startTime,
-            'end_time'   => $endTime
+            'end_time'   => $endTime,
         ]);
 
         $accountId = $stmt->fetchColumn();
 
-        if ($accountId) {
-            return $this->findById((int) $accountId);
-        }
-
-        return null;
+        return $accountId ? $this->findById((int) $accountId) : null;
     }
 
     public function getConnectedProviders(): array

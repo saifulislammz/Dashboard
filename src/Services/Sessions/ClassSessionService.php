@@ -151,7 +151,7 @@ class ClassSessionService
             throw new Exception('No dates provided for bulk session creation.');
         }
 
-        $this->validateSessionData($data);
+        $this->validateSessionData($data, isBulk: true);
 
         $totalSessions = count($dates);
         $classroomId   = (int) $data['classroom_id'];
@@ -287,12 +287,13 @@ class ClassSessionService
     // VALIDATION
     // -------------------------------------------------------
 
-    private function validateSessionData(array $data): void
+    private function validateSessionData(array $data, bool $isBulk = false): void
     {
         if (empty($data['classroom_id'])) {
             throw new Exception('Classroom ID is required.');
         }
-        if (empty($data['session_date'])) {
+        // Bulk sessions carry dates in a separate $dates array, not in $data.
+        if (!$isBulk && empty($data['session_date'])) {
             throw new Exception('Session date is required.');
         }
         if (empty($data['start_time']) || empty($data['end_time'])) {
