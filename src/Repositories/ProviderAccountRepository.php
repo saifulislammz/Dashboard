@@ -19,8 +19,9 @@ class ProviderAccountRepository
 
     public function __construct(PDO $db)
     {
-        $this->db            = $db;
-        $key = $_ENV['APP_ENCRYPTION_KEY'] ?? '';
+        $this->db = $db;
+        // $_ENV is not always populated in Docker/VPS — fallback to getenv()
+        $key = $_ENV['APP_ENCRYPTION_KEY'] ?? getenv('APP_ENCRYPTION_KEY') ?: '';
         if (empty($key)) {
             // For security, never default to a weak key in a real application.
             throw new \RuntimeException('Critical Error: APP_ENCRYPTION_KEY is not set in .env');
