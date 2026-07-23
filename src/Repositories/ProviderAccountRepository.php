@@ -99,19 +99,20 @@ class ProviderAccountRepository
 
     public function findAvailableAccount(string $provider, string $date, string $startTime, string $endTime): ?array
     {
-        // Anti-join via LEFT JOIN: avoids duplicate named parameters in subquery
-        // (PDO native prepared statements forbid the same placeholder twice).
-        // One binding for :provider, index-friendly: ref on provider + account_id.
+        // Anti-join via LEFT JOIN.
+        // :provider is bound exactly ONCE (in WHERE pa.provider = :provider).
+        // The JOIN ON condition uses pa.provider as a column-to-column reference
+        // (cs.provider = pa.provider) so PDO native mode never sees a duplicate placeholder.
         $stmt = $this->db->prepare("
             SELECT pa.id
             FROM provider_accounts pa
             LEFT JOIN class_sessions cs
                    ON cs.provider_account_id = pa.id
-                  AND cs.provider    = :provider
+                  AND cs.provider     = pa.provider
                   AND cs.session_date = :date
                   AND cs.status NOT IN ('cancelled', 'failed')
-                  AND cs.start_time  < :end_time
-                  AND cs.end_time    > :start_time
+                  AND cs.start_time   < :end_time
+                  AND cs.end_time     > :start_time
             WHERE pa.provider    = :provider
               AND pa.is_connected = 1
               AND cs.id          IS NULL
