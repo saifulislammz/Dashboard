@@ -123,8 +123,13 @@ class UserService
             unlink(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture);
         }
 
+        $uploadDir = __DIR__ . '/../../public/uploads/avatars/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
         $filename = 'admin_' . $userId . '_' . time() . '.png';
-        $destination = __DIR__ . '/../../public/uploads/avatars/' . $filename;
+        $destination = $uploadDir . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destination)) {
             throw new Exception("Failed to save profile picture.");
