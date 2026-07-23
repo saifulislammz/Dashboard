@@ -14,8 +14,13 @@ $currentPage = $data['current_page'] ?? 1;
 $lastPage = $data['last_page'] ?? 1;
 $quizId = (int) ($quiz['id'] ?? 0);
 
-$publicUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-    . '://' . $_SERVER['HTTP_HOST'] . '/quiz/play.php?id=' . $quizId;
+$isHttps = (
+    (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+    (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+);
+$protocol = $isHttps ? 'https' : 'http';
+$publicUrl = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/quiz/play.php?id=' . $quizId;
 
 function rPageUrl(int $p): string
 {

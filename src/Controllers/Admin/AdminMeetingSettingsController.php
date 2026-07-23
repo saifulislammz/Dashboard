@@ -241,8 +241,13 @@ class AdminMeetingSettingsController
 
     public function getGoogleRedirectUri(): string
     {
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-        $host     = $_SERVER['HTTP_HOST'];
+        $isHttps = (
+            (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on')
+        );
+        $protocol = $isHttps ? 'https' : 'http';
+        $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
         return "{$protocol}://{$host}/admin/settings/google_callback.php";
     }
 
