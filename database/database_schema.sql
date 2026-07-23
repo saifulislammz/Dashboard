@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE `users` (
   KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_2fa` (
+CREATE TABLE IF NOT EXISTS `users_2fa` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
   `mechanism` tinyint unsigned NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE `users_2fa` (
   UNIQUE KEY `user_id_mechanism` (`user_id`,`mechanism`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_audit_log` (
+CREATE TABLE IF NOT EXISTS `users_audit_log` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned DEFAULT NULL,
   `event_at` int unsigned NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `users_audit_log` (
   KEY `user_id_event_type_event_at` (`user_id`,`event_type`,`event_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_confirmations` (
+CREATE TABLE IF NOT EXISTS `users_confirmations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
   `email` varchar(249) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE `users_confirmations` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_otps` (
+CREATE TABLE IF NOT EXISTS `users_otps` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int unsigned NOT NULL,
   `mechanism` tinyint unsigned NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE `users_otps` (
   KEY `selector_user_id` (`selector`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_remembered` (
+CREATE TABLE IF NOT EXISTS `users_remembered` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user` int unsigned NOT NULL,
   `selector` varchar(24) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE `users_remembered` (
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_resets` (
+CREATE TABLE IF NOT EXISTS `users_resets` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `user` int unsigned NOT NULL,
   `selector` varchar(20) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE `users_resets` (
   KEY `user_expires` (`user`,`expires`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `users_throttling` (
+CREATE TABLE IF NOT EXISTS `users_throttling` (
   `bucket` varchar(44) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `tokens` float NOT NULL,
   `replenished_at` int unsigned NOT NULL,
