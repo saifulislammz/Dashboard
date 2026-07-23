@@ -226,12 +226,12 @@ class ZoomProvider implements MeetingProviderInterface
         $expiresAt = time() + ((int) ($json['expires_in'] ?? 3600));
 
         $this->providerRepo->saveTokens(
-            provider:      'zoom',
+            accountId:     (int) $this->account['id'],
             accessToken:   $json['access_token'],
             refreshToken:  null,                    // Zoom S2S has no refresh token
             expiresAt:     $expiresAt,
             accountEmail:  $this->account['account_email'] ?? '',
-            accountId:     $accountId,
+            providerAccountId: $accountId,
         );
 
         $this->accessToken               = $json['access_token'];

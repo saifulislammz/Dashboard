@@ -250,7 +250,7 @@ class GoogleMeetProvider implements MeetingProviderInterface
         $expiresAt = time() + ((int) ($json['expires_in'] ?? 3600));
 
         $this->providerRepo->saveTokens(
-            provider:      'google_meet',
+            accountId:     (int) $this->account['id'],
             accessToken:   $json['access_token'],
             refreshToken:  $json['refresh_token'] ?? $refreshToken,
             expiresAt:     $expiresAt,
