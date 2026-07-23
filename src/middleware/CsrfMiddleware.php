@@ -10,7 +10,7 @@ function generateCsrfToken() {
 
 function validateCsrfToken($token) {
     if (empty($_SESSION['csrf_token'])) {
-        throw new \Exception("Invalid Security Token: Session token is empty.");
+        throw new \Exception("Your session has expired due to inactivity. Please refresh the page and try again.");
     }
     if (empty($token)) {
         throw new \Exception("Invalid Security Token: Provided token is empty.");
