@@ -27,6 +27,7 @@ check_schema.php
 admin_dashboard.html
 
 # Database files
+/database/
 *.sqlite
 *.sqlite3
 *.db
