@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../layouts/header.php';
 require __DIR__ . '/../layouts/sidebar_teacher.php';
 ?>
@@ -78,9 +78,31 @@ require __DIR__ . '/../layouts/sidebar_teacher.php';
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <?php if ($session['generation_status'] === 'success'): ?>
-                                        <a href="/session/join.php?id=<?= $session['id'] ?>" target="_blank" class="inline-flex items-center justify-center py-1.5 px-3 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-primary hover:bg-primary/90 transition-colors">
-                                            Start / Join
-                                        </a>
+                                        <?php
+                                            // Compute open window using teacher-specific minutes
+                                            $tz       = new DateTimeZone($session['timezone'] ?? 'Asia/Dhaka');
+                                            $startDt  = new DateTime("{$session['session_date']} {$session['start_time']}", $tz);
+                                            $endDt    = new DateTime("{$session['session_date']} {$session['end_time']}", $tz);
+                                            $now      = new DateTime('now', $tz);
+                                            $openDt   = (clone $startDt)->modify("-{$teacherJoinMinutes} minutes");
+                                            $canJoin  = ($now >= $openDt && $now <= $endDt);
+                                            $hasEnded = $now > $endDt;
+                                        ?>
+                                        <?php if ($hasEnded): ?>
+                                            <span class="text-xs text-gray-400">Session Ended</span>
+                                        <?php elseif ($canJoin): ?>
+                                            <a href="/session/join.php?id=<?= $session['id'] ?>"
+                                               target="_blank"
+                                               title="Start your session"
+                                               class="inline-flex items-center justify-center py-1.5 px-3 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-primary hover:bg-primary/90 transition-colors">
+                                                Start / Join
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center justify-center py-1.5 px-3 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-500 bg-gray-100 cursor-not-allowed"
+                                                  title="Opens <?= $teacherJoinMinutes ?> min before start">
+                                                Opens in <?= $teacherJoinMinutes ?> min
+                                            </span>
+                                        <?php endif; ?>
                                     <?php elseif ($session['status'] === 'cancelled'): ?>
                                         <span class="text-xs text-gray-400">Cancelled</span>
                                     <?php else: ?>

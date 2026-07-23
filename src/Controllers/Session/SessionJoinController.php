@@ -61,37 +61,56 @@ class SessionJoinController
             return;
         }
 
-        // Fetch join window setting
-        $stmt          = $this->db->query("SELECT setting_val FROM meeting_settings WHERE setting_key = 'join_open_minutes_before'");
-        $minutesBefore = (int) ($stmt->fetchColumn() ?: 10);
+        // Fetch join window settings
+        $stmtSettings  = $this->db->query("
+            SELECT setting_key, setting_val 
+            FROM meeting_settings 
+            WHERE setting_key IN ('join_open_minutes_before', 'teacher_join_open_minutes_before')
+        ");
+        $settings        = $stmtSettings->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+        $minutesBefore   = (int) ($settings['join_open_minutes_before'] ?? 10);
+        // Teachers may have a separate (or same) window; fallback to student window
+        $teacherMinutes  = isset($settings['teacher_join_open_minutes_before'])
+            ? (int) $settings['teacher_join_open_minutes_before']
+            : $minutesBefore;
 
-        // Time logic
+        // Time logic (session timezone)
         $tz      = new \DateTimeZone($session['timezone']);
         $startDt = new \DateTime("{$session['session_date']} {$session['start_time']}", $tz);
         $endDt   = new \DateTime("{$session['session_date']} {$session['end_time']}", $tz);
         $now     = new \DateTime('now', $tz);
-        $openDt  = (clone $startDt)->modify("-{$minutesBefore} minutes");
 
-        $isTeacher = $auth->hasRole(\ROLE_ADMIN) || ((int) $session['classroom_id'] && $this->sessionRepo->teacherBelongsToSession($sessionId, $userId));
+        // Determine role — ROLE_ADMIN bypasses time gates entirely
+        $isAdmin   = $auth->hasRole(\ROLE_ADMIN);
+        $isTeacher = !$isAdmin && ((int) $session['classroom_id'] && $this->sessionRepo->teacherBelongsToSession($sessionId, $userId));
 
-        if (!$isTeacher && $now < $openDt) {
-            $this->showError("Meeting is not open yet. You can join {$minutesBefore} minutes before the start time.");
-            return;
+        if (!$isAdmin) {
+            // Determine the open window for this user's role
+            $openMinutes = $isTeacher ? $teacherMinutes : $minutesBefore;
+            $openDt      = (clone $startDt)->modify("-{$openMinutes} minutes");
+
+            if ($now < $openDt) {
+                $role_label = $isTeacher ? 'Teacher' : 'Student';
+                $this->showError(
+                    "Session is not open yet. {$role_label}s can join {$openMinutes} minute" . ($openMinutes === 1 ? '' : 's') . " before the start time."
+                );
+                return;
+            }
+
+            if ($now > $endDt) {
+                $this->showError("This session has already ended.");
+                return;
+            }
         }
 
-        if (!$isTeacher && $now > $endDt) {
-            $this->showError("This session has already ended.");
-            return;
-        }
-
-        // Record attendance for both student and teacher via AttendanceService
+        // Record attendance for student / teacher via AttendanceService
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $role      = $isTeacher ? 'teacher' : 'student';
+        $role      = ($isTeacher || $isAdmin) ? 'teacher' : 'student';
         $this->attendanceService->recordAttendance($sessionId, $userId, $ipAddress, $role);
 
-        // Choose start_url for teacher/admin in Zoom, otherwise join_url
+        // Teachers / admins get the host start_url (Zoom); students get join_url
         $redirectUrl = $meeting['join_url'];
-        if ($isTeacher && !empty($meeting['start_url'])) {
+        if (($isTeacher || $isAdmin) && !empty($meeting['start_url'])) {
             $redirectUrl = $meeting['start_url'];
         }
 

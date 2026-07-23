@@ -92,6 +92,18 @@ class TeacherSessionController
         $total = (int) $countStmt->fetchColumn();
         $pages = (int) ceil($total / $limit);
 
+        // Fetch join window settings to show helpful hints in the view
+        $stmtSet = $this->db->query("
+            SELECT setting_key, setting_val 
+            FROM meeting_settings 
+            WHERE setting_key IN ('join_open_minutes_before', 'teacher_join_open_minutes_before')
+        ");
+        $joinSettings       = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+        $joinOpenMinutes    = (int) ($joinSettings['join_open_minutes_before'] ?? 10);
+        $teacherJoinMinutes = isset($joinSettings['teacher_join_open_minutes_before'])
+            ? (int) $joinSettings['teacher_join_open_minutes_before']
+            : $joinOpenMinutes;
+
         $activeMenu = 'teacher_sessions';
 
         require __DIR__ . '/../../../views/teacher/sessions.php';
