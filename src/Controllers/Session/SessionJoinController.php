@@ -46,12 +46,12 @@ class SessionJoinController
 
         $session = $this->sessionRepo->findById($sessionId);
         if (!$session) {
-            $this->showError("Session not found.");
+            $this->showError("Class not found.");
             return;
         }
 
         if ($session['status'] === 'cancelled') {
-            $this->showError("This session has been cancelled.");
+            $this->showError("This Class has been cancelled.");
             return;
         }
 
@@ -92,13 +92,13 @@ class SessionJoinController
             if ($now < $openDt) {
                 $role_label = $isTeacher ? 'Teacher' : 'Student';
                 $this->showError(
-                    "Session is not open yet. {$role_label}s can join {$openMinutes} minute" . ($openMinutes === 1 ? '' : 's') . " before the start time."
+                    "Class is not open yet. {$role_label}s can join {$openMinutes} minute" . ($openMinutes === 1 ? '' : 's') . " before the start time."
                 );
                 return;
             }
 
             if ($now > $endDt) {
-                $this->showError("This session has already ended.");
+                $this->showError("This Class has already ended.");
                 return;
             }
         }
