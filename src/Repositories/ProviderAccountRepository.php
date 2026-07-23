@@ -107,7 +107,7 @@ class ProviderAccountRepository
               AND pa.id NOT IN (
                 SELECT cs.provider_account_id
                 FROM class_sessions cs
-                WHERE cs.provider = :provider
+                WHERE cs.provider = :provider2
                   AND cs.session_date = :date
                   AND cs.status NOT IN ('cancelled', 'failed')
                   AND (
@@ -120,8 +120,9 @@ class ProviderAccountRepository
         ");
 
         $stmt->execute([
-            'provider' => $provider,
-            'date'     => $date,
+            'provider'   => $provider,
+            'provider2'  => $provider,
+            'date'       => $date,
             'start_time' => $startTime,
             'end_time'   => $endTime
         ]);
