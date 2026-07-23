@@ -55,6 +55,13 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
         </script>
         <?php endif; ?>
 
+        <?php if (!empty($scheduleConflictError)): ?>
+        <!-- Schedule conflict data passed to JS -->
+        <script>
+            window._scheduleConflictData = <?= json_encode($scheduleConflictError, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        </script>
+        <?php endif; ?>
+
         <!-- =========================================================
              TIME SLOT CONFLICT MODAL
              Hidden by default. Opened automatically by JS when the
@@ -142,7 +149,90 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
         </div>
 
 
+        <!-- =========================================================
+             SCHEDULE CONFLICT MODAL (Teacher / Student Overlap)
+             Auto-opened by JS when _scheduleConflictData is present.
+        ========================================================== -->
+        <div
+            id="scheduleConflictModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="scheduleConflictModalTitle"
+            class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+        >
+            <!-- Backdrop -->
+            <div
+                class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+                onclick="closeScheduleConflictModal()"
+            ></div>
+
+            <!-- Panel -->
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
+
+                <!-- Coloured header bar -->
+                <div class="bg-red-500 px-6 py-5 flex items-start gap-4">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <svg class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-1.414 1.414M6.05 17.95l-1.415 1.415M5.636 5.636l1.414 1.414M17.95 17.95l1.415-1.415M12 8v4m0 4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="scheduleConflictModalTitle" class="text-lg font-bold text-white leading-tight">
+                            Schedule Conflict Detected
+                        </h2>
+                        <p class="text-red-100 text-sm mt-0.5" id="scheduleConflictSubtitle">
+                            Session was not created.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Body (single conflict) -->
+                <div id="scheduleConflictSingleBody" class="px-6 py-5 space-y-4">
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        <span id="scheduleConflictPersonLabel" class="font-semibold text-red-600"></span>
+                        <strong id="scheduleConflictPersonName" class="text-gray-900"></strong>
+                        is already scheduled in another class
+                        (<strong id="scheduleConflictClassName" class="text-gray-900"></strong>)
+                        on <strong id="scheduleConflictDate" class="text-gray-900"></strong>
+                        between <strong id="scheduleConflictStart" class="text-gray-900"></strong>
+                        and <strong id="scheduleConflictEnd" class="text-gray-900"></strong>.
+                    </p>
+
+                    <div class="rounded-lg bg-red-50 border border-red-200 p-3 flex gap-2">
+                        <svg class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        <p class="text-red-800 text-sm">
+                            Please choose a <strong>different date or time</strong> to avoid the scheduling conflict.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Body (bulk skips) -->
+                <div id="scheduleConflictBulkBody" class="px-6 py-5 space-y-4 hidden">
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        Some dates were <strong>skipped</strong> because the teacher or student was already booked for another class at that time:
+                    </p>
+                    <div id="scheduleConflictBulkList" class="space-y-2 max-h-56 overflow-y-auto">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="px-6 pb-6 flex justify-end">
+                    <button
+                        type="button"
+                        onclick="closeScheduleConflictModal()"
+                        class="inline-flex justify-center items-center gap-2 px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    >
+                        Got it
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex gap-4">
                 <button type="button" onclick="setMode('single')" id="btnSingle" class="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white transition-colors">Single Session</button>
                 <button type="button" onclick="setMode('bulk')" id="btnBulk" class="px-4 py-2 text-sm font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">Multiple Sessions (Bulk)</button>
@@ -421,12 +511,73 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeConflictModal();
+            closeScheduleConflictModal();
         }
     });
 
-    // Auto-open if the server detected a time conflict
+    // Auto-open if the server detected a time conflict (provider account busy)
     if (typeof window._conflictData !== 'undefined' && window._conflictData) {
         openConflictModal(window._conflictData);
+    }
+
+    // -------------------------------------------------------
+    // SCHEDULE CONFLICT MODAL (Teacher / Student)
+    // -------------------------------------------------------
+
+    function openScheduleConflictModal(data) {
+        const modal = document.getElementById('scheduleConflictModal');
+        const singleBody = document.getElementById('scheduleConflictSingleBody');
+        const bulkBody   = document.getElementById('scheduleConflictBulkBody');
+
+        if (data.type === 'bulk_skips') {
+            // Show bulk skips summary
+            singleBody.classList.add('hidden');
+            bulkBody.classList.remove('hidden');
+
+            document.getElementById('scheduleConflictSubtitle').textContent =
+                data.skips.length + ' date(s) were skipped due to schedule conflicts.';
+
+            const list = document.getElementById('scheduleConflictBulkList');
+            list.innerHTML = '';
+            data.skips.forEach(function (skip) {
+                const label = skip.conflict_type === 'teacher' ? 'Teacher' : 'Student';
+                const item  = document.createElement('div');
+                item.className = 'rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800';
+                item.innerHTML =
+                    '<span class="font-semibold">' + skip.date + '</span> — ' +
+                    label + ' <strong>' + skip.person_name + '</strong> ' +
+                    'already booked in <em>' + skip.class_name + '</em>.';
+                list.appendChild(item);
+            });
+        } else {
+            // Show single conflict
+            singleBody.classList.remove('hidden');
+            bulkBody.classList.add('hidden');
+
+            const label = data.type === 'teacher' ? 'Teacher' : 'Student';
+            document.getElementById('scheduleConflictPersonLabel').textContent = label + ': ';
+            document.getElementById('scheduleConflictPersonName').textContent  = data.person_name;
+            document.getElementById('scheduleConflictClassName').textContent   = data.class_name;
+            document.getElementById('scheduleConflictDate').textContent        = data.date;
+            document.getElementById('scheduleConflictStart').textContent       = data.start_time;
+            document.getElementById('scheduleConflictEnd').textContent         = data.end_time;
+        }
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeScheduleConflictModal() {
+        const modal = document.getElementById('scheduleConflictModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+
+    // Auto-open schedule conflict modal if server detected teacher/student overlap
+    if (typeof window._scheduleConflictData !== 'undefined' && window._scheduleConflictData) {
+        openScheduleConflictModal(window._scheduleConflictData);
     }
 
 </script>

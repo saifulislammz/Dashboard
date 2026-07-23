@@ -188,9 +188,101 @@ class ClassSessionRepository
         return (int) $stmt->fetchColumn() > 0;
     }
 
+
+    // -------------------------------------------------------
+    // SCHEDULE CONFLICT CHECKS
+    // -------------------------------------------------------
+
+    /**
+     * Checks if the teacher of a given classroom already has
+     * an overlapping session in any OTHER classroom on the same day.
+     *
+     * Returns an array with [conflict_class_name, teacher_name] or null.
+     */
+    public function findTeacherConflict(int $classroomId, string $date, string $startTime, string $endTime, ?int $excludeSessionId = null): ?array
+    {
+        $excludeClause = $excludeSessionId ? 'AND cs.id != :exclude_session_id' : '';
+
+        $stmt = $this->db->prepare("
+            SELECT cs.session_date, cs.start_time, cs.end_time,
+                   c2.class_name AS conflict_class_name,
+                   u.username    AS teacher_name
+            FROM class_sessions cs
+            JOIN classrooms c1 ON c1.id = :classroom_id
+            JOIN classrooms c2 ON c2.id = cs.classroom_id
+                               AND c2.teacher_id = c1.teacher_id
+                               AND c2.id != c1.id
+            JOIN users u       ON u.id = c1.teacher_id
+            WHERE cs.session_date = :date
+              AND cs.status NOT IN ('cancelled', 'failed')
+              AND cs.start_time  < :end_time
+              AND cs.end_time    > :start_time
+              {$excludeClause}
+            LIMIT 1
+        ");
+
+        $params = [
+            'classroom_id' => $classroomId,
+            'date'         => $date,
+            'start_time'   => $startTime,
+            'end_time'     => $endTime,
+        ];
+        if ($excludeSessionId) {
+            $params['exclude_session_id'] = $excludeSessionId;
+        }
+
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Checks if the student of a given classroom already has
+     * an overlapping session in any OTHER classroom on the same day.
+     *
+     * Returns an array with [conflict_class_name, student_name] or null.
+     */
+    public function findStudentConflict(int $classroomId, string $date, string $startTime, string $endTime, ?int $excludeSessionId = null): ?array
+    {
+        $excludeClause = $excludeSessionId ? 'AND cs.id != :exclude_session_id' : '';
+
+        $stmt = $this->db->prepare("
+            SELECT cs.session_date, cs.start_time, cs.end_time,
+                   c2.class_name AS conflict_class_name,
+                   u.username    AS student_name
+            FROM class_sessions cs
+            JOIN classrooms c1 ON c1.id = :classroom_id
+            JOIN classrooms c2 ON c2.id = cs.classroom_id
+                               AND c2.student_id = c1.student_id
+                               AND c2.id != c1.id
+            JOIN users u       ON u.id = c1.student_id
+            WHERE cs.session_date = :date
+              AND cs.status NOT IN ('cancelled', 'failed')
+              AND cs.start_time  < :end_time
+              AND cs.end_time    > :start_time
+              {$excludeClause}
+            LIMIT 1
+        ");
+
+        $params = [
+            'classroom_id' => $classroomId,
+            'date'         => $date,
+            'start_time'   => $startTime,
+            'end_time'     => $endTime,
+        ];
+        if ($excludeSessionId) {
+            $params['exclude_session_id'] = $excludeSessionId;
+        }
+
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     // -------------------------------------------------------
     // WRITE
     // -------------------------------------------------------
+
 
     /**
      * Insert a single session row, returns new ID

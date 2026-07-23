@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Exceptions\TimeSlotConflictException;
+use App\Exceptions\ScheduleConflictException;
 use App\Services\Sessions\ClassSessionService;
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\ClassroomRepository;
@@ -78,10 +79,11 @@ class AdminSessionController
             die('<h1>Classroom not found.</h1>');
         }
 
-        $error            = '';
-        $success          = '';
-        $result           = null;
-        $timeConflictError = null;
+        $error                = '';
+        $success              = '';
+        $result               = null;
+        $timeConflictError    = null;
+        $scheduleConflictError = null; // Teacher/Student schedule overlap
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -111,9 +113,32 @@ class AdminSessionController
                     $data = array_merge($_POST, ['classroom_id' => $classroomId]);
                     $out  = $this->sessionService->createBulkSessions($data, $dates, $auth->getUserId());
 
-                    $success = "Bulk generation complete: {$out['succeeded']} succeeded, {$out['failed']} failed out of {$out['total']} sessions.";
+                    $conflictSkipsCount = count($out['conflict_skips'] ?? []);
+                    $skipNote = $conflictSkipsCount > 0
+                        ? " ({$conflictSkipsCount} skipped due to schedule conflicts)"
+                        : '';
+
+                    $success = "Bulk generation complete: {$out['succeeded']} succeeded, {$out['failed']} failed out of {$out['total']} sessions{$skipNote}.";
                     $result  = $out;
+
+                    // Pass conflict skips to view for detailed reporting
+                    if (!empty($out['conflict_skips'])) {
+                        $scheduleConflictError = [
+                            'type'    => 'bulk_skips',
+                            'skips'   => $out['conflict_skips'],
+                        ];
+                    }
                 }
+            } catch (ScheduleConflictException $e) {
+                // Teacher or Student has overlapping session — block creation entirely for single mode.
+                $scheduleConflictError = [
+                    'type'         => $e->getConflictType(),
+                    'person_name'  => $e->getPersonName(),
+                    'date'         => $e->getSessionDate(),
+                    'start_time'   => $e->getStartTime(),
+                    'end_time'     => $e->getEndTime(),
+                    'class_name'   => $e->getConflictClassName(),
+                ];
             } catch (TimeSlotConflictException $e) {
                 // Time slot is already booked — do NOT create the session.
                 // Pass structured data to the view so it can render the conflict modal.

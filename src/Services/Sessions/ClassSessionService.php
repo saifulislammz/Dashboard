@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Sessions;
 
 use App\Exceptions\TimeSlotConflictException;
+use App\Exceptions\ScheduleConflictException;
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\SessionMeetingRepository;
 use App\Repositories\MeetingJobRepository;
@@ -65,6 +66,14 @@ class ClassSessionService
         $explicitAccountId = !empty($data['provider_account_id'])
             ? (int) $data['provider_account_id']
             : null;
+
+        // Check teacher / student schedule overlap FIRST (before any DB write)
+        $this->checkScheduleConflict(
+            (int) $data['classroom_id'],
+            $data['session_date'],
+            $data['start_time'],
+            $data['end_time']
+        );
 
         if (!$explicitAccountId) {
             $availableAccount = $this->providerRepo->findAvailableAccount(
@@ -160,12 +169,33 @@ class ClassSessionService
         // 1. Create the job record
         $jobId = $this->jobRepo->createJob($classroomId, $provider, $totalSessions, $adminId);
 
-        // 2. Prepare session rows
-        $sessionRows = [];
+        // 2. Prepare session rows — skip dates with schedule conflicts
+        $sessionRows    = [];
+        $conflictSkips  = []; // Dates skipped due to teacher/student overlap
+
         foreach ($dates as $i => $dateInfo) {
+            $sessionDate = $dateInfo['session_date'];
+            try {
+                $this->checkScheduleConflict(
+                    $classroomId,
+                    $sessionDate,
+                    $data['start_time'],
+                    $data['end_time']
+                );
+            } catch (ScheduleConflictException $e) {
+                // Skip this date and record the reason
+                $conflictSkips[] = [
+                    'date'          => $sessionDate,
+                    'conflict_type' => $e->getConflictType(),
+                    'person_name'   => $e->getPersonName(),
+                    'class_name'    => $e->getConflictClassName(),
+                ];
+                continue;
+            }
+
             $sessionRows[] = [
                 'classroom_id'   => $classroomId,
-                'session_date'   => $dateInfo['session_date'],
+                'session_date'   => $sessionDate,
                 'start_time'     => $data['start_time'],
                 'end_time'       => $data['end_time'],
                 'timezone'       => $data['timezone'] ?? 'Asia/Dhaka',
@@ -230,7 +260,11 @@ class ClassSessionService
             $this->jobRepo->markJobCompleted($jobId, 0);
         }
 
-        return array_merge($results, ['job_id' => $jobId, 'session_ids' => $sessionIds]);
+        return array_merge($results, [
+            'job_id'         => $jobId,
+            'session_ids'    => $sessionIds,
+            'conflict_skips' => $conflictSkips ?? [],
+        ]);
     }
 
     // -------------------------------------------------------
@@ -294,6 +328,53 @@ class ClassSessionService
             'pages'        => (int) ceil($total / $limit),
             'current_page' => $page,
         ];
+    }
+
+    // -------------------------------------------------------
+    // VALIDATION
+    // -------------------------------------------------------
+
+    // -------------------------------------------------------
+    // SCHEDULE CONFLICT HELPER
+    // -------------------------------------------------------
+
+    /**
+     * Throws ScheduleConflictException if the teacher or student
+     * of the given classroom already has an overlapping session
+     * in another classroom on the same date.
+     */
+    private function checkScheduleConflict(
+        int    $classroomId,
+        string $date,
+        string $startTime,
+        string $endTime,
+        ?int   $excludeSessionId = null
+    ): void {
+        // Teacher conflict
+        $tc = $this->sessionRepo->findTeacherConflict($classroomId, $date, $startTime, $endTime, $excludeSessionId);
+        if ($tc) {
+            throw new ScheduleConflictException(
+                'teacher',
+                $tc['teacher_name'],
+                $date,
+                $startTime,
+                $endTime,
+                $tc['conflict_class_name']
+            );
+        }
+
+        // Student conflict
+        $sc = $this->sessionRepo->findStudentConflict($classroomId, $date, $startTime, $endTime, $excludeSessionId);
+        if ($sc) {
+            throw new ScheduleConflictException(
+                'student',
+                $sc['student_name'],
+                $date,
+                $startTime,
+                $endTime,
+                $sc['conflict_class_name']
+            );
+        }
     }
 
     // -------------------------------------------------------
