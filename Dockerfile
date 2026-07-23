@@ -95,8 +95,8 @@ COPY --from=node-builder     --chown=www-data:www-data /app/public/css/app.css .
 COPY --from=composer-builder --chown=www-data:www-data /app/vendor             ./vendor
 
 # Ensure writable runtime directories exist
-RUN mkdir -p storage logs public/uploads \
-    && chown -R www-data:www-data storage logs public/uploads \
+RUN mkdir -p storage/quiz_voices logs public/uploads /run /var/log/nginx /var/lib/nginx/tmp \
+    && chown -R www-data:www-data storage logs public/uploads /run /var/log/nginx /var/lib/nginx \
     && chmod -R 775 storage logs public/uploads
 
 EXPOSE 80

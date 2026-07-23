@@ -5,8 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_only_cookies', 1);
     ini_set('session.use_strict_mode', 1);
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_samesite', 'Strict');
-    // ini_set('session.cookie_secure', 1); // Uncomment if using HTTPS
+    ini_set('session.cookie_samesite', 'Lax');  // Lax allows cross-page redirects on HTTPS
+    ini_set('session.cookie_secure', 1);        // Required for HTTPS production
     session_start();
 }
 
