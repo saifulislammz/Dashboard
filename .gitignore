@@ -18,7 +18,9 @@ pnpm-debug.log
 *.log
 
 # User Uploads (Ignore user uploaded files so they don't go to public repo)
-/public/uploads/
+/public/uploads/**/*
+!/public/uploads/**/
+!/public/uploads/**/.gitkeep
 /public/storage/
 
 # Temporary & Test Scripts
