@@ -27,6 +27,17 @@ class AdminMeetingSettingsController
         $googleAccounts = $this->providerRepo->findAllByProvider('google_meet');
         $zoomAccounts   = $this->providerRepo->findAllByProvider('zoom');
 
+        // Pass Google Redirect URI to view as a plain variable (views cannot call $this->...)
+        $googleRedirectUri = $this->getGoogleRedirectUri();
+
+        // Build Google Auth URLs per account for the view
+        $googleAuthUrls = [];
+        foreach ($googleAccounts as $account) {
+            if (!empty($account['client_id'])) {
+                $googleAuthUrls[$account['id']] = $this->getGoogleAuthUrl($account['client_id'], $account['id']);
+            }
+        }
+
         // Fetch global settings
         $stmt = $this->db->query("SELECT setting_key, setting_val FROM meeting_settings");
         $settingsDb = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];

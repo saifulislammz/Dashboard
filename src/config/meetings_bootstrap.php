@@ -31,7 +31,8 @@ use App\Utils\Container;
 $container = new Container();
 
 // Register the Database Connection
-$container->set(PDO::class, fn() => $GLOBALS['db']);
+// Use a closure that captures $db from the global scope (set by database.php above)
+$container->set(PDO::class, function() use (&$db) { return $db; });
 
 // Register Repositories
 $container->set(\App\Repositories\ClassroomRepository::class, fn($c) => new \App\Repositories\ClassroomRepository($c->get(PDO::class)));

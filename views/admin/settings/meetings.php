@@ -118,8 +118,8 @@ $error   = $_GET['error'] ?? $error ?? '';
 
                                             <div class="flex items-center gap-3">
                                                 <button type="submit" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Save</button>
-                                                <?php if (!empty($account['client_id'])): ?>
-                                                    <a href="<?= htmlspecialchars($this->getGoogleAuthUrl($account['client_id'], $account['id'])) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                                <?php if (!empty($account['client_id']) && isset($googleAuthUrls[$account['id']])): ?>
+                                                    <a href="<?= htmlspecialchars($googleAuthUrls[$account['id']]) ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
                                                         <?= $account['is_connected'] ? 'Reconnect' : 'Connect Account' ?>
                                                     </a>
                                                 <?php endif; ?>
@@ -160,7 +160,7 @@ $error   = $_GET['error'] ?? $error ?? '';
 
                             <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4">
                                 <p class="text-sm text-blue-700"><strong>Redirect URI:</strong> Ensure this is added in Google Cloud Console:</p>
-                                <code class="mt-2 block bg-white p-2 rounded text-xs"><?= htmlspecialchars($this->getGoogleRedirectUri()) ?></code>
+                                <code class="mt-2 block bg-white p-2 rounded text-xs"><?= htmlspecialchars($googleRedirectUri) ?></code>
                             </div>
 
                             <div class="pt-2">
