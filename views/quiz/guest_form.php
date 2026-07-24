@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title><?php echo htmlspecialchars($quiz['title'] ?? 'Quiz', ENT_QUOTES, 'UTF-8'); ?> — Rahen Azat Institute</title>
+    <title><?php echo htmlspecialchars($quiz['title'] ?? 'Quiz', ENT_QUOTES, 'UTF-8'); ?> — Rahe nazat Institute</title>
     <meta name="description" content="Participate in the Arabic Alphabet Quiz. Start with your name and WhatsApp number."/>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -168,7 +168,7 @@
 
         <!-- Footer note -->
         <p class="text-center text-xs font-semibold text-gray-400 mt-6 tracking-wide uppercase">
-            Rahen Azat Institute
+            Rahe nazat Institute
         </p>
     </div>
 

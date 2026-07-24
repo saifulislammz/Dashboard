@@ -467,6 +467,12 @@ class QuizService
             throw new \RuntimeException('Result not found.');
         }
 
+        // If the attempt is still in_progress (e.g. no voice question), finalize it now
+        if ($attempt['status'] === 'in_progress') {
+            $this->finalizeAttempt((int) $attempt['id']);
+            $attempt = $this->repo->findAttemptByToken($token);
+        }
+
         // Score breakdown by type
         $breakdown = $this->repo->getAnswerBreakdown((int) $attempt['id']);
 

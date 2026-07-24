@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo e($pageTitle ?? 'Dashboard'); ?> - Rahen Azat Institute</title>
+    <title><?php echo e($pageTitle ?? 'Dashboard'); ?> - Rahe nazat Institute</title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <link href="/css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link href="/css/universal.css?v=<?php echo time(); ?>" rel="stylesheet">
@@ -13,7 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons for UI Icons (Local version to fix CDN loading issues) -->
     <script src="/phosphor-icons/index.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -21,7 +22,7 @@
     </style>
     <!-- Alpine.js for dynamic UI components (like quiz builder) -->
     <script defer src="/js/alpine.min.js"></script>
-    
+
     <!-- SweetAlert2 for Universal Modals -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

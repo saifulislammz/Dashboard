@@ -90,7 +90,7 @@ class QuizPlayerController
 
         // Verify attempt from Token (IDOR protection)
         $attempt = $this->repo->findAttemptByToken($token);
-        if (!$attempt || $attempt['status'] === 'voice_submitted') {
+        if (!$attempt || $attempt['status'] === 'voice_submitted' || $attempt['status'] === 'completed') {
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
             exit;
@@ -256,8 +256,8 @@ class QuizPlayerController
             exit;
         }
 
-        // Voice already submitted → redirect to result
-        if ($attempt['voice_submitted']) {
+        // Voice already submitted or quiz completed → redirect to result
+        if ($attempt['voice_submitted'] || $attempt['status'] === 'completed') {
             header('Location: /quiz/result.php?t=' . urlencode($token));
             exit;
         }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Rahen Azat Institute</title>
+    <title>Login - Rahenazat Institute</title>
     <!-- We will use Tailwind CLI generated CSS -->
     <link href="css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
     <!-- Universal CSS: Colors, Fonts, Sizes -->
