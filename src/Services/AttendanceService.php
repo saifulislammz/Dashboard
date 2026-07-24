@@ -5,29 +5,20 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Repositories\AttendanceRepository;
-use App\Repositories\ClassSessionRepository;
-use PDO;
 
 /**
  * AttendanceService
  *
- * All business logic for the Attendance module.
+ * Business logic for the Attendance module.
  * Controllers must call this service — never the repository directly.
  */
 class AttendanceService
 {
-    private AttendanceRepository  $attendanceRepo;
-    private ClassSessionRepository $sessionRepo;
-    private PDO                   $db;
+    private AttendanceRepository $attendanceRepo;
 
-    public function __construct(
-        AttendanceRepository  $attendanceRepo,
-        ClassSessionRepository $sessionRepo,
-        PDO                   $db
-    ) {
+    public function __construct(AttendanceRepository $attendanceRepo)
+    {
         $this->attendanceRepo = $attendanceRepo;
-        $this->sessionRepo    = $sessionRepo;
-        $this->db             = $db;
     }
 
     // -------------------------------------------------------
@@ -37,49 +28,10 @@ class AttendanceService
     /**
      * Record attendance for any user (student or teacher) joining a session.
      * Safe to call multiple times — idempotent (only first join_time kept).
-     * Returns true on success, false if attendance tracking is disabled.
      */
     public function recordAttendance(int $sessionId, int $userId, string $ipAddress, string $role = 'student'): bool
     {
-        if (!$this->isAttendanceEnabled()) {
-            return false;
-        }
         return $this->attendanceRepo->record($sessionId, $userId, $ipAddress, $role);
-    }
-
-    // -------------------------------------------------------
-    // Session report (Teacher / Admin)
-    // -------------------------------------------------------
-
-    /**
-     * Full report for a single session: present list + absent list + stats.
-     */
-    public function getSessionReport(int $sessionId): array
-    {
-        $session = $this->sessionRepo->findById($sessionId);
-        if (!$session) {
-            return [];
-        }
-
-        $classroomId = (int) $session['classroom_id'];
-        $present     = $this->attendanceRepo->getBySession($sessionId);
-        $absent      = $this->attendanceRepo->getAbsenteesBySession($sessionId, $classroomId);
-        $presentCount = count($present);
-        $absentCount  = count($absent);
-        $total        = $presentCount + $absentCount;
-        $percentage   = $total > 0 ? round(($presentCount / $total) * 100, 1) : 0.0;
-
-        return [
-            'session'       => $session,
-            'present'       => $present,
-            'absent'        => $absent,
-            'stats'         => [
-                'present_count'  => $presentCount,
-                'absent_count'   => $absentCount,
-                'total_enrolled' => $total,
-                'percentage'     => $percentage,
-            ],
-        ];
     }
 
     // -------------------------------------------------------
@@ -128,52 +80,67 @@ class AttendanceService
         return $this->attendanceRepo->countTeacherClassroomSessions($classroomId);
     }
 
-    // -------------------------------------------------------
-    // Admin overview
-    // -------------------------------------------------------
-
     /**
-     * Paginated admin overview with optional filters.
+     * Overall summary for a teacher's classroom (for the summary card).
      */
-    public function getAdminOverview(
-        int    $limit,
-        int    $offset,
-        int    $classroomId = 0,
-        string $dateFrom    = '',
-        string $dateTo      = ''
-    ): array {
-        return $this->attendanceRepo->getAdminOverview($limit, $offset, $classroomId, $dateFrom, $dateTo);
-    }
-
-    public function countAdminOverview(
-        int    $classroomId = 0,
-        string $dateFrom    = '',
-        string $dateTo      = ''
-    ): int {
-        return $this->attendanceRepo->countAdminOverview($classroomId, $dateFrom, $dateTo);
-    }
-
-    // -------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------
-
-    /**
-     * Check if attendance tracking is enabled in meeting_settings.
-     * Cached in static variable to avoid repeated DB hits within one request.
-     */
-    private function isAttendanceEnabled(): bool
+    public function getTeacherSummary(int $classroomId): array
     {
-        static $enabled = null;
-        if ($enabled !== null) {
-            return $enabled;
-        }
+        return $this->attendanceRepo->getTeacherSummary($classroomId);
+    }
 
-        $stmt = $this->db->prepare(
-            "SELECT setting_val FROM meeting_settings WHERE setting_key = 'attendance_sync_enabled'"
+    // -------------------------------------------------------
+    // Admin overview (classroom-level)
+    // -------------------------------------------------------
+
+    /**
+     * Paginated classroom list for admin attendance overview.
+     */
+    public function getAdminClassroomList(int $limit, int $offset): array
+    {
+        return $this->attendanceRepo->getAdminClassroomList($limit, $offset);
+    }
+
+    public function countAdminClassrooms(): int
+    {
+        return $this->attendanceRepo->countAdminClassrooms();
+    }
+
+    /**
+     * Session-by-session detail for one classroom (student + teacher columns).
+     */
+    public function getAdminClassroomDetail(
+        int $classroomId,
+        int $studentId,
+        int $teacherId,
+        int $limit,
+        int $offset
+    ): array {
+        return $this->attendanceRepo->getAdminClassroomDetail(
+            $classroomId,
+            $studentId,
+            $teacherId,
+            $limit,
+            $offset
         );
-        $stmt->execute();
-        $val     = $stmt->fetchColumn();
-        $enabled = ($val === '1');
-        return $enabled;
+    }
+
+    public function countAdminClassroomSessions(int $classroomId): int
+    {
+        return $this->attendanceRepo->countAdminClassroomSessions($classroomId);
+    }
+
+    /**
+     * Aggregate stats for the detail page summary boxes.
+     */
+    public function getAdminClassroomSummary(
+        int $classroomId,
+        int $studentId,
+        int $teacherId
+    ): array {
+        return $this->attendanceRepo->getAdminClassroomSummary(
+            $classroomId,
+            $studentId,
+            $teacherId
+        );
     }
 }

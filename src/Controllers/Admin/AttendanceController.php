@@ -6,56 +6,39 @@ namespace App\Controllers\Admin;
 
 use App\Services\AttendanceService;
 use App\Repositories\ClassroomRepository;
-use App\Repositories\ClassSessionRepository;
 
 /**
- * AttendanceController (Admin)
+ * AttendanceController (Admin / Super Admin)
  *
  * Thin controller: validates input, calls AttendanceService, renders view.
  * No business logic or SQL here.
  */
 class AttendanceController
 {
-    private AttendanceService      $attendanceService;
-    private ClassroomRepository    $classroomRepo;
-    private ClassSessionRepository $sessionRepo;
+    private AttendanceService   $attendanceService;
+    private ClassroomRepository $classroomRepo;
 
     public function __construct(
-        AttendanceService      $attendanceService,
-        ClassroomRepository    $classroomRepo,
-        ClassSessionRepository $sessionRepo
+        AttendanceService   $attendanceService,
+        ClassroomRepository $classroomRepo
     ) {
         $this->attendanceService = $attendanceService;
         $this->classroomRepo     = $classroomRepo;
-        $this->sessionRepo       = $sessionRepo;
     }
 
     /**
-     * Overview page: all sessions with attendance stats, filterable.
+     * Overview page: one row per classroom with teacher + student info.
+     * Replaces old session-level overview.
      */
     public function overview(): void
     {
-        $page        = max(1, (int) ($_GET['page'] ?? 1));
-        $limit       = 20;
-        $offset      = ($page - 1) * $limit;
-        $classroomId = (int) ($_GET['classroom_id'] ?? 0);
-        $dateFrom    = trim($_GET['date_from'] ?? '');
-        $dateTo      = trim($_GET['date_to'] ?? '');
+        $page   = max(1, (int) ($_GET['page'] ?? 1));
+        $limit  = 20;
+        $offset = ($page - 1) * $limit;
 
-        // Basic date validation
-        if (!empty($dateFrom) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
-            $dateFrom = '';
-        }
-        if (!empty($dateTo) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
-            $dateTo = '';
-        }
-
-        $rows  = $this->attendanceService->getAdminOverview($limit, $offset, $classroomId, $dateFrom, $dateTo);
-        $total = $this->attendanceService->countAdminOverview($classroomId, $dateFrom, $dateTo);
+        $rows  = $this->attendanceService->getAdminClassroomList($limit, $offset);
+        $total = $this->attendanceService->countAdminClassrooms();
         $pages = (int) ceil($total / $limit);
-
-        // For classroom filter dropdown
-        $classrooms = $this->classroomRepo->getPaginatedClassrooms(200, 0);
 
         $pageTitle  = 'Attendance Overview';
         $activeMenu = 'admin_attendance';
@@ -64,25 +47,57 @@ class AttendanceController
     }
 
     /**
-     * Detailed report for a single session.
+     * Detail page: full session-by-session attendance for one classroom.
+     * Shows student and teacher attendance side by side.
+     * URL: /admin/attendance/detail.php?classroom_id=X
      */
-    public function sessionReport(): void
+    public function detail(): void
     {
-        $sessionId = (int) ($_GET['session_id'] ?? 0);
-        if ($sessionId <= 0) {
-            http_response_code(400);
-            die('<h1>Invalid session ID.</h1>');
-        }
+        $classroomId = (int) ($_GET['classroom_id'] ?? 0);
 
-        $report = $this->attendanceService->getSessionReport($sessionId);
-        if (empty($report)) {
+        // Validate classroom_id — must be a positive integer
+        if ($classroomId <= 0) {
             http_response_code(404);
-            die('<h1>Session not found.</h1>');
+            exit('<h1>404 — Page not found.</h1>');
         }
 
-        $pageTitle  = 'Session Attendance Report';
+        // Fetch classroom (includes teacher_id, student_id via ClassroomRepository::findById)
+        $classroom = $this->classroomRepo->findById($classroomId);
+        if (!$classroom) {
+            http_response_code(404);
+            exit('<h1>404 — Classroom not found.</h1>');
+        }
+
+        $studentId = (int) ($classroom['student_id'] ?? 0);
+        $teacherId = (int) ($classroom['teacher_id'] ?? 0);
+
+        // Pagination for the session list
+        $page   = max(1, (int) ($_GET['page'] ?? 1));
+        $limit  = 20;
+        $offset = ($page - 1) * $limit;
+
+        $totalSessions = $this->attendanceService->countAdminClassroomSessions($classroomId);
+        $pages         = (int) ceil($totalSessions / $limit);
+
+        // Summary stats (total, student present/absent, teacher present/absent)
+        $summary = $this->attendanceService->getAdminClassroomSummary(
+            $classroomId,
+            $studentId,
+            $teacherId
+        );
+
+        // Paginated session list with both student + teacher presence flags
+        $sessions = $this->attendanceService->getAdminClassroomDetail(
+            $classroomId,
+            $studentId,
+            $teacherId,
+            $limit,
+            $offset
+        );
+
+        $pageTitle  = 'Attendance — ' . htmlspecialchars($classroom['class_name'], ENT_QUOTES, 'UTF-8');
         $activeMenu = 'admin_attendance';
 
-        require __DIR__ . '/../../../views/admin/attendance/session_report.php';
+        require __DIR__ . '/../../../views/admin/attendance/detail.php';
     }
 }

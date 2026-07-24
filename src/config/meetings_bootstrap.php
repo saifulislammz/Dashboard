@@ -61,7 +61,5 @@ $container->set(\App\Services\Sessions\ClassSessionService::class, fn($c) => new
 ));
 
 $container->set(\App\Services\AttendanceService::class, fn($c) => new \App\Services\AttendanceService(
-    $c->get(\App\Repositories\AttendanceRepository::class),
-    $c->get(\App\Repositories\ClassSessionRepository::class),
-    $c->get(PDO::class)
+    $c->get(\App\Repositories\AttendanceRepository::class)
 ));

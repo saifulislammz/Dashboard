@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/../layouts/header.php';
 require __DIR__ . '/../layouts/sidebar_student.php';
+require_once __DIR__ . '/../../src/config/attendance_config.php';
+
+use App\Config\AttendanceConfig;
 
 $totalSessions = (int) ($summary['total_sessions'] ?? 0);
 $attended      = (int) ($summary['attended']       ?? 0);
@@ -10,11 +13,11 @@ $percentage    = (float) ($summary['percentage']   ?? 0.0);
 $ringColor = 'text-green-500';
 $bgColor   = 'bg-green-50';
 $badgeColor = 'bg-green-100 text-green-700';
-if ($percentage < 50) {
+if ($percentage < AttendanceConfig::THRESHOLD_AVERAGE) {
     $ringColor  = 'text-red-500';
     $bgColor    = 'bg-red-50';
     $badgeColor = 'bg-red-100 text-red-700';
-} elseif ($percentage < 75) {
+} elseif ($percentage < AttendanceConfig::THRESHOLD_GOOD) {
     $ringColor  = 'text-yellow-500';
     $bgColor    = 'bg-yellow-50';
     $badgeColor = 'bg-yellow-100 text-yellow-700';
@@ -65,7 +68,7 @@ if ($percentage < 50) {
                         </div>
                     </div>
                     <span class="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?= $badgeColor ?>">
-                        <?= $percentage >= 75 ? 'Good Standing' : ($percentage >= 50 ? 'Needs Improvement' : 'At Risk') ?>
+                        <?= $percentage >= AttendanceConfig::THRESHOLD_GOOD ? 'Good Standing' : ($percentage >= AttendanceConfig::THRESHOLD_AVERAGE ? 'Needs Improvement' : 'At Risk') ?>
                     </span>
                 </div>
 
@@ -86,14 +89,14 @@ if ($percentage < 50) {
                 </div>
             </div>
 
-            <?php if ($percentage < 75 && $totalSessions > 0): ?>
+            <?php if ($percentage < AttendanceConfig::THRESHOLD_GOOD && $totalSessions > 0): ?>
             <div class="mt-4 pt-4 border-t border-gray-200">
                 <p class="text-xs text-gray-500">
                     <?php
                         $needed = 0;
                         if ($totalSessions > 0) {
                             // sessions needed to reach 75%
-                            $needed = max(0, (int) ceil((0.75 * $totalSessions - $attended) / (1 - 0.75)));
+                            $needed = max(0, (int) ceil((AttendanceConfig::THRESHOLD_GOOD / 100 * $totalSessions - $attended) / (1 - AttendanceConfig::THRESHOLD_GOOD / 100)));
                         }
                     ?>
                     <?php if ($needed > 0): ?>
