@@ -108,20 +108,6 @@
             flex-direction: column;
         }
 
-        /* ─── Shapes ────────────────────────────────────── */
-        .shape-top-left {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 300px;
-            height: 180px;
-            background-color: var(--brand-blue);
-            clip-path: polygon(0 0, 100% 0, 0 100%);
-            z-index: 1;
-        }
-
-
-
         /* ─── Watermark & Header ────────────────────────── */
         .invoice-watermark {
             position: absolute;
@@ -142,29 +128,29 @@
 
         .inv-header-top {
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             padding: 50px 60px 20px;
             position: relative;
             z-index: 10;
         }
 
         .company-logo-text {
-            text-align: center;
+            text-align: left;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .company-logo-text svg {
-            width: 48px;
-            height: 48px;
+            width: 80px;
+            height: 80px;
             margin-bottom: 8px;
             fill: var(--brand-blue);
         }
 
         .company-logo {
             width: auto;
-            height: 60px;
+            height: 90px;
             margin-bottom: 8px;
             object-fit: contain;
         }
@@ -499,11 +485,6 @@
                 size: A4;
             }
 
-            .shape-top-left {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
             .inv-table-wrapper th,
             .items-table {
                 -webkit-print-color-adjust: exact;
@@ -533,15 +514,6 @@
                 padding: 0 20px;
             }
 
-            .items-table th:nth-child(3),
-            .items-table td:nth-child(3) {
-                display: none;
-            }
-
-            .shape-top-left {
-                width: 150px;
-                height: 100px;
-            }
         }
     </style>
 </head>
@@ -601,8 +573,6 @@
     <div class="invoice-wrapper">
         <div class="invoice">
 
-            <div class="shape-top-left"></div>
-
             <?php if ($instLogo): ?>
                 <div class="invoice-watermark">
                     <img src="<?= $instLogo ?>" alt="">
@@ -637,12 +607,30 @@
             <div class="inv-info-section">
                 <div class="info-col">
                     <h3>INVOICE TO :</h3>
-                    <p>
-                        <strong><?= $sName ?></strong><br>
-                        <?php if ($sCountry): ?>    <?= $sCountry ?><br><?php endif; ?>
-                        <?php if ($sEmail): ?>    <?= $sEmail ?><br><?php endif; ?>
-                        <?php if ($sPhone): ?>    <?= $sPhone ?><br><?php endif; ?>
-                    </p>
+                    <table class="details-table">
+                        <tr>
+                            <td>Name :</td>
+                            <td><strong><?= $sName ?></strong></td>
+                        </tr>
+                        <?php if ($sCountry): ?>
+                        <tr>
+                            <td>Country :</td>
+                            <td><?= $sCountry ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if ($sEmail): ?>
+                        <tr>
+                            <td>Email :</td>
+                            <td><?= $sEmail ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if ($sPhone): ?>
+                        <tr>
+                            <td>Mobile :</td>
+                            <td><?= $sPhone ?></td>
+                        </tr>
+                        <?php endif; ?>
+                    </table>
                 </div>
 
                 <div class="info-col">
@@ -673,7 +661,6 @@
                         <tr>
                             <th class="center" style="width:40px">#</th>
                             <th>SERVICE / COURSE</th>
-                            <th>DESCRIPTION</th>
                             <th class="center" style="width:60px">QTY</th>
                             <th class="right" style="width:100px">UNIT PRICE</th>
                             <th class="right" style="width:120px">AMOUNT</th>
@@ -684,14 +671,8 @@
                             <tr>
                                 <td><?= $i + 1 ?></td>
                                 <td>
-                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?>
-                                    </div>
-                                    <?php if (!empty($item['description'])): ?>
-                                        <div class="item-desc">
-                                            <?= htmlspecialchars($item['description'], ENT_QUOTES, 'UTF-8') ?></div>
-                                    <?php endif; ?>
+                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></div>
                                 </td>
-                                <td><?= htmlspecialchars($item['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= number_format((float) $item['quantity'], 2) ?></td>
                                 <td><?= number_format((float) $item['unit_price'], 2) ?></td>
                                 <td class="item-amount"><?= number_format((float) $item['amount'], 2) ?></td>
