@@ -170,37 +170,37 @@ $statusClasses = match ($status) {
 
                 <!-- Items Table -->
                 <div>
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm border-2 border-primary border-collapse">
                         <thead>
-                            <tr class="border-y border-gray-100">
-                                <th class="text-left py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider">#
+                            <tr class="bg-gray-50 border-b-2 border-primary">
+                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">#
                                 </th>
-                                <th class="text-left py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider">
+                                <th class="border border-primary text-left py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Service / Course</th>
                                 <th
-                                    class="text-left py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider hidden sm:table-cell">
+                                    class="border border-primary text-left py-3 px-4 text-sm font-black text-primary uppercase tracking-wider hidden sm:table-cell whitespace-nowrap">
                                     Description</th>
-                                <th class="text-right py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider">
+                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Qty</th>
-                                <th class="text-right py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider">
+                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Unit Price</th>
-                                <th class="text-right py-3 text-xs font-bold text-[#94a3b8] uppercase tracking-wider">
+                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Amount</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody>
                             <?php foreach ($items as $i => $item): ?>
                                 <tr>
-                                    <td class="py-3 text-xs text-[#94a3b8]"><?= $i + 1 ?></td>
-                                    <td class="py-3 font-medium text-[#0f172a]">
+                                    <td class="border border-primary py-3 px-4 text-center text-xs text-[#94a3b8]"><?= $i + 1 ?></td>
+                                    <td class="border border-primary py-3 px-4 font-medium text-[#0f172a]">
                                         <?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="py-3 text-[#64748b] hidden sm:table-cell">
+                                    <td class="border border-primary py-3 px-4 text-[#64748b] hidden sm:table-cell">
                                         <?= htmlspecialchars($item['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="py-3 text-right text-[#475569]">
+                                    <td class="border border-primary py-3 px-4 text-center text-[#475569]">
                                         <?= number_format((float) $item['quantity'], 2) ?></td>
-                                    <td class="py-3 text-right text-[#475569] font-mono">
+                                    <td class="border border-primary py-3 px-4 text-center text-[#475569] font-mono">
                                         <?= number_format((float) $item['unit_price'], 2) ?></td>
-                                    <td class="py-3 text-right font-semibold text-[#0f172a] font-mono">
+                                    <td class="border border-primary py-3 px-4 text-center font-semibold text-[#0f172a] font-mono">
                                         <?= number_format((float) $item['amount'], 2) ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -210,29 +210,23 @@ $statusClasses = match ($status) {
 
                 <!-- Summary -->
                 <div class="flex justify-end">
-                    <div class="w-full sm:w-72 space-y-2">
+                    <div class="w-full sm:w-[420px] space-y-2">
                         <div class="flex justify-between text-sm text-[#64748b]">
                             <span>Subtotal</span>
                             <span
                                 class="font-mono font-medium text-[#0f172a]"><?= number_format((float) $invoice['subtotal'], 2) ?></span>
                         </div>
-                        <?php if ((float) $invoice['discount'] > 0): ?>
-                            <div class="flex justify-between text-sm text-[#64748b]">
-                                <span>Discount</span>
-                                <span
-                                    class="font-mono font-medium text-red-500">-<?= number_format((float) $invoice['discount'], 2) ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <?php if ((float) $invoice['vat_percent'] > 0): ?>
-                            <div class="flex justify-between text-sm text-[#64748b]">
-                                <span>VAT (<?= number_format((float) $invoice['vat_percent'], 2) ?>%)</span>
-                                <span
-                                    class="font-mono font-medium text-[#0f172a]"><?= number_format((float) $invoice['vat_amount'], 2) ?></span>
-                            </div>
-                        <?php endif; ?>
-                        <div class="pt-3 border-t-2 border-primary flex justify-between items-center">
-                            <span class="font-bold text-[#0f172a]">Grand Total</span>
-                            <span class="text-xl font-bold text-primary font-mono">
+                        <div class="flex justify-between text-sm text-[#64748b]">
+                            <span>Discount</span>
+                            <span class="font-mono font-medium text-red-500">-<?= number_format((float) $invoice['discount'], 2) ?></span>
+                        </div>
+                        <div class="flex justify-between text-sm text-[#64748b]">
+                            <span>VAT (<?= number_format((float) $invoice['vat_percent'], 2) ?>%)</span>
+                            <span class="font-mono font-medium text-[#0f172a]"><?= number_format((float) $invoice['vat_amount'], 2) ?></span>
+                        </div>
+                        <div class="pt-4 mt-2 border-t-4 border-primary flex justify-between items-center whitespace-nowrap gap-4">
+                            <span class="text-xl font-black text-primary uppercase tracking-wider">TOTAL PAYMENT</span>
+                            <span class="text-3xl font-black text-primary font-mono">
                                 <?= $curr ?> <?= number_format((float) $invoice['grand_total'], 2) ?>
                             </span>
                         </div>

@@ -264,23 +264,15 @@
             border-collapse: collapse;
             border-top: 2px solid var(--brand-blue);
             border-bottom: 2px solid var(--brand-blue);
+            border-left: 2px solid var(--brand-blue);
+            border-right: 2px solid var(--brand-blue);
         }
 
         .items-table th,
         .items-table td {
-            border-left: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
+            border-left: 1px solid var(--brand-blue);
+            border-right: 1px solid var(--brand-blue);
             padding: 10px 14px;
-        }
-
-        .items-table th:first-child,
-        .items-table td:first-child {
-            border-left: none;
-        }
-
-        .items-table th:last-child,
-        .items-table td:last-child {
-            border-right: none;
         }
 
         .items-table thead tr {
@@ -289,11 +281,12 @@
 
         .items-table th {
             text-align: left;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 900;
             color: var(--brand-blue);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .items-table th.center {
@@ -308,7 +301,7 @@
             font-size: 12px;
             color: var(--text-main);
             vertical-align: top;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--brand-blue);
         }
 
         .items-table td.center {
@@ -360,7 +353,7 @@
         }
 
         .inv-totals {
-            width: 340px;
+            width: 420px;
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.05);
@@ -403,16 +396,18 @@
         }
 
         .total-line.grand-total .label {
-            font-size: 14px;
-            font-weight: 800;
+            font-size: 20px;
+            font-weight: 900;
             color: var(--brand-blue);
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .total-line.grand-total .value {
-            font-size: 18px;
-            font-weight: 800;
+            font-size: 26px;
+            font-weight: 900;
             color: var(--brand-blue);
+            white-space: nowrap;
         }
 
         /* ─── Modern Footer ────────────────────────────── */
@@ -662,20 +657,20 @@
                             <th class="center" style="width:40px">#</th>
                             <th>SERVICE / COURSE</th>
                             <th class="center" style="width:60px">QTY</th>
-                            <th class="right" style="width:100px">UNIT PRICE</th>
-                            <th class="right" style="width:120px">AMOUNT</th>
+                            <th class="center" style="width:100px">UNIT PRICE</th>
+                            <th class="center" style="width:120px">AMOUNT</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($items as $i => $item): ?>
                             <tr>
-                                <td><?= $i + 1 ?></td>
+                                <td class="center"><?= $i + 1 ?></td>
                                 <td>
                                     <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></div>
                                 </td>
-                                <td><?= number_format((float) $item['quantity'], 2) ?></td>
-                                <td><?= number_format((float) $item['unit_price'], 2) ?></td>
-                                <td class="item-amount"><?= number_format((float) $item['amount'], 2) ?></td>
+                                <td class="center"><?= number_format((float) $item['quantity'], 2) ?></td>
+                                <td class="center"><?= number_format((float) $item['unit_price'], 2) ?></td>
+                                <td class="center item-amount"><?= number_format((float) $item['amount'], 2) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -706,20 +701,16 @@
                         <span class="label">Subtotal</span>
                         <span class="value"><?= number_format((float) $invoice['subtotal'], 2) ?></span>
                     </div>
-                    <?php if ((float) $invoice['discount'] > 0): ?>
                     <div class="total-line discount">
                         <span class="label">Discount</span>
                         <span class="value">- <?= number_format((float) $invoice['discount'], 2) ?></span>
                     </div>
-                    <?php endif; ?>
-                    <?php if ((float) $invoice['vat_percent'] > 0): ?>
                     <div class="total-line">
                         <span class="label">VAT (<?= number_format((float) $invoice['vat_percent'], 2) ?>%)</span>
                         <span class="value"><?= number_format((float) $invoice['vat_amount'], 2) ?></span>
                     </div>
-                    <?php endif; ?>
                     <div class="total-line grand-total">
-                        <span class="label">GRAND TOTAL</span>
+                        <span class="label">TOTAL PAYMENT</span>
                         <span class="value"><?= $currInfo['symbol'] ?? $curr ?> <?= number_format((float) $invoice['grand_total'], 2) ?></span>
                     </div>
                 </div>

@@ -303,10 +303,10 @@ function inv_err(string $key): string
                             </div>
                         </div>
 
-                        <div class="pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center">
-                                <span class="text-base font-bold text-[#0f172a]">Grand Total</span>
-                                <span id="summary-grand-total" class="text-2xl font-bold text-primary">0.00</span>
+                        <div class="pt-4 mt-2 border-t-4 border-primary">
+                            <div class="flex justify-between items-center whitespace-nowrap gap-4">
+                                <span class="text-xl font-black text-primary uppercase tracking-wider">TOTAL PAYMENT</span>
+                                <span id="summary-grand-total" class="text-3xl font-black text-primary font-mono">0.00</span>
                             </div>
                         </div>
                     </div>
