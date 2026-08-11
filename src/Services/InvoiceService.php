@@ -81,6 +81,7 @@ class InvoiceService
             'invoice_date'    => $input['invoice_date'],
             'due_date'        => !empty($input['due_date']) ? $input['due_date'] : null,
             'notes'           => trim($input['notes'] ?? ''),
+            'show_signature'  => !empty($input['show_signature']) ? 1 : 0,
             'created_by'      => $adminId,
         ];
 
@@ -125,6 +126,7 @@ class InvoiceService
             'invoice_date'    => $input['invoice_date'],
             'due_date'        => !empty($input['due_date']) ? $input['due_date'] : null,
             'notes'           => trim($input['notes'] ?? ''),
+            'show_signature'  => !empty($input['show_signature']) ? 1 : 0,
         ];
 
         try {

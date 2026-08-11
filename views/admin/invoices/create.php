@@ -10,7 +10,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 $old      = $old      ?? [];
 $errors   = $errors   ?? [];
 $todayDate = date('Y-m-d');
-$dueDateDefault = date('Y-m-d', strtotime('+7 days'));
+$dueDateDefault = '';
 
 /**
  * Helper: safe old value with htmlspecialchars
@@ -210,9 +210,8 @@ function inv_err(string $key): string
                     <table class="w-full text-sm" id="items-table">
                         <thead>
                             <tr class="border-b border-gray-100">
-                                <th class="text-left pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider w-8">#</th>
+                                <th class="text-left pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider w-8">Sl</th>
                                 <th class="text-left pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider">Course / Service</th>
-                                <th class="text-left pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider hidden md:table-cell">Description</th>
                                 <th class="text-right pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider w-20">Qty</th>
                                 <th class="text-right pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider w-28">Unit Price</th>
                                 <th class="text-right pb-3 text-xs font-semibold text-[#94a3b8] uppercase tracking-wider w-28">Amount</th>
@@ -321,17 +320,24 @@ function inv_err(string $key): string
                    class="px-5 py-2.5 text-sm font-medium text-[#64748b] border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                     Cancel
                 </a>
-                <div class="flex gap-3">
-                    <button type="submit" name="action" value="draft"
-                            class="px-5 py-2.5 text-sm font-medium text-[#374151] bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-                        Save as Draft
-                    </button>
-                    <button type="submit" name="action" value="generate"
-                            class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Generate Invoice
-                    </button>
+                
+                <div class="flex items-center gap-6">
+                    <label class="flex items-center gap-2 cursor-pointer border-r border-gray-200 pr-6">
+                        <input type="checkbox" name="show_signature" value="1" class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2">
+                        <span class="text-sm font-medium text-[#475569]">Show Authorized Signature</span>
+                    </label>
+                    <div class="flex gap-3">
+                        <button type="submit" name="action" value="draft"
+                                class="px-5 py-2.5 text-sm font-medium text-[#374151] bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                            Save as Draft
+                        </button>
+                        <button type="submit" name="action" value="generate"
+                                class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Generate Invoice
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -349,12 +355,8 @@ function inv_err(string $key): string
             <input type="text" name="items[__IDX__][item_name]" placeholder="Course or service name"
                    class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" required>
         </td>
-        <td class="py-3 pr-2 align-top hidden md:table-cell">
-            <input type="text" name="items[__IDX__][description]" placeholder="Optional description"
-                   class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
-        </td>
         <td class="py-3 pr-2 align-top">
-            <input type="number" name="items[__IDX__][quantity]" value="1" min="0.01" step="0.01"
+            <input type="number" name="items[__IDX__][quantity]" value="1" min="1" step="1"
                    class="item-qty w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
@@ -404,7 +406,7 @@ function inv_err(string $key): string
         // Populate values if provided (re-fill on error)
         if (name)  row.querySelector('.item-name').value  = name;
         if (price) row.querySelector('.item-price').value = parseFloat(price).toFixed(2);
-        if (qty)   row.querySelector('.item-qty').value   = parseFloat(qty).toFixed(2);
+        if (qty)   row.querySelector('.item-qty').value   = parseInt(qty, 10);
 
         recalcRow(row);
         itemIndex++;
@@ -434,7 +436,7 @@ function inv_err(string $key): string
 
     // â”€â”€ Recalculate a single row amount â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function recalcRow(row) {
-        const qty   = parseFloat(row.querySelector('.item-qty').value)   || 0;
+        const qty   = parseInt(row.querySelector('.item-qty').value, 10) || 0;
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
         const amt   = qty * price;
         row.querySelector('.item-amount').value = amt.toFixed(2);

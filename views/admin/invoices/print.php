@@ -525,7 +525,8 @@
     $curr = htmlspecialchars($invoice['currency'], ENT_QUOTES, 'UTF-8');
     $status = $invoice['status'] ?? 'unpaid';
     $iDate = htmlspecialchars($invoice['invoice_date'] ?? '', ENT_QUOTES, 'UTF-8');
-    $dDate = htmlspecialchars($invoice['due_date'] ?? '', ENT_QUOTES, 'UTF-8');
+    $rawDueDate = $invoice['due_date'] ?? '';
+    $dDate = ($rawDueDate && $rawDueDate !== '0000-00-00' && $rawDueDate !== '00-00') ? htmlspecialchars($rawDueDate, ENT_QUOTES, 'UTF-8') : '';
     $notes = htmlspecialchars($invoice['notes'] ?? '', ENT_QUOTES, 'UTF-8');
 
     $instName = htmlspecialchars($settings['institution_name'] ?? 'Rahe Nazat Institute', ENT_QUOTES, 'UTF-8');
@@ -587,6 +588,11 @@
                         </svg>
                     <?php endif; ?>
                     <div class="company-name"><?= $instName ?></div>
+                    <?php if (!empty($settings['institution_tagline'])): ?>
+                        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+                            <?= htmlspecialchars($settings['institution_tagline'], ENT_QUOTES, 'UTF-8') ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -654,7 +660,7 @@
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th class="center" style="width:40px">#</th>
+                            <th class="center" style="width:40px">Sl</th>
                             <th>SERVICE / COURSE</th>
                             <th class="center" style="width:60px">QTY</th>
                             <th class="center" style="width:100px">UNIT PRICE</th>
@@ -668,7 +674,7 @@
                                 <td>
                                     <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></div>
                                 </td>
-                                <td class="center"><?= number_format((float) $item['quantity'], 2) ?></td>
+                                <td class="center"><?= (int) $item['quantity'] ?></td>
                                 <td class="center"><?= number_format((float) $item['unit_price'], 2) ?></td>
                                 <td class="center item-amount"><?= number_format((float) $item['amount'], 2) ?></td>
                             </tr>
@@ -727,10 +733,12 @@
                         <?php if ($instAddr): ?><?= $instAddr ?><?php endif; ?>
                     </p>
                 </div>
+                <?php if (!empty($invoice['show_signature'])): ?>
                 <div class="footer-signature">
                     <div class="sig-line"></div>
                     <p>Authorized Signature</p>
                 </div>
+                <?php endif; ?>
             </div>
 
         </div><!-- /invoice -->

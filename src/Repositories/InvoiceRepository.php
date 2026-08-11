@@ -48,11 +48,11 @@ class InvoiceRepository
                 INSERT INTO invoices
                     (invoice_number, student_name, student_email, student_phone, student_country,
                      currency, subtotal, discount, vat_percent, vat_amount, grand_total,
-                     status, invoice_date, due_date, notes, created_by)
+                     status, invoice_date, due_date, notes, show_signature, created_by)
                 VALUES
                     (:invoice_number, :student_name, :student_email, :student_phone, :student_country,
                      :currency, :subtotal, :discount, :vat_percent, :vat_amount, :grand_total,
-                     :status, :invoice_date, :due_date, :notes, :created_by)
+                     :status, :invoice_date, :due_date, :notes, :show_signature, :created_by)
             ");
             $stmt->execute($invoiceData);
             $invoiceId = (int) $this->db->lastInsertId();
@@ -96,7 +96,8 @@ class InvoiceRepository
                     status          = :status,
                     invoice_date    = :invoice_date,
                     due_date        = :due_date,
-                    notes           = :notes
+                    notes           = :notes,
+                    show_signature  = :show_signature
                 WHERE id = :id AND deleted_at IS NULL
             ");
             $invoiceData['id'] = $id;
@@ -165,7 +166,7 @@ class InvoiceRepository
             SELECT
                 id, invoice_number, student_name, student_email, student_phone, student_country,
                 currency, subtotal, discount, vat_percent, vat_amount, grand_total,
-                status, invoice_date, due_date, notes, created_by, created_at, updated_at
+                status, invoice_date, due_date, notes, show_signature, created_by, created_at, updated_at
             FROM invoices
             WHERE id = :id AND deleted_at IS NULL
         ");

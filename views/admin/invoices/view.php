@@ -14,7 +14,8 @@ $sCountry = htmlspecialchars($invoice['student_country'] ?? '', ENT_QUOTES, 'UTF
 $curr = htmlspecialchars($invoice['currency'], ENT_QUOTES, 'UTF-8');
 $status = $invoice['status'] ?? 'unpaid';
 $iDate = htmlspecialchars($invoice['invoice_date'] ?? '', ENT_QUOTES, 'UTF-8');
-$dDate = htmlspecialchars($invoice['due_date'] ?? '', ENT_QUOTES, 'UTF-8');
+$rawDueDate = $invoice['due_date'] ?? '';
+$dDate = ($rawDueDate && $rawDueDate !== '0000-00-00' && $rawDueDate !== '00-00') ? htmlspecialchars($rawDueDate, ENT_QUOTES, 'UTF-8') : '';
 $notes = htmlspecialchars($invoice['notes'] ?? '', ENT_QUOTES, 'UTF-8');
 
 $currInfo = $currencies[$invoice['currency']] ?? ['name' => $curr, 'symbol' => $curr, 'flag' => '💰'];
@@ -173,13 +174,10 @@ $statusClasses = match ($status) {
                     <table class="w-full text-sm border-2 border-primary border-collapse">
                         <thead>
                             <tr class="bg-gray-50 border-b-2 border-primary">
-                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">#
+                                <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">Sl
                                 </th>
                                 <th class="border border-primary text-left py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Service / Course</th>
-                                <th
-                                    class="border border-primary text-left py-3 px-4 text-sm font-black text-primary uppercase tracking-wider hidden sm:table-cell whitespace-nowrap">
-                                    Description</th>
                                 <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
                                     Qty</th>
                                 <th class="border border-primary text-center py-3 px-4 text-sm font-black text-primary uppercase tracking-wider whitespace-nowrap">
@@ -194,10 +192,8 @@ $statusClasses = match ($status) {
                                     <td class="border border-primary py-3 px-4 text-center text-xs text-[#94a3b8]"><?= $i + 1 ?></td>
                                     <td class="border border-primary py-3 px-4 font-medium text-[#0f172a]">
                                         <?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="border border-primary py-3 px-4 text-[#64748b] hidden sm:table-cell">
-                                        <?= htmlspecialchars($item['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="border border-primary py-3 px-4 text-center text-[#475569]">
-                                        <?= number_format((float) $item['quantity'], 2) ?></td>
+                                        <?= (int) $item['quantity'] ?></td>
                                     <td class="border border-primary py-3 px-4 text-center text-[#475569] font-mono">
                                         <?= number_format((float) $item['unit_price'], 2) ?></td>
                                     <td class="border border-primary py-3 px-4 text-center font-semibold text-[#0f172a] font-mono">
@@ -239,6 +235,46 @@ $statusClasses = match ($status) {
                         <p class="text-sm text-[#64748b]"><?= nl2br($notes) ?></p>
                     </div>
                 <?php endif; ?>
+
+                <?php if (!empty($invoice['show_signature'])): ?>
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-2">Contact Us</h4>
+                                <div class="text-xs text-gray-600 space-y-1">
+                                    <p class="font-semibold text-gray-800"><?= $instName ?></p>
+                                    <?php if ($settings['institution_phone'] ?? ''): ?><p>Phone:
+                                        <?= htmlspecialchars($settings['institution_phone'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($settings['institution_email'] ?? ''): ?><p>Email:
+                                        <?= htmlspecialchars($settings['institution_email'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="text-center w-48">
+                                <div class="border-t border-gray-400 mb-2"></div>
+                                <p class="text-xs font-semibold text-gray-800 uppercase">Authorized Signature</p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="mt-8 pt-8 border-t border-gray-200">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-2">Contact Us</h4>
+                                <div class="text-xs text-gray-600 space-y-1">
+                                    <p class="font-semibold text-gray-800"><?= $instName ?></p>
+                                    <?php if ($settings['institution_phone'] ?? ''): ?><p>Phone:
+                                        <?= htmlspecialchars($settings['institution_phone'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($settings['institution_email'] ?? ''): ?><p>Email:
+                                        <?= htmlspecialchars($settings['institution_email'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
 
             </div>
         </div><!-- /invoice card -->

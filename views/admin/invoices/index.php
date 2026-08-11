@@ -286,7 +286,8 @@ function pageUrl(int $p): string
                                 $curr = htmlspecialchars($inv['currency'], ENT_QUOTES, 'UTF-8');
                                 $amount = number_format((float) $inv['grand_total'], 2);
                                 $iDate = htmlspecialchars($inv['invoice_date'] ?? '', ENT_QUOTES, 'UTF-8');
-                                $dDate = htmlspecialchars($inv['due_date'] ?? '-', ENT_QUOTES, 'UTF-8');
+                                $rawDueDate = $inv['due_date'] ?? '';
+                                $dDate = ($rawDueDate && $rawDueDate !== '0000-00-00' && $rawDueDate !== '00-00') ? htmlspecialchars($rawDueDate, ENT_QUOTES, 'UTF-8') : '00';
                                 $status = $inv['status'] ?? 'unpaid';
                                 $flag = $currencies[$inv['currency']]['flag'] ?? '💰';
                                 ?>
