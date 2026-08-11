@@ -5,21 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice <?= htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8') ?> -
-        <?= htmlspecialchars($settings['institution_name'] ?? 'Invoice', ENT_QUOTES, 'UTF-8') ?></title>
+        <?= htmlspecialchars($settings['institution_name'] ?? 'Invoice', ENT_QUOTES, 'UTF-8') ?>
+    </title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* ─── Reset & Base ────────────────────────────── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
             --brand-blue: var(--color-primary-green, #0F766E);
             --brand-coral: var(--color-yellow, #EAB308);
             --text-main: var(--color-black, #000000);
             --text-muted: #6b7280;
-            --border-color: #ccfbf1; /* Light green border for table */
+            --border-color: #ccfbf1;
+            /* Light green border for table */
         }
 
         body {
@@ -329,15 +337,17 @@
             gap: 20px;
         }
 
-        .notes-box, .terms-box {
+        .notes-box,
+        .terms-box {
             background: #f8fafc;
             border-left: 3px solid var(--brand-blue);
             padding: 16px 20px;
             border-radius: 0 12px 12px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
         }
 
-        .notes-box h4, .terms-box h4 {
+        .notes-box h4,
+        .terms-box h4 {
             font-size: 11px;
             font-weight: 800;
             color: var(--brand-blue);
@@ -346,7 +356,8 @@
             margin-bottom: 8px;
         }
 
-        .notes-box p, .terms-box p {
+        .notes-box p,
+        .terms-box p {
             font-size: 11px;
             color: var(--text-main);
             line-height: 1.6;
@@ -356,7 +367,7 @@
             width: 420px;
             background: #fff;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
             padding: 24px;
             border: 1px solid #f1f5f9;
         }
@@ -408,6 +419,58 @@
             font-weight: 900;
             color: var(--brand-blue);
             white-space: nowrap;
+        }
+
+        .total-line.paid-row .label {
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        .total-line.paid-row .value {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .total-line.due-amount {
+            margin-top: 8px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-bottom: none;
+        }
+
+        .total-line.due-amount .label {
+            font-size: 18px;
+            font-weight: 900;
+            color: #b91c1c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .total-line.due-amount .value {
+            font-size: 22px;
+            font-weight: 900;
+            color: #dc2626;
+            white-space: nowrap;
+        }
+
+        .fully-paid-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            border: 1.5px solid #86efac;
+            color: #15803d;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* ─── Modern Footer ────────────────────────────── */
@@ -614,22 +677,22 @@
                             <td><strong><?= $sName ?></strong></td>
                         </tr>
                         <?php if ($sCountry): ?>
-                        <tr>
-                            <td>Country :</td>
-                            <td><?= $sCountry ?></td>
-                        </tr>
+                            <tr>
+                                <td>Country :</td>
+                                <td><?= $sCountry ?></td>
+                            </tr>
                         <?php endif; ?>
                         <?php if ($sEmail): ?>
-                        <tr>
-                            <td>Email :</td>
-                            <td><?= $sEmail ?></td>
-                        </tr>
+                            <tr>
+                                <td>Email :</td>
+                                <td><?= $sEmail ?></td>
+                            </tr>
                         <?php endif; ?>
                         <?php if ($sPhone): ?>
-                        <tr>
-                            <td>Mobile :</td>
-                            <td><?= $sPhone ?></td>
-                        </tr>
+                            <tr>
+                                <td>Mobile :</td>
+                                <td><?= $sPhone ?></td>
+                            </tr>
                         <?php endif; ?>
                     </table>
                 </div>
@@ -672,7 +735,8 @@
                             <tr>
                                 <td class="center"><?= $i + 1 ?></td>
                                 <td>
-                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></div>
+                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?>
+                                    </div>
                                 </td>
                                 <td class="center"><?= (int) $item['quantity'] ?></td>
                                 <td class="center"><?= number_format((float) $item['unit_price'], 2) ?></td>
@@ -688,20 +752,20 @@
             <div class="inv-bottom-section">
                 <div class="inv-notes-terms">
                     <?php if ($notes): ?>
-                    <div class="notes-box">
-                        <h4>Notes</h4>
-                        <p><?= nl2br($notes) ?></p>
-                    </div>
+                        <div class="notes-box">
+                            <h4>Notes</h4>
+                            <p><?= nl2br($notes) ?></p>
+                        </div>
                     <?php endif; ?>
-                    
+
                     <?php if ($footerNote): ?>
-                    <div class="terms-box">
-                        <h4>Terms & Conditions</h4>
-                        <p><?= $footerNote ?></p>
-                    </div>
+                        <div class="terms-box">
+                            <h4>Terms & Conditions</h4>
+                            <p><?= $footerNote ?></p>
+                        </div>
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="inv-totals">
                     <div class="total-line">
                         <span class="label">Subtotal</span>
@@ -717,8 +781,38 @@
                     </div>
                     <div class="total-line grand-total">
                         <span class="label">TOTAL PAYMENT</span>
-                        <span class="value"><?= $currInfo['symbol'] ?? $curr ?> <?= number_format((float) $invoice['grand_total'], 2) ?></span>
+                        <span class="value"><?= $currInfo['symbol'] ?? $curr ?>
+                            <?= number_format((float) $invoice['grand_total'], 2) ?></span>
                     </div>
+
+                    <?php
+                    $amountPaid = (float) ($invoice['amount_paid'] ?? 0);
+                    $amountDue = (float) ($invoice['amount_due'] ?? 0);
+                    ?>
+
+                    <?php if ($amountPaid > 0): ?>
+                        <div class="total-line paid-row">
+                            <span class="label">Amount Paid</span>
+                            <span class="value"><?= $currInfo['symbol'] ?? $curr ?>
+                                <?= number_format($amountPaid, 2) ?></span>
+                        </div>
+
+                        <?php if ($amountDue > 0): ?>
+                            <div class="total-line due-amount">
+                                <span class="label">DUE</span>
+                                <span class="value"><?= $currInfo['symbol'] ?? $curr ?>
+                                    <?= number_format($amountDue, 2) ?></span>
+                            </div>
+                        <?php else: ?>
+                            <div class="fully-paid-badge">
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Fully Paid
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -730,14 +824,14 @@
                         <strong><?= $instName ?></strong><br>
                         <?php if ($instPhone): ?>Phone: <?= $instPhone ?><br><?php endif; ?>
                         <?php if ($instEmail): ?>Email: <?= $instEmail ?><br><?php endif; ?>
-                        <?php if ($instAddr): ?><?= $instAddr ?><?php endif; ?>
+                        <?php if ($instAddr): ?>    <?= $instAddr ?><?php endif; ?>
                     </p>
                 </div>
                 <?php if (!empty($invoice['show_signature'])): ?>
-                <div class="footer-signature">
-                    <div class="sig-line"></div>
-                    <p>Authorized Signature</p>
-                </div>
+                    <div class="footer-signature">
+                        <div class="sig-line"></div>
+                        <p>Authorized Signature</p>
+                    </div>
                 <?php endif; ?>
             </div>
 

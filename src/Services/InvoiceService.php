@@ -56,7 +56,12 @@ class InvoiceService
         }
 
         $items    = $this->sanitizeItems($input['items'] ?? []);
-        $totals   = $this->calculateTotals($items, (float)($input['discount'] ?? 0), (float)($input['vat_percent'] ?? 0));
+        $totals   = $this->calculateTotals(
+            $items,
+            (float)($input['discount']    ?? 0),
+            (float)($input['vat_percent'] ?? 0),
+            (float)($input['amount_paid'] ?? 0)
+        );
         $settings = $this->repo->getSettings();
 
         // If invoice_number not provided or empty, auto-generate
@@ -77,6 +82,8 @@ class InvoiceService
             'vat_percent'     => $totals['vat_percent'],
             'vat_amount'      => $totals['vat_amount'],
             'grand_total'     => $totals['grand_total'],
+            'amount_paid'     => $totals['amount_paid'],
+            'amount_due'      => $totals['amount_due'],
             'status'          => $this->sanitizeStatus($input['status'] ?? 'unpaid'),
             'invoice_date'    => $input['invoice_date'],
             'due_date'        => !empty($input['due_date']) ? $input['due_date'] : null,
@@ -109,7 +116,12 @@ class InvoiceService
         }
 
         $items  = $this->sanitizeItems($input['items'] ?? []);
-        $totals = $this->calculateTotals($items, (float)($input['discount'] ?? 0), (float)($input['vat_percent'] ?? 0));
+        $totals = $this->calculateTotals(
+            $items,
+            (float)($input['discount']    ?? 0),
+            (float)($input['vat_percent'] ?? 0),
+            (float)($input['amount_paid'] ?? 0)
+        );
 
         $invoiceData = [
             'student_name'    => trim($input['student_name']),
@@ -122,6 +134,8 @@ class InvoiceService
             'vat_percent'     => $totals['vat_percent'],
             'vat_amount'      => $totals['vat_amount'],
             'grand_total'     => $totals['grand_total'],
+            'amount_paid'     => $totals['amount_paid'],
+            'amount_due'      => $totals['amount_due'],
             'status'          => $this->sanitizeStatus($input['status'] ?? 'unpaid'),
             'invoice_date'    => $input['invoice_date'],
             'due_date'        => !empty($input['due_date']) ? $input['due_date'] : null,
@@ -304,15 +318,16 @@ class InvoiceService
     // ===========================================================
 
     /**
-     * Calculate subtotal, VAT amount, and grand total from items + discount + VAT%.
+     * Calculate subtotal, VAT amount, grand total, amount paid, and amount due from items.
      * All arithmetic done server-side — never trust client-side totals.
      *
      * @param array $items       Sanitized items array
      * @param float $discount    Flat discount amount
      * @param float $vatPercent  VAT percentage (0–100)
-     * @return array ['subtotal', 'discount', 'vat_percent', 'vat_amount', 'grand_total']
+     * @param float $amountPaid  Amount already collected from student (>= 0)
+     * @return array ['subtotal', 'discount', 'vat_percent', 'vat_amount', 'grand_total', 'amount_paid', 'amount_due']
      */
-    public function calculateTotals(array $items, float $discount, float $vatPercent): array
+    public function calculateTotals(array $items, float $discount, float $vatPercent, float $amountPaid = 0.0): array
     {
         $subtotal = (float) array_sum(array_column($items, 'amount'));
 
@@ -322,12 +337,18 @@ class InvoiceService
         $vatAmount  = round($afterDiscount * ($vatPercent / 100), 2);
         $grandTotal = round($afterDiscount + $vatAmount, 2);
 
+        // Clamp amount_paid to [0, grand_total] — cannot overpay
+        $amountPaid = round(max(0.0, min($grandTotal, $amountPaid)), 2);
+        $amountDue  = round(max(0.0, $grandTotal - $amountPaid), 2);
+
         return [
             'subtotal'    => round($subtotal,   2),
             'discount'    => round($discount,   2),
             'vat_percent' => round($vatPercent, 2),
             'vat_amount'  => $vatAmount,
             'grand_total' => $grandTotal,
+            'amount_paid' => $amountPaid,
+            'amount_due'  => $amountDue,
         ];
     }
 
@@ -380,6 +401,13 @@ class InvoiceService
 
         if (!empty($input['due_date']) && !$this->isValidDate($input['due_date'])) {
             $errors['due_date'] = 'Due date format is invalid.';
+        }
+
+        // amount_paid must be a non-negative number (optional — defaults to 0)
+        if (isset($input['amount_paid']) && $input['amount_paid'] !== '') {
+            if (!is_numeric($input['amount_paid']) || (float) $input['amount_paid'] < 0) {
+                $errors['amount_paid'] = 'Amount paid must be 0 or greater.';
+            }
         }
 
         if (empty($input['items']) || !is_array($input['items'])) {

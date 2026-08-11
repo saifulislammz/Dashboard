@@ -308,6 +308,36 @@ function inv_err(string $key): string
                                 <span id="summary-grand-total" class="text-3xl font-black text-primary font-mono">0.00</span>
                             </div>
                         </div>
+
+                        <!-- Amount Paid & DUE -->
+                        <div class="pt-3 mt-1 border-t border-dashed border-gray-200 space-y-3">
+                            <!-- Amount Paid -->
+                            <div class="flex items-center justify-between text-sm text-[#475569]">
+                                <label for="amount_paid" class="shrink-0 font-medium">Amount Paid</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="amount_paid" name="amount_paid"
+                                           value="<?= inv_old('amount_paid', '0') ?>"
+                                           min="0" step="0.01" placeholder="0.00"
+                                           class="w-32 px-3 py-1.5 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                </div>
+                            </div>
+
+                            <!-- DUE (auto-calculated) -->
+                            <div id="due-section" class="hidden">
+                                <div class="flex justify-between items-center rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+                                    <span class="text-base font-black text-red-700 uppercase tracking-wider">DUE</span>
+                                    <span id="summary-due" class="text-2xl font-black text-red-600 font-mono">0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Fully Paid badge -->
+                            <div id="fully-paid-section" class="hidden">
+                                <div class="flex justify-center items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3">
+                                    <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <span class="text-base font-bold text-green-700">Fully Paid</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -388,12 +418,16 @@ function inv_err(string $key): string
     const tbody       = document.getElementById('items-body');
     const emptyState  = document.getElementById('items-empty');
     const tpl         = document.getElementById('item-row-tpl');
-    const discountEl  = document.getElementById('discount');
-    const vatEl       = document.getElementById('vat_percent');
-    const subtotalEl  = document.getElementById('summary-subtotal');
-    const vatAmtEl    = document.getElementById('summary-vat-amount');
+    const discountEl   = document.getElementById('discount');
+    const vatEl        = document.getElementById('vat_percent');
+    const amountPaidEl = document.getElementById('amount_paid');
+    const subtotalEl   = document.getElementById('summary-subtotal');
+    const vatAmtEl     = document.getElementById('summary-vat-amount');
     const grandTotalEl = document.getElementById('summary-grand-total');
-    const form        = document.getElementById('invoice-form');
+    const dueEl        = document.getElementById('summary-due');
+    const dueSectionEl = document.getElementById('due-section');
+    const paidSectionEl = document.getElementById('fully-paid-section');
+    const form         = document.getElementById('invoice-form');
 
     // â”€â”€ Add row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function addRow(name = '', desc = '', qty = 1, price = 0) {
@@ -433,8 +467,9 @@ function inv_err(string $key): string
 
     discountEl.addEventListener('input', recalcTotals);
     vatEl.addEventListener('input', recalcTotals);
+    amountPaidEl.addEventListener('input', recalcTotals);
 
-    // â”€â”€ Recalculate a single row amount â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Recalculate a single row amount ──────────────────────────────────
     function recalcRow(row) {
         const qty   = parseInt(row.querySelector('.item-qty').value, 10) || 0;
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
@@ -442,7 +477,7 @@ function inv_err(string $key): string
         row.querySelector('.item-amount').value = amt.toFixed(2);
     }
 
-    // â”€â”€ Recalculate totals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Recalculate totals ──────────────────────────────────────────
     function recalcTotals() {
         let subtotal = 0;
         tbody.querySelectorAll('.item-amount').forEach(function (el) {

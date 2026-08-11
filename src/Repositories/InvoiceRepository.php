@@ -48,10 +48,12 @@ class InvoiceRepository
                 INSERT INTO invoices
                     (invoice_number, student_name, student_email, student_phone, student_country,
                      currency, subtotal, discount, vat_percent, vat_amount, grand_total,
+                     amount_paid, amount_due,
                      status, invoice_date, due_date, notes, show_signature, created_by)
                 VALUES
                     (:invoice_number, :student_name, :student_email, :student_phone, :student_country,
                      :currency, :subtotal, :discount, :vat_percent, :vat_amount, :grand_total,
+                     :amount_paid, :amount_due,
                      :status, :invoice_date, :due_date, :notes, :show_signature, :created_by)
             ");
             $stmt->execute($invoiceData);
@@ -93,6 +95,8 @@ class InvoiceRepository
                     vat_percent     = :vat_percent,
                     vat_amount      = :vat_amount,
                     grand_total     = :grand_total,
+                    amount_paid     = :amount_paid,
+                    amount_due      = :amount_due,
                     status          = :status,
                     invoice_date    = :invoice_date,
                     due_date        = :due_date,
@@ -135,6 +139,31 @@ class InvoiceRepository
     }
 
     /**
+     * Update amount_paid and recalculate amount_due for an existing invoice.
+     *
+     * Called when a partial or full payment is recorded without regenerating the invoice.
+     *
+     * @param int   $id          Invoice ID
+     * @param float $amountPaid  New total amount paid
+     * @param float $amountDue   Remaining balance (grand_total - amountPaid)
+     * @return bool
+     */
+    public function updateAmountPaid(int $id, float $amountPaid, float $amountDue): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE invoices
+            SET amount_paid = :amount_paid,
+                amount_due  = :amount_due
+            WHERE id = :id AND deleted_at IS NULL
+        ");
+        return $stmt->execute([
+            'id'          => $id,
+            'amount_paid' => $amountPaid,
+            'amount_due'  => $amountDue,
+        ]);
+    }
+
+    /**
      * Soft-delete an invoice (sets deleted_at timestamp).
      *
      * @param int $id Invoice ID
@@ -166,6 +195,7 @@ class InvoiceRepository
             SELECT
                 id, invoice_number, student_name, student_email, student_phone, student_country,
                 currency, subtotal, discount, vat_percent, vat_amount, grand_total,
+                amount_paid, amount_due,
                 status, invoice_date, due_date, notes, show_signature, created_by, created_at, updated_at
             FROM invoices
             WHERE id = :id AND deleted_at IS NULL

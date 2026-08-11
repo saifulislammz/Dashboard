@@ -226,6 +226,39 @@ $statusClasses = match ($status) {
                                 <?= $curr ?> <?= number_format((float) $invoice['grand_total'], 2) ?>
                             </span>
                         </div>
+
+                        <?php
+                        $amountPaid = (float) ($invoice['amount_paid'] ?? 0);
+                        $amountDue  = (float) ($invoice['amount_due']  ?? 0);
+                        ?>
+
+                        <?php if ($amountPaid > 0): ?>
+                        <div class="pt-3 mt-1 border-t border-dashed border-gray-200 space-y-2">
+                            <!-- Paid row -->
+                            <div class="flex justify-between text-sm text-[#64748b]">
+                                <span class="font-medium">Amount Paid</span>
+                                <span class="font-mono font-semibold text-green-600">
+                                    <?= $curr ?> <?= number_format($amountPaid, 2) ?>
+                                </span>
+                            </div>
+
+                            <?php if ($amountDue > 0): ?>
+                            <!-- DUE row -->
+                            <div class="flex justify-between items-center rounded-xl bg-red-50 border border-red-200 px-4 py-3 mt-2">
+                                <span class="text-base font-black text-red-700 uppercase tracking-wider">DUE</span>
+                                <span class="text-2xl font-black text-red-600 font-mono">
+                                    <?= $curr ?> <?= number_format($amountDue, 2) ?>
+                                </span>
+                            </div>
+                            <?php else: ?>
+                            <!-- Fully Paid badge -->
+                            <div class="flex justify-center items-center gap-2 rounded-xl bg-green-50 border border-green-200 px-4 py-3 mt-2">
+                                <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span class="text-base font-bold text-green-700">Fully Paid</span>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
