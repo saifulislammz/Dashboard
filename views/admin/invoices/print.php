@@ -116,6 +116,9 @@
             flex-direction: column;
         }
 
+        /* ─── Print-only: A4 single-page compact layout ─── */
+        /* Guarantees max 7 line items on one page */
+
         /* ─── Watermark & Header ────────────────────────── */
         .invoice-watermark {
             position: absolute;
@@ -518,40 +521,197 @@
 
         /* ─── Print ─────────────────────────────────────── */
         @media print {
-            body {
-                background: white;
-                font-size: 12px;
+
+            @page {
+                size: A4;
+                margin: 8mm 10mm;
             }
 
+            /* ── Base ── */
+            body {
+                background: white;
+                font-size: 11px;
+                line-height: 1.4;
+            }
+
+            /* ── Hide browser UI ── */
             .screen-only {
                 display: none !important;
             }
 
+            /* ── Wrapper ── */
             .invoice-wrapper {
                 padding: 0;
                 margin: 0;
                 max-width: 100%;
             }
 
+            /* ── Invoice card: remove shadow & fixed height ── */
             .invoice {
                 box-shadow: none;
-                min-height: 100vh;
+                min-height: unset !important;
+                /* Avoid page break to prevent going to the 2nd page */
+                page-break-inside: avoid;
             }
 
-            @page {
-                margin: 0;
-                size: A4;
-            }
-
+            /* ── Color printing preserve ── */
             .inv-table-wrapper th,
-            .items-table {
+            .items-table,
+            .items-table th,
+            .items-table td {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
+            /* ── Header: Reduced padding ── */
+            .inv-header-top {
+                padding: 18px 40px 8px !important;
+            }
+
+            .company-logo {
+                height: 60px !important;
+                margin-bottom: 4px !important;
+            }
+
+            .company-logo-text svg {
+                width: 50px !important;
+                height: 50px !important;
+                margin-bottom: 4px !important;
+            }
+
+            .company-name {
+                font-size: 13px !important;
+            }
+
+            /* ── Title ── */
+            .inv-title-area {
+                padding: 0 40px !important;
+                margin-bottom: 8px !important;
+            }
+
+            .inv-title {
+                font-size: 18px !important;
+            }
+
+            /* ── Info section ── */
+            .inv-info-section {
+                padding: 0 40px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .info-col h3 {
+                margin-bottom: 6px !important;
+                font-size: 10px !important;
+            }
+
+            .info-col p,
+            .details-table td {
+                font-size: 11px !important;
+                line-height: 1.4 !important;
+            }
+
+            .details-table td {
+                padding-bottom: 3px !important;
+            }
+
+            /* ── Items table: compact rows ── */
+            .inv-table-wrapper {
+                padding: 0 40px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .items-table th,
+            .items-table td {
+                padding: 5px 10px !important;
+                font-size: 11px !important;
+            }
+
+            .items-table th {
+                font-size: 10px !important;
+            }
+
+            /* ── Bottom section ── */
+            .inv-bottom-section {
+                padding: 6px 40px 16px !important;
+                gap: 16px !important;
+            }
+
+            /* ── Notes / Terms ── */
+            .notes-box,
+            .terms-box {
+                padding: 8px 12px !important;
+            }
+
+            .notes-box h4,
+            .terms-box h4 {
+                margin-bottom: 4px !important;
+                font-size: 10px !important;
+            }
+
+            .notes-box p,
+            .terms-box p {
+                font-size: 10px !important;
+                line-height: 1.4 !important;
+            }
+
+            /* ── Totals box ── */
             .inv-totals {
                 box-shadow: none;
                 border: 1px solid var(--brand-blue);
+                padding: 12px !important;
+                width: 300px !important;
+            }
+
+            .total-line {
+                padding: 5px 0 !important;
+                font-size: 12px !important;
+            }
+
+            .total-line.grand-total {
+                margin-top: 6px !important;
+                padding-top: 10px !important;
+            }
+
+            .total-line.grand-total .label {
+                font-size: 14px !important;
+            }
+
+            .total-line.grand-total .value {
+                font-size: 18px !important;
+            }
+
+            .total-line.due-amount {
+                margin-top: 5px !important;
+                padding: 8px 10px !important;
+            }
+
+            .total-line.due-amount .label {
+                font-size: 13px !important;
+            }
+
+            .total-line.due-amount .value {
+                font-size: 15px !important;
+            }
+
+            .fully-paid-badge {
+                margin-top: 6px !important;
+                padding: 8px 12px !important;
+                font-size: 12px !important;
+            }
+
+            /* ── Footer ── */
+            .inv-modern-footer {
+                padding: 0 40px 14px !important;
+            }
+
+            .footer-contact h4 {
+                margin-bottom: 5px !important;
+                font-size: 10px !important;
+            }
+
+            .footer-contact p {
+                font-size: 10px !important;
+                line-height: 1.5 !important;
             }
         }
 
