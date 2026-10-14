@@ -220,10 +220,11 @@ class ClassSessionService
         }
         $this->jobRepo->markJobStarted($jobId);
 
-        // 5. Synchronous generation (for ≤5 sessions)
-        //    For >5, leave for cron worker (status = queued)
+        // 5. Synchronous generation (for ≤15 sessions)
+        //    For >15, leave for cron worker (status = queued)
+        //    Increased from 5→15 to minimize cron dependency on modern VPS with fast connections.
         $results     = ['total' => $totalSessions, 'succeeded' => 0, 'failed' => 0, 'skipped' => $skippedDueToDuplicate];
-        $processSyncLimit = 5;
+        $processSyncLimit = 15;
 
         if ($totalCreated <= $processSyncLimit && $totalCreated > 0) {
             foreach ($sessionIds as $sessionId) {
@@ -248,11 +249,22 @@ class ClassSessionService
             $this->jobRepo->updateJobProgress($jobId, $totalSessions, $results['succeeded'], $results['failed']);
             $this->jobRepo->markJobCompleted($jobId, $results['failed']);
         } elseif ($totalCreated > $processSyncLimit) {
-            // Large batch: let cron handle (job stays in 'processing' state)
-            $results['skipped'] = $skippedDueToDuplicate + $totalCreated; // The $totalCreated are pending via Cron
-            // Since some might be skipped due to duplicates, we update the processed count immediately for those
+            // Large batch: spawn a one-shot background process immediately.
+            // This runs the cron script right now in the background — no scheduler needed.
+            // The process will exit on its own once all pending jobs are done.
+            $results['skipped'] = $skippedDueToDuplicate + $totalCreated;
+
             if ($skippedDueToDuplicate > 0) {
                 $this->jobRepo->updateJobProgress($jobId, $skippedDueToDuplicate, 0, 0);
+            }
+
+            // Spawn background worker immediately (non-blocking)
+            $cronScript = realpath(__DIR__ . '/../../../cron/process_meeting_jobs.php');
+            if ($cronScript && file_exists($cronScript)) {
+                $phpBinary = PHP_BINARY; // Uses the same PHP version as the web server
+                $cmd = escapeshellcmd("{$phpBinary} {$cronScript}");
+                // > /dev/null 2>&1 & runs it in background; web request returns immediately
+                exec("{$cmd} > /dev/null 2>&1 &");
             }
         } else {
             // $totalCreated == 0
