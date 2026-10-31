@@ -11,6 +11,8 @@ require_once __DIR__ . '/../../src/Services/AnalyticsService.php';
 require_once __DIR__ . '/../../src/Controllers/Admin/DashboardController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../src/middleware/PermissionMiddleware.php';
+requirePermission('analytics.view');
 
 $repository = new \App\Repositories\AnalyticsRepository($db);
 $service = new \App\Services\AnalyticsService($repository);

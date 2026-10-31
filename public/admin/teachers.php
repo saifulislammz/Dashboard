@@ -9,6 +9,8 @@ require_once __DIR__ . '/../../src/Services/UserService.php';
 require_once __DIR__ . '/../../src/Controllers/Admin/AdminUserController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../src/middleware/PermissionMiddleware.php';
+requirePermission('users.view');
 
 $repository = new \App\Repositories\UserRepository($db);
 $service    = new \App\Services\UserService($repository, $auth);

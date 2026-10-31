@@ -9,6 +9,8 @@ require_once __DIR__ . '/../../../src/Services/NoticeService.php';
 require_once __DIR__ . '/../../../src/Controllers/Admin/AdminNoticeController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../../src/middleware/PermissionMiddleware.php';
+requirePermission('notices.create');
 
 $repository = new \App\Repositories\NoticeRepository($db);
 $service    = new \App\Services\NoticeService($repository);

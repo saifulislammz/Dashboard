@@ -64,21 +64,33 @@ require __DIR__ . '/components/teacher_sidebar.php';
             }
         });
 
-        // Function to Toggle Sub-menus in Sidebar
-        function toggleMenu(menuId, iconId) {
+        // Global Function to Toggle Sub-menus in Sidebar
+        window.toggleMenu = function(menuId, iconId) {
             const menu = document.getElementById(menuId);
-            const icon = document.getElementById(iconId);
+            const icon = iconId ? document.getElementById(iconId) : null;
+            if (!menu) return;
 
             if (menu.classList.contains('hidden')) {
-                // Open menu
                 menu.classList.remove('hidden');
                 menu.classList.add('flex');
-                icon.classList.add('rotate-180');
+                if (icon) icon.classList.add('rotate-180');
             } else {
-                // Close menu
                 menu.classList.add('hidden');
                 menu.classList.remove('flex');
-                icon.classList.remove('rotate-180');
+                if (icon) icon.classList.remove('rotate-180');
             }
-        }
+        };
+
+        // Event delegation for any submenus
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-toggle-menu]');
+            if (!btn) return;
+
+            const menuId = btn.getAttribute('data-toggle-menu');
+            const iconId = btn.getAttribute('data-toggle-icon');
+            if (menuId) {
+                e.preventDefault();
+                window.toggleMenu(menuId, iconId);
+            }
+        });
     </script>

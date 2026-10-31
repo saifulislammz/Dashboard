@@ -10,6 +10,8 @@ require_once __DIR__ . '/../../../src/Services/ClassroomService.php';
 require_once __DIR__ . '/../../../src/Controllers/Admin/AdminClassroomController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../../src/middleware/PermissionMiddleware.php';
+requirePermission('classrooms.view');
 
 $classroomRepo  = new \App\Repositories\ClassroomRepository($db);
 $userRepo       = new \App\Repositories\UserRepository($db);

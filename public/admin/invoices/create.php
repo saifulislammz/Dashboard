@@ -16,6 +16,8 @@ require_once __DIR__ . '/../../../src/Services/InvoiceService.php';
 require_once __DIR__ . '/../../../src/Controllers/Admin/InvoiceController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../../src/middleware/PermissionMiddleware.php';
+requirePermission('invoices.create');
 
 $repository = new \App\Repositories\InvoiceRepository($db);
 $service    = new \App\Services\InvoiceService($repository);
