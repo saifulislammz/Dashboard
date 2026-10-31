@@ -158,16 +158,25 @@ class AttendanceRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countStudentSessions(int $classroomId): int
+    public function countStudentSessions(int $classroomId, ?int $studentId = null): int
     {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT COUNT(cs.id)
             FROM class_sessions cs
+            JOIN classrooms c ON c.id = cs.classroom_id
             WHERE cs.classroom_id = :classroom_id
               AND cs.status NOT IN ('cancelled')
               AND cs.session_date <= CURDATE()
-        ");
-        $stmt->execute(['classroom_id' => $classroomId]);
+        ";
+        $params = ['classroom_id' => $classroomId];
+
+        if ($studentId !== null && $studentId > 0) {
+            $query .= " AND c.student_id = :student_id";
+            $params['student_id'] = $studentId;
+        }
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
 

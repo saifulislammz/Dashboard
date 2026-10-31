@@ -25,7 +25,7 @@
 
     <!-- SweetAlert2 for Universal Modals -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+    <script nonce="<?php echo csp_nonce(); ?>">
         // Global function to handle form submission confirmations
         function handleConfirm(event, message) {
             event.preventDefault();

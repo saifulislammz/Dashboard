@@ -133,6 +133,19 @@
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($success)): ?>
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-md mb-8 w-full max-w-[480px]">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="ph ph-check-circle text-xl text-emerald-600"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-emerald-800 font-medium"><?php echo e($success); ?></p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Form Area -->
         <form id="loginForm" action="index.php" method="POST" class="w-full max-w-[480px]" novalidate>
             <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
@@ -158,7 +171,7 @@
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
                     <label for="password" class="login-label block">Password</label>
-                    <a href="#" class="login-forgot">Forgot Password?</a>
+                    <a href="forgot_password.php" class="login-forgot">Forgot Password?</a>
                 </div>
                 <div
                     class="input-focus-ring relative flex items-center border border-[#E5E7EB] rounded-xl transition-all duration-200 bg-white overflow-hidden group">

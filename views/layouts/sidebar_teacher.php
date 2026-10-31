@@ -15,7 +15,7 @@ require __DIR__ . '/components/teacher_sidebar.php';
     ?>
 
     <!-- Script for interactivity -->
-    <script>
+    <script nonce="<?php echo csp_nonce(); ?>">
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const openSidebarBtn = document.getElementById('openSidebar');

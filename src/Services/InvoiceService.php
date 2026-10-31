@@ -268,7 +268,7 @@ class InvoiceService
      * @param array $data  Associative array of setting_key => value
      * @return array ['success' => bool, 'errors' => array]
      */
-    public function saveSettings(array $data): array
+    public function saveSettings(array $data, ?array $logoFile = null): array
     {
         $allowedKeys = [
             'invoice_prefix', 'invoice_number_format', 'institution_name', 'institution_tagline',
@@ -285,23 +285,50 @@ class InvoiceService
             }
         }
 
-        if (!empty($errors)) {
-            return ['success' => false, 'errors' => $errors];
-        }
-
-        // Handle logo upload
-        if (isset($_FILES['institution_logo']) && $_FILES['institution_logo']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../public/uploads/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            $ext = strtolower(pathinfo($_FILES['institution_logo']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['jpg', 'jpeg', 'png', 'svg', 'gif', 'webp'])) {
-                $filename = 'invoice_logo_' . time() . '.' . $ext;
-                if (move_uploaded_file($_FILES['institution_logo']['tmp_name'], $uploadDir . $filename)) {
-                    $data['institution_logo'] = '/uploads/' . $filename;
+        // Handle logo upload with strict finfo MIME validation & safe randomization
+        $file = $logoFile ?? ($_FILES['institution_logo'] ?? null);
+        if ($file && isset($file['error']) && $file['error'] === UPLOAD_ERR_OK && !empty($file['tmp_name'])) {
+            // 1. Max size limit (2MB)
+            if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+                $errors['institution_logo'] = 'Logo file size must not exceed 2MB.';
+            } else {
+                // 2. Strict server-side MIME type check using finfo (inspects actual file content)
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($file['tmp_name']);
+                
+                $allowedMimes = [
+                    'image/jpeg' => ['jpg', 'jpeg'],
+                    'image/png'  => ['png'],
+                    'image/webp' => ['webp'],
+                    'image/gif'  => ['gif'],
+                ];
+                
+                $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+                
+                if (!array_key_exists($mimeType, $allowedMimes) || !in_array($ext, $allowedMimes[$mimeType], true)) {
+                    $errors['institution_logo'] = 'Invalid image file. Only valid JPG, PNG, WEBP, or GIF images are permitted.';
+                } else {
+                    $uploadDir = __DIR__ . '/../../public/uploads/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    
+                    // Unpredictable random filename prevents path traversal and collisions
+                    $normalizedExt = ($ext === 'jpeg') ? 'jpg' : $ext;
+                    $filename = 'invoice_logo_' . bin2hex(random_bytes(16)) . '.' . $normalizedExt;
+                    $targetPath = $uploadDir . $filename;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                        $data['institution_logo'] = '/uploads/' . $filename;
+                    } else {
+                        $errors['institution_logo'] = 'Failed to save uploaded logo file.';
+                    }
                 }
             }
+        }
+
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors];
         }
 
         foreach ($allowedKeys as $key) {

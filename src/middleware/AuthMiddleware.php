@@ -4,15 +4,22 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/roles.php';
 
 function requireLogin() {
-    global $auth;
+    global $auth, $db;
     if (!$auth->isLoggedIn()) {
         header("Location: /index.php");
         exit();
     }
     
-    // Check if account is active (Status 0 usually means normal in Delight Auth)
-    // Actually Delight Auth checks status automatically on login.
-    // We can also verify it here if needed, but standard is fine.
+    // Cache profile picture in session if not set, avoiding direct DB queries in views
+    if (!isset($_SESSION['user_profile_picture']) && isset($db)) {
+        try {
+            $userRepo = new \App\Repositories\UserRepository($db);
+            $pic = $userRepo->getProfilePicture((int) $auth->getUserId());
+            $_SESSION['user_profile_picture'] = $pic ?: null;
+        } catch (\Throwable $e) {
+            $_SESSION['user_profile_picture'] = null;
+        }
+    }
 }
 
 function redirectIfLoggedIn() {

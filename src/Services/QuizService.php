@@ -146,15 +146,8 @@ class QuizService
             throw new \RuntimeException('Quiz not found.');
         }
 
-        $questions = $this->repo->getQuestionsByQuizId($quizId);
-        foreach ($questions as &$q) {
-            $q['options'] = $q['type'] !== 'voice'
-                ? $this->repo->getOptionsForQuestion((int) $q['id'])
-                : [];
-        }
-        unset($q);
-
-        $quiz['questions'] = $questions;
+        // Single JOIN query resolves N+1 query problem
+        $quiz['questions'] = $this->repo->getQuestionsWithOptionsByQuizId($quizId);
         return $quiz;
     }
 
@@ -209,6 +202,22 @@ class QuizService
     public function getUnreviewedVoiceCount(): int
     {
         return $this->repo->getGlobalUnreviewedVoiceCount();
+    }
+
+    /**
+     * Mark all notifications read for a quiz report
+     */
+    public function markAllNotified(int $quizId): void
+    {
+        $this->repo->markAllNotified($quizId);
+    }
+
+    /**
+     * Find attempt details by ID (for protected voice serving)
+     */
+    public function getAttemptById(int $attemptId): ?array
+    {
+        return $this->repo->findAttemptById($attemptId);
     }
 
     // ================================================================
@@ -329,7 +338,8 @@ class QuizService
      */
     public function getQuestionsForPlayer(int $quizId): array
     {
-        $questions = $this->repo->getQuestionsByQuizId($quizId);
+        // Single JOIN query resolves N+1 query problem on public endpoint
+        $questions = $this->repo->getQuestionsWithOptionsByQuizId($quizId);
 
         // Ensure order based on type
         $typeOrder = ['letter' => 0, 'pronunciation' => 1, 'voice' => 2];
@@ -338,12 +348,8 @@ class QuizService
         );
 
         foreach ($questions as &$q) {
-            if ($q['type'] !== 'voice') {
-                $options = $this->repo->getOptionsForQuestion((int) $q['id']);
-                shuffle($options); // Random order each time
-                $q['options'] = $options;
-            } else {
-                $q['options'] = [];
+            if ($q['type'] !== 'voice' && !empty($q['options'])) {
+                shuffle($q['options']); // Random order each time
             }
         }
         unset($q);

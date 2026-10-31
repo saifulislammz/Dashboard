@@ -315,50 +315,72 @@ class ClassSessionRepository
     }
 
     /**
-     * Bulk insert sessions using a single prepared statement.
+     * Bulk insert sessions using a single prepared statement inside an atomic database transaction.
+     * Prevents partial insertion and inconsistent state upon failures.
      * Returns array of newly created session IDs.
      */
     public function bulkCreate(array $sessions): array
     {
-        $ids  = [];
-        $stmt = $this->db->prepare("
-            INSERT IGNORE INTO class_sessions
-                (classroom_id, session_date, start_time, end_time, timezone,
-                 topic, agenda, session_number, provider, provider_account_id, status, job_id, created_by)
-            VALUES
-                (:classroom_id, :session_date, :start_time, :end_time, :timezone,
-                 :topic, :agenda, :session_number, :provider, :provider_account_id, 'scheduled', :job_id, :created_by)
-        ");
-
-        foreach ($sessions as $s) {
-            try {
-                $stmt->execute([
-                    'classroom_id'   => $s['classroom_id'],
-                    'session_date'   => $s['session_date'],
-                    'start_time'     => $s['start_time'],
-                    'end_time'       => $s['end_time'],
-                    'timezone'       => $s['timezone'] ?? 'Asia/Dhaka',
-                    'topic'          => $s['topic'] ?? null,
-                    'agenda'         => $s['agenda'] ?? null,
-                    'session_number' => $s['session_number'] ?? null,
-                    'provider'       => $s['provider'],
-                    'provider_account_id' => $s['provider_account_id'] ?? null,
-                    'job_id'         => $s['job_id'] ?? null,
-                    'created_by'     => $s['created_by'],
-                ]);
-                
-                if ($stmt->rowCount() > 0) {
-                    $ids[] = (int) $this->db->lastInsertId();
-                }
-            } catch (\PDOException $e) {
-                // If it's a duplicate entry error, just skip it.
-                if ($e->getCode() == 23000 || strpos($e->getMessage(), 'Duplicate entry') !== false) {
-                    continue;
-                }
-                throw $e;
-            }
+        if (empty($sessions)) {
+            return [];
         }
-        return $ids;
+
+        $ids = [];
+        $isOwnTx = false;
+        if (!$this->db->inTransaction()) {
+            $this->db->beginTransaction();
+            $isOwnTx = true;
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT IGNORE INTO class_sessions
+                    (classroom_id, session_date, start_time, end_time, timezone,
+                     topic, agenda, session_number, provider, provider_account_id, status, job_id, created_by)
+                VALUES
+                    (:classroom_id, :session_date, :start_time, :end_time, :timezone,
+                     :topic, :agenda, :session_number, :provider, :provider_account_id, 'scheduled', :job_id, :created_by)
+            ");
+
+            foreach ($sessions as $s) {
+                try {
+                    $stmt->execute([
+                        'classroom_id'   => $s['classroom_id'],
+                        'session_date'   => $s['session_date'],
+                        'start_time'     => $s['start_time'],
+                        'end_time'       => $s['end_time'],
+                        'timezone'       => $s['timezone'] ?? 'Asia/Dhaka',
+                        'topic'          => $s['topic'] ?? null,
+                        'agenda'         => $s['agenda'] ?? null,
+                        'session_number' => $s['session_number'] ?? null,
+                        'provider'       => $s['provider'],
+                        'provider_account_id' => $s['provider_account_id'] ?? null,
+                        'job_id'         => $s['job_id'] ?? null,
+                        'created_by'     => $s['created_by'],
+                    ]);
+                    
+                    if ($stmt->rowCount() > 0) {
+                        $ids[] = (int) $this->db->lastInsertId();
+                    }
+                } catch (\PDOException $e) {
+                    // If it's a duplicate entry error, just skip it.
+                    if ($e->getCode() == 23000 || strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                        continue;
+                    }
+                    throw $e;
+                }
+            }
+
+            if ($isOwnTx) {
+                $this->db->commit();
+            }
+            return $ids;
+        } catch (\Throwable $e) {
+            if ($isOwnTx && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function updateStatus(int $id, string $status): bool

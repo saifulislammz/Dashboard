@@ -60,7 +60,7 @@ class AttendanceService
 
     public function countStudentSessions(int $studentId, int $classroomId): int
     {
-        return $this->attendanceRepo->countStudentSessions($classroomId);
+        return $this->attendanceRepo->countStudentSessions($classroomId, $studentId);
     }
 
     // -------------------------------------------------------

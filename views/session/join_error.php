@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'Error') ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
+    <script nonce="<?php echo csp_nonce(); ?>">
         tailwind.config = {
             theme: {
                 extend: {

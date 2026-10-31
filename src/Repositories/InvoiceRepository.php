@@ -34,6 +34,7 @@ class InvoiceRepository
 
     /**
      * Create a new invoice with its line items inside a single transaction.
+     * Implements collision retry mechanism to resolve concurrent race conditions on invoice numbers.
      *
      * @param array $invoiceData  Associative array of invoice fields
      * @param array $items        Array of item arrays (item_name, description, quantity, unit_price, amount, sort_order)
@@ -42,31 +43,48 @@ class InvoiceRepository
      */
     public function create(array $invoiceData, array $items): int
     {
-        $this->db->beginTransaction();
-        try {
-            $stmt = $this->db->prepare("
-                INSERT INTO invoices
-                    (invoice_number, student_name, student_email, student_phone, student_country,
-                     currency, subtotal, discount, vat_percent, vat_amount, grand_total,
-                     amount_paid, amount_due,
-                     status, invoice_date, due_date, notes, show_signature, created_by)
-                VALUES
-                    (:invoice_number, :student_name, :student_email, :student_phone, :student_country,
-                     :currency, :subtotal, :discount, :vat_percent, :vat_amount, :grand_total,
-                     :amount_paid, :amount_due,
-                     :status, :invoice_date, :due_date, :notes, :show_signature, :created_by)
-            ");
-            $stmt->execute($invoiceData);
-            $invoiceId = (int) $this->db->lastInsertId();
+        $maxRetries = 5;
+        $attempt = 0;
 
-            $this->insertItems($invoiceId, $items);
+        while ($attempt < $maxRetries) {
+            $attempt++;
+            $this->db->beginTransaction();
+            try {
+                $stmt = $this->db->prepare("
+                    INSERT INTO invoices
+                        (invoice_number, student_name, student_email, student_phone, student_country,
+                         currency, subtotal, discount, vat_percent, vat_amount, grand_total,
+                         amount_paid, amount_due,
+                         status, invoice_date, due_date, notes, show_signature, created_by)
+                    VALUES
+                        (:invoice_number, :student_name, :student_email, :student_phone, :student_country,
+                         :currency, :subtotal, :discount, :vat_percent, :vat_amount, :grand_total,
+                         :amount_paid, :amount_due,
+                         :status, :invoice_date, :due_date, :notes, :show_signature, :created_by)
+                ");
+                $stmt->execute($invoiceData);
+                $invoiceId = (int) $this->db->lastInsertId();
 
-            $this->db->commit();
-            return $invoiceId;
-        } catch (PDOException $e) {
-            $this->db->rollBack();
-            throw new \RuntimeException('Invoice creation failed: ' . $e->getMessage(), 0, $e);
+                $this->insertItems($invoiceId, $items);
+
+                $this->db->commit();
+                return $invoiceId;
+            } catch (\PDOException $e) {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                // Check if this was a duplicate invoice_number collision (Race Condition mitigation)
+                $isDuplicate = ($e->getCode() == 23000 || str_contains($e->getMessage(), 'uq_invoice_number') || str_contains($e->getMessage(), 'Duplicate entry'));
+                if ($isDuplicate && $attempt < $maxRetries) {
+                    $settings = $this->getSettings();
+                    $invoiceData['invoice_number'] = $this->generateInvoiceNumber($settings, $attempt);
+                    continue;
+                }
+                throw new \RuntimeException('Invoice creation failed: ' . $e->getMessage(), 0, $e);
+            }
         }
+
+        throw new \RuntimeException('Failed to generate unique invoice number after multiple retries.');
     }
 
     /**
@@ -307,12 +325,14 @@ class InvoiceRepository
 
     /**
      * Generate a unique invoice number based on settings format.
+     * Looks up highest sequence in the current period to prevent sequence gaps or collisions.
      * Format tokens: {PREFIX} {YEAR} {MONTH} {DAY} {SEQ4} {SEQ6}
      *
-     * @param array $settings  Result of getSettings()
-     * @return string          e.g. INV2506040001
+     * @param array $settings Result of getSettings()
+     * @param int   $offset   Optional offset to advance sequence (e.g. for collision retries)
+     * @return string e.g. INV2506040001
      */
-    public function generateInvoiceNumber(array $settings): string
+    public function generateInvoiceNumber(array $settings, int $offset = 0): string
     {
         $prefix  = $settings['invoice_prefix']        ?? 'INV';
         $format  = $settings['invoice_number_format'] ?? '{PREFIX}{YEAR}{MONTH}{SEQ4}';
@@ -320,14 +340,39 @@ class InvoiceRepository
         $month   = date('m');
         $day     = date('d');
 
-        // Get current month's sequence number
-        $seqStmt = $this->db->prepare("
-            SELECT COUNT(id) + 1 AS next_seq
-            FROM invoices
-            WHERE YEAR(created_at) = :year AND MONTH(created_at) = :month
+        // Extract prefix before sequence token
+        $seqTokenPos = strpos($format, '{SEQ');
+        $patternPrefix = ($seqTokenPos !== false) ? substr($format, 0, $seqTokenPos) : '{PREFIX}{YEAR}{MONTH}';
+        $resolvedPrefix = str_replace(
+            ['{PREFIX}', '{YEAR}', '{MONTH}', '{DAY}'],
+            [$prefix,    $year,    $month,    $day],
+            $patternPrefix
+        );
+
+        $stmt = $this->db->prepare("
+            SELECT invoice_number 
+            FROM invoices 
+            WHERE invoice_number LIKE :prefixPattern 
+            ORDER BY id DESC 
+            LIMIT 1
         ");
-        $seqStmt->execute(['year' => (int) $year, 'month' => (int) $month]);
-        $seq = (int) $seqStmt->fetchColumn();
+        $stmt->execute(['prefixPattern' => $resolvedPrefix . '%']);
+        $lastInvoice = $stmt->fetchColumn();
+
+        $seq = 1;
+        if ($lastInvoice && preg_match('/(\d+)$/', $lastInvoice, $matches)) {
+            $seq = ((int) $matches[1]) + 1;
+        } else {
+            $seqStmt = $this->db->prepare("
+                SELECT COUNT(id) + 1 AS next_seq
+                FROM invoices
+                WHERE YEAR(created_at) = :year AND MONTH(created_at) = :month
+            ");
+            $seqStmt->execute(['year' => (int) $year, 'month' => (int) $month]);
+            $seq = (int) $seqStmt->fetchColumn();
+        }
+
+        $seq += $offset;
 
         $number = str_replace(
             ['{PREFIX}', '{YEAR}', '{MONTH}', '{DAY}', '{SEQ4}', '{SEQ6}'],

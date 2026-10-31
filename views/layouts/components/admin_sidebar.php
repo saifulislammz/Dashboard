@@ -1,11 +1,6 @@
 <?php
-global $auth, $db;
-$adminProfilePic = null;
-if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
-    $stmt = $db->prepare("SELECT profile_picture FROM users WHERE id = :id LIMIT 1");
-    $stmt->execute(['id' => $auth->getUserId()]);
-    $adminProfilePic = $stmt->fetchColumn();
-}
+// Profile picture is passed from Controller or Session (adheres to MVC architecture)
+$adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? null);
 ?>
 <!-- Overlay for mobile sidebar -->
 <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
@@ -201,9 +196,19 @@ if (isset($auth) && $auth->isLoggedIn() && isset($db)) {
                         class="ph ph-question text-xl <?php echo $isQuizActive ? 'text-primary' : 'group-hover:text-primary'; ?>"></i>
                     <span class="font-medium text-sm">QUIZ</span>
                     <?php
-                    // For Admin, show all pending quizzes
-                    $quizRepo = new \App\Repositories\QuizRepository($db);
-                    $pendingQuizzesCount = $quizRepo->getGlobalUnreviewedVoiceCount();
+                    // For Admin, show pending quizzes count (can be provided by controller)
+                    if (!isset($pendingQuizzesCount)) {
+                        global $db;
+                        $pendingQuizzesCount = 0;
+                        if (isset($db) && $db instanceof \PDO) {
+                            try {
+                                $quizRepo = new \App\Repositories\QuizRepository($db);
+                                $pendingQuizzesCount = $quizRepo->getGlobalUnreviewedVoiceCount();
+                            } catch (\Throwable $e) {
+                                $pendingQuizzesCount = 0;
+                            }
+                        }
+                    }
                     if ($pendingQuizzesCount > 0):
                         $badge = $pendingQuizzesCount > 99 ? '99+' : $pendingQuizzesCount;
                         ?>

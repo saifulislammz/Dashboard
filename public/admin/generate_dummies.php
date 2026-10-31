@@ -3,8 +3,16 @@ require_once __DIR__ . '/../../src/config/security.php';
 require_once __DIR__ . '/../../src/config/database.php';
 require_once __DIR__ . '/../../src/config/roles.php';
 require_once __DIR__ . '/../../src/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../src/middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../src/Repositories/UserRepository.php';
 require_once __DIR__ . '/../../src/Services/UserService.php';
+
+// Environment gate: Disable in production environments
+$appEnv = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'local';
+if (in_array(strtolower($appEnv), ['production', 'prod'], true)) {
+    http_response_code(403);
+    die('Generating dummy accounts is disabled in production.');
+}
 
 // Only admins can access this script
 requireRole(ROLE_ADMIN);
@@ -15,39 +23,47 @@ $service = new \App\Services\UserService($repository, $auth);
 $message = '';
 $error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['count'])) {
-    $count = (int)$_POST['count'];
-    $role = (int)$_POST['role'];
-    
-    if ($count > 0 && $count <= 5000) {
-        $successCount = 0;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        validateCsrfToken($_POST['csrf_token'] ?? '');
+
+        $count = (int)($_POST['count'] ?? 0);
+        $role = (int)($_POST['role'] ?? 0);
         
-        for ($i = 0; $i < $count; $i++) {
-            $randomString = substr(str_shuffle("abcdefghijklmnopqrstuvwxyz"), 0, 5);
-            $randomNum = rand(10000, 99999);
+        if ($count > 0 && $count <= 5000) {
+            $successCount = 0;
             
-            $name = ucfirst($randomString) . ' ' . $randomNum;
-            $email = "{$randomString}{$randomNum}@dummy.com";
-            
-            $data = [
-                'name' => $name,
-                'email' => $email,
-                'password' => $email, // Using email as password
-                'confirm_password' => $email,
-                'status' => 0
-            ];
-            
-            try {
-                $service->createUser($data, $role);
-                $successCount++;
-            } catch (Exception $e) {
-                // Skip if duplicate or error
-                error_log("Dummy generation error: " . $e->getMessage());
+            for ($i = 0; $i < $count; $i++) {
+                $randomString = substr(str_shuffle("abcdefghijklmnopqrstuvwxyz"), 0, 5);
+                $randomNum = rand(10000, 99999);
+                
+                $name = ucfirst($randomString) . ' ' . $randomNum;
+                $email = "{$randomString}{$randomNum}@dummy.com";
+                // Generate a strong compliant password meeting complexity rules
+                $securePassword = 'Dum!' . bin2hex(random_bytes(4)) . 'A9';
+                
+                $data = [
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => $securePassword,
+                    'confirm_password' => $securePassword,
+                    'status' => 0
+                ];
+                
+                try {
+                    $service->createUser($data, $role);
+                    $successCount++;
+                } catch (Exception $e) {
+                    // Skip if duplicate or error
+                    error_log("Dummy generation error: " . $e->getMessage());
+                }
             }
+            $message = "Successfully created {$successCount} dummy accounts!";
+        } else {
+            $error = "Please enter a valid number (1-5000).";
         }
-        $message = "Successfully created {$successCount} dummy accounts!";
-    } else {
-        $error = "Please enter a valid number (1-5000).";
+    } catch (\Exception $e) {
+        $error = $e->getMessage();
     }
 }
 
@@ -80,6 +96,7 @@ require_once __DIR__ . '/../../views/layouts/header.php';
 
                 <div class="bg-cardBg rounded-2xl shadow-sm border border-borderBase p-6">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                         <div class="space-y-6">
                             <div>
                                 <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
@@ -100,7 +117,7 @@ require_once __DIR__ . '/../../views/layouts/header.php';
                                     <strong>Note:</strong> 
                                     - Names will be randomly generated (e.g., Abcde 12345).<br>
                                     - Emails will be randomly generated (e.g., abcde12345@dummy.com).<br>
-                                    - <strong>Password will be the exact same as the email address.</strong>
+                                    - Strong random passwords conforming to security policies are automatically assigned.
                                 </p>
                             </div>
 

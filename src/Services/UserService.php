@@ -136,6 +136,9 @@ class UserService
         }
 
         $this->repository->updateProfilePicture($userId, $filename);
+        if (session_status() === PHP_SESSION_ACTIVE && isset($this->auth) && (int)$this->auth->getUserId() === $userId) {
+            $_SESSION['user_profile_picture'] = $filename;
+        }
     }
 
     public function deleteProfilePicture(int $userId): void
@@ -145,6 +148,9 @@ class UserService
             unlink(__DIR__ . '/../../public/uploads/avatars/' . $oldPicture);
         }
         $this->repository->updateProfilePicture($userId, null);
+        if (session_status() === PHP_SESSION_ACTIVE && isset($this->auth) && (int)$this->auth->getUserId() === $userId) {
+            $_SESSION['user_profile_picture'] = null;
+        }
     }
 }
 

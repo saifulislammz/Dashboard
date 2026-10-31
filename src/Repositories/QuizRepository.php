@@ -234,6 +234,51 @@ class QuizRepository
     }
 
     /**
+     * Fetch all questions and their options for a quiz in a single JOIN query,
+     * eliminating the N+1 query problem.
+     *
+     * @param int $quizId
+     * @return array Array of questions, each with an 'options' sub-array
+     */
+    public function getQuestionsWithOptionsByQuizId(int $quizId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT q.id AS question_id, q.type, q.question_text, q.display_order,
+                    o.id AS option_id, o.option_text, o.is_correct, o.option_order
+             FROM quiz_questions q
+             LEFT JOIN quiz_options o ON o.question_id = q.id
+             WHERE q.quiz_id = :quiz_id
+             ORDER BY q.display_order ASC, o.option_order ASC, o.id ASC'
+        );
+        $stmt->execute([':quiz_id' => $quizId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $questions = [];
+        foreach ($rows as $row) {
+            $qId = (int) $row['question_id'];
+            if (!isset($questions[$qId])) {
+                $questions[$qId] = [
+                    'id'            => $qId,
+                    'type'          => $row['type'],
+                    'question_text' => $row['question_text'],
+                    'display_order' => (int) $row['display_order'],
+                    'options'       => [],
+                ];
+            }
+            if ($row['option_id'] !== null) {
+                $questions[$qId]['options'][] = [
+                    'id'           => (int) $row['option_id'],
+                    'option_text'  => $row['option_text'],
+                    'is_correct'   => (int) $row['is_correct'],
+                    'option_order' => (int) $row['option_order'],
+                ];
+            }
+        }
+
+        return array_values($questions);
+    }
+
+    /**
      * All options for a question (by option_order)
      */
     public function getOptionsForQuestion(int $questionId): array

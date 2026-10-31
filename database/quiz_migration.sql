@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     INDEX idx_qa_quiz_whatsapp        (quiz_id, whatsapp_number),
     INDEX idx_qa_status               (status),
     INDEX idx_qa_voice_submitted      (voice_submitted),
+    INDEX idx_qa_quiz_voice           (quiz_id, voice_submitted),
     INDEX idx_qa_admin_notified       (admin_notified),
     INDEX idx_qa_started_at           (started_at),
     INDEX idx_qa_voice_unreviewed     (voice_submitted, admin_notified),

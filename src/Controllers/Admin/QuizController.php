@@ -14,10 +14,10 @@ use App\Services\QuizService;
  */
 class QuizController
 {
-    private QuizService    $quizService;
-    private QuizRepository $repo;
+    private QuizService     $quizService;
+    private ?QuizRepository $repo;
 
-    public function __construct(QuizService $quizService, QuizRepository $repo)
+    public function __construct(QuizService $quizService, ?QuizRepository $repo = null)
     {
         $this->quizService = $quizService;
         $this->repo        = $repo;
@@ -148,8 +148,8 @@ class QuizController
             exit;
         }
 
-        // Clear all unread badges when Report view is opened
-        $this->repo->markAllNotified($quizId);
+        // Clear all unread badges when Report view is opened (via Service Layer)
+        $this->quizService->markAllNotified($quizId);
 
         $created = isset($_GET['created']);
         $updated = isset($_GET['updated']);
@@ -169,7 +169,7 @@ class QuizController
             exit;
         }
 
-        $attempt = $this->repo->findAttemptById($attemptId);
+        $attempt = $this->quizService->getAttemptById($attemptId);
 
         if (!$attempt || empty($attempt['voice_file_path'])) {
             http_response_code(404);

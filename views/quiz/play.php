@@ -301,7 +301,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="<?php echo csp_nonce(); ?>">
         const QUIZ_TOKEN = '<?php echo $attemptToken; ?>';
         const CSRF_TOKEN = '<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>';
         const ALL_QUESTIONS = <?php echo $questionsJson; ?>;

@@ -60,7 +60,9 @@ class ClassroomRepository
     public function findById(int $id): ?array
     {
         $stmt = $this->db->prepare("
-            SELECT c.*, 
+            SELECT c.id, c.class_code, c.class_name, c.class_title, 
+                   c.teacher_id, c.student_id, c.status, c.created_by, 
+                   c.created_at, c.updated_at, 
                    t.username as teacher_name, t.email as teacher_email,
                    s.username as student_name, s.email as student_email
             FROM classrooms c
@@ -88,14 +90,8 @@ class ClassroomRepository
         $params = [];
 
         if (!empty($search)) {
-            $query .= " WHERE c.class_name LIKE :search1 
-                           OR c.class_title LIKE :search2 
-                           OR t.username LIKE :search3 
-                           OR s.username LIKE :search4";
-            $params['search1'] = "%$search%";
-            $params['search2'] = "%$search%";
-            $params['search3'] = "%$search%";
-            $params['search4'] = "%$search%";
+            $query .= " WHERE CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
+            $params['search'] = "%$search%";
         }
 
         // Map allowed sort columns to table aliases to prevent SQL injection
@@ -133,14 +129,8 @@ class ClassroomRepository
         
         $params = [];
         if (!empty($search)) {
-            $query .= " WHERE c.class_name LIKE :search1 
-                           OR c.class_title LIKE :search2 
-                           OR t.username LIKE :search3 
-                           OR s.username LIKE :search4";
-            $params['search1'] = "%$search%";
-            $params['search2'] = "%$search%";
-            $params['search3'] = "%$search%";
-            $params['search4'] = "%$search%";
+            $query .= " WHERE CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
+            $params['search'] = "%$search%";
         }
 
         $stmt = $this->db->prepare($query);

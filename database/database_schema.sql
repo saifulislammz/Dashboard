@@ -548,3 +548,9 @@ ALTER TABLE `session_attendance`
 -- Enable attendance tracking by default
 INSERT IGNORE INTO `meeting_settings` (`setting_key`, `setting_val`)
 VALUES ('attendance_sync_enabled', '1');
+
+
+-- =============================================================
+-- Query Optimization & Indexing Enhancements
+-- =============================================================
+ALTER TABLE `classrooms` ADD INDEX `idx_classroom_status_created` (`status`, `created_at`);

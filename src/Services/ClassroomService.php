@@ -14,7 +14,7 @@ class ClassroomService
     public function __construct(ClassroomRepository $repository, ?UserRepository $userRepository = null)
     {
         $this->repository     = $repository;
-        $this->userRepository = $userRepository;
+        $this->userRepository = $userRepository ?? (isset($GLOBALS['db']) ? new UserRepository($GLOBALS['db']) : null);
     }
 
     public function createClassroom(array $data, int $adminId): bool
@@ -33,8 +33,8 @@ class ClassroomService
 
         $classroomData = [
             'class_code' => $classCode,
-            'class_name' => htmlspecialchars(trim($data['class_name'])),
-            'class_title' => htmlspecialchars(trim($data['class_title'])),
+            'class_name' => trim($data['class_name']),
+            'class_title' => trim($data['class_title']),
             'teacher_id' => (int) $data['teacher_id'],
             'student_id' => (int) $data['student_id'],
             'status' => in_array($data['status'], ['Active', 'Inactive']) ? $data['status'] : 'Active',
@@ -51,8 +51,8 @@ class ClassroomService
         }
 
         $classroomData = [
-            'class_name' => htmlspecialchars(trim($data['class_name'])),
-            'class_title' => htmlspecialchars(trim($data['class_title'])),
+            'class_name' => trim($data['class_name']),
+            'class_title' => trim($data['class_title']),
             'status' => in_array($data['status'], ['Active', 'Inactive']) ? $data['status'] : 'Active'
         ];
 
@@ -131,7 +131,11 @@ class ClassroomService
     public function getUsersByRole(int $roleMask): array
     {
         if ($this->userRepository === null) {
-            throw new \LogicException('UserRepository is required to call getUsersByRole().');
+            if (isset($GLOBALS['db'])) {
+                $this->userRepository = new \App\Repositories\UserRepository($GLOBALS['db']);
+            } else {
+                throw new \LogicException('UserRepository is required to call getUsersByRole().');
+            }
         }
         return $this->userRepository->getUsersByRole($roleMask);
     }

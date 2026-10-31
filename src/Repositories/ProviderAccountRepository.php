@@ -260,15 +260,36 @@ class ProviderAccountRepository
         return $stmt->execute(['admin_id' => $adminId, 'id' => $accountId]);
     }
 
+    public function getMeetingSettings(array $keys = ['default_provider', 'default_timezone']): array
+    {
+        if (empty($keys)) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($keys), '?'));
+        $stmt = $this->db->prepare("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key IN ($placeholders)");
+        $stmt->execute(array_values($keys));
+        return $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+    }
+
     // -------------------------------------------------------
-    // Encryption helpers (AES-256-CBC)
+    // Encryption helpers (AES-256-CBC with HMAC-SHA256 Authenticated Encryption)
     // -------------------------------------------------------
+
+    private const HMAC_PREFIX = "\x01HMAC\x01";
+
+    private function getMacKey(): string
+    {
+        return hash_hmac('sha256', 'provider_account_auth_mac_key', $this->encryptionKey, true);
+    }
 
     private function encrypt(string $plaintext): string
     {
-        $iv         = openssl_random_pseudo_bytes(16);
+        $iv         = random_bytes(16);
         $ciphertext = openssl_encrypt($plaintext, 'aes-256-cbc', $this->encryptionKey, 0, $iv);
-        return base64_encode($iv . $ciphertext);
+        $mac        = hash_hmac('sha256', $iv . $ciphertext, $this->getMacKey(), true);
+        
+        // Encrypt-then-MAC: Prefix (6 bytes) + IV (16 bytes) + HMAC-SHA256 (32 bytes) + Ciphertext
+        return base64_encode(self::HMAC_PREFIX . $iv . $mac . $ciphertext);
     }
 
     private function decrypt(string $encoded): string
@@ -276,7 +297,26 @@ class ProviderAccountRepository
         if (empty($encoded)) {
             return '';
         }
-        $data       = base64_decode($encoded);
+        $data = base64_decode($encoded, true);
+        if ($data === false || strlen($data) < 16) {
+            return '';
+        }
+
+        // Authenticated format with HMAC-SHA256
+        if (str_starts_with($data, self::HMAC_PREFIX) && strlen($data) >= 54) {
+            $iv          = substr($data, 6, 16);
+            $receivedMac = substr($data, 22, 32);
+            $ciphertext  = substr($data, 54);
+            $expectedMac = hash_hmac('sha256', $iv . $ciphertext, $this->getMacKey(), true);
+
+            if (!hash_equals($expectedMac, $receivedMac)) {
+                throw new \RuntimeException('Ciphertext authentication failed: HMAC mismatch (possible tampering or corruption).');
+            }
+
+            return (string) openssl_decrypt($ciphertext, 'aes-256-cbc', $this->encryptionKey, 0, $iv);
+        }
+
+        // Legacy format fallback (without HMAC) for seamless backward compatibility
         $iv         = substr($data, 0, 16);
         $ciphertext = substr($data, 16);
         return (string) openssl_decrypt($ciphertext, 'aes-256-cbc', $this->encryptionKey, 0, $iv);

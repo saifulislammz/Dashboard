@@ -241,7 +241,7 @@ class InvoiceController
                 header('Location: /admin/invoices/settings.php?currency_deleted=1');
                 exit;
             } else {
-                $result = $this->invoiceService->saveSettings($_POST);
+                $result = $this->invoiceService->saveSettings($_POST, $_FILES['institution_logo'] ?? null);
 
                 if ($result['success']) {
                     header('Location: /admin/invoices/settings.php?saved=1');

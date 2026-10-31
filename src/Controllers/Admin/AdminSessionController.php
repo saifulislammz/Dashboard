@@ -21,15 +21,35 @@ class AdminSessionController
     private ClassSessionService    $sessionService;
     private ClassSessionRepository $sessionRepo;
     private ClassroomRepository    $classroomRepo;
+    private ?\Delight\Auth\Auth    $auth;
+    private ?\App\Repositories\ProviderAccountRepository $providerRepo;
 
     public function __construct(
         ClassSessionService    $sessionService,
         ClassSessionRepository $sessionRepo,
-        ClassroomRepository    $classroomRepo
+        ClassroomRepository    $classroomRepo,
+        ?\Delight\Auth\Auth    $auth = null,
+        ?\App\Repositories\ProviderAccountRepository $providerRepo = null
     ) {
         $this->sessionService = $sessionService;
         $this->sessionRepo    = $sessionRepo;
         $this->classroomRepo  = $classroomRepo;
+        $this->auth           = $auth ?? ($GLOBALS['auth'] ?? null);
+        $this->providerRepo   = $providerRepo;
+    }
+
+    private function getUserId(): int
+    {
+        return $this->auth ? (int) $this->auth->getUserId() : (int) ($GLOBALS['auth']?->getUserId() ?? 0);
+    }
+
+    private function getProviderRepo(): \App\Repositories\ProviderAccountRepository
+    {
+        if ($this->providerRepo === null) {
+            $db = $GLOBALS['db'] ?? null;
+            $this->providerRepo = new \App\Repositories\ProviderAccountRepository($db);
+        }
+        return $this->providerRepo;
     }
 
     /**
@@ -38,8 +58,6 @@ class AdminSessionController
      */
     public function index(): void
     {
-        global $auth;
-
         $classroomId = isset($_GET['classroom_id']) ? (int) $_GET['classroom_id'] : 0;
         $classroom   = $this->classroomRepo->findById($classroomId);
 
@@ -69,8 +87,6 @@ class AdminSessionController
      */
     public function create(): void
     {
-        global $auth, $db;
-
         $classroomId = isset($_GET['classroom_id']) ? (int) $_GET['classroom_id'] : 0;
         $classroom   = $this->classroomRepo->findById($classroomId);
 
@@ -93,7 +109,7 @@ class AdminSessionController
 
                 if ($mode === 'single') {
                     $data = array_merge($_POST, ['classroom_id' => $classroomId]);
-                    $out  = $this->sessionService->createSingleSession($data, $auth->getUserId());
+                    $out  = $this->sessionService->createSingleSession($data, $this->getUserId());
 
                     $success = $out['meeting_ok']
                         ? 'Session created and meeting link generated successfully!'
@@ -111,7 +127,7 @@ class AdminSessionController
                     }
 
                     $data = array_merge($_POST, ['classroom_id' => $classroomId]);
-                    $out  = $this->sessionService->createBulkSessions($data, $dates, $auth->getUserId());
+                    $out  = $this->sessionService->createBulkSessions($data, $dates, $this->getUserId());
 
                     $conflictSkipsCount = count($out['conflict_skips'] ?? []);
                     $skipNote = $conflictSkipsCount > 0
@@ -157,12 +173,11 @@ class AdminSessionController
         $activeMenu = 'classrooms_manage';
         $timezones  = \DateTimeZone::listIdentifiers();
 
-        $stmtSet = $db->query("SELECT setting_key, setting_val FROM meeting_settings WHERE setting_key IN ('default_provider', 'default_timezone')");
-        $settingsDb = $stmtSet->fetchAll(\PDO::FETCH_KEY_PAIR) ?: [];
+        $providerRepo = $this->getProviderRepo();
+        $settingsDb = $providerRepo->getMeetingSettings(['default_provider', 'default_timezone']);
         $defaultProvider = $settingsDb['default_provider'] ?? 'zoom';
         $defaultTimezone = $settingsDb['default_timezone'] ?? 'Asia/Dhaka';
 
-        $providerRepo = new \App\Repositories\ProviderAccountRepository($db);
         $googleAccounts = $providerRepo->findAllByProvider('google_meet');
         $zoomAccounts = $providerRepo->findAllByProvider('zoom');
 
@@ -174,8 +189,6 @@ class AdminSessionController
      */
     public function edit(): void
     {
-        global $auth;
-
         $sessionId  = isset($_GET['id']) ? (int) $_GET['id'] : 0;
         $session    = $this->sessionRepo->findById($sessionId);
 
@@ -210,17 +223,15 @@ class AdminSessionController
      */
     public function cancel(): void
     {
-        global $auth;
-
         $sessionId   = (int) ($_POST['session_id'] ?? 0);
         $classroomId = (int) ($_POST['classroom_id'] ?? 0);
         $reason      = htmlspecialchars(trim($_POST['reason'] ?? ''));
 
         try {
             validateCsrfToken($_POST['csrf_token'] ?? '');
-            $this->sessionService->cancelSession($sessionId, $auth->getUserId(), $reason);
+            $this->sessionService->cancelSession($sessionId, $this->getUserId(), $reason);
         } catch (\Exception $e) {
-            // Log error in production
+            error_log('[AdminSessionController::cancel] Error: ' . $e->getMessage());
         }
 
         header("Location: /admin/sessions/index.php?classroom_id={$classroomId}&cancelled=1");
@@ -233,8 +244,6 @@ class AdminSessionController
      */
     public function retry(): void
     {
-        global $auth;
-
         $sessionId   = (int) ($_POST['session_id'] ?? 0);
         $classroomId = (int) ($_POST['classroom_id'] ?? 0);
 

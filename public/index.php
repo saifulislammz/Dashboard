@@ -39,10 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Retrieve flash messages for GET requests
 $error = $_SESSION['login_error'] ?? '';
+$success = $_SESSION['login_success'] ?? '';
 $oldEmail = $_SESSION['old_email'] ?? '';
 
 // Clear the session flash messages so they don't persist
 unset($_SESSION['login_error']);
+unset($_SESSION['login_success']);
 unset($_SESSION['old_email']);
 
 // Render view
