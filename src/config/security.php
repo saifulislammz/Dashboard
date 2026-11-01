@@ -31,7 +31,7 @@ if (!headers_sent()) {
     header("Permissions-Policy: geolocation=(), microphone=(self), camera=()");
     
     $nonce = csp_nonce();
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com 'unsafe-eval'; style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; img-src 'self' data: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com https://unpkg.com; media-src 'self' blob:;");
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'nonce-{$nonce}' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://unpkg.com 'unsafe-eval'; style-src 'self' 'nonce-{$nonce}' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdn.jsdelivr.net; img-src 'self' data: https://images.unsplash.com; font-src 'self' data: https://fonts.gstatic.com https://unpkg.com; media-src 'self' blob:;");
     
     header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     

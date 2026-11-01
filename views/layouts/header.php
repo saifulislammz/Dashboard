@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="/images/favicon.png">
     <link href="/css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link href="/css/universal.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <link href="/css/sweetalert2.min.css?v=<?php echo time(); ?>" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -23,9 +24,14 @@
     <!-- Alpine.js for dynamic UI components (like quiz builder) -->
     <script nonce="<?php echo csp_nonce(); ?>" defer src="/js/alpine.min.js"></script>
 
-    <!-- SweetAlert2 for Universal Modals -->
-    <script nonce="<?php echo csp_nonce(); ?>" src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 for Universal Modals (Local assets for offline reliability & CSP compliance) -->
+    <script nonce="<?php echo csp_nonce(); ?>" src="/js/sweetalert2.all.min.js"></script>
     <script nonce="<?php echo csp_nonce(); ?>">
+        // Ensure Swal alias exists
+        if (typeof window.Swal === 'undefined' && typeof window.Sweetalert2 !== 'undefined') {
+            window.Swal = window.Sweetalert2;
+        }
+
         // Global Modal Helper Functions
         window.openModal = function(id) {
             const el = document.getElementById(id);
@@ -34,6 +40,7 @@
             if (!el.classList.contains('flex')) {
                 el.classList.add('flex');
             }
+            el.style.display = 'flex';
         };
 
         window.closeModal = function(id) {
@@ -41,6 +48,7 @@
             if (!el) return;
             el.classList.add('hidden');
             el.classList.remove('flex');
+            el.style.display = 'none';
         };
 
         // Global function to handle form submission confirmations
@@ -48,30 +56,46 @@
             if (event && event.preventDefault) {
                 event.preventDefault();
             }
-            const form = event ? (event.target || event.currentTarget) : null;
-            Swal.fire({
+            const target = event ? (event.target || event.currentTarget) : null;
+            let form = null;
+            if (target) {
+                if (target.tagName === 'FORM') {
+                    form = target;
+                } else if (target.closest) {
+                    form = target.closest('form');
+                }
+            }
+
+            const swalInstance = (typeof window.Swal !== 'undefined' ? window.Swal : (typeof window.Sweetalert2 !== 'undefined' ? window.Sweetalert2 : null));
+
+            if (!swalInstance) {
+                if (confirm(message)) {
+                    if (form) {
+                        form.dataset.confirmed = 'true';
+                        form.submit();
+                    }
+                }
+                return false;
+            }
+
+            swalInstance.fire({
                 title: 'Confirmation',
                 text: message,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0F766E', // var(--color-primary-green)
-                cancelButtonColor: '#EF4444', // var(--color-red)
-                confirmButtonText: 'Yes',
+                confirmButtonColor: '#EF4444', // Danger red for delete/destructive action
+                cancelButtonColor: '#6B7280', // Neutral gray
+                confirmButtonText: 'Yes, Delete',
                 cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
                 background: '#ffffff',
-                color: '#1f2937'
+                color: '#1f2937',
+                backdrop: 'rgba(15, 23, 42, 0.6)'
             }).then((result) => {
                 if (result.isConfirmed && form) {
-                    if (form.tagName === 'FORM') {
-                        form.dataset.confirmed = 'true';
-                        form.submit();
-                    } else if (form.closest) {
-                        const parentForm = form.closest('form');
-                        if (parentForm) {
-                            parentForm.dataset.confirmed = 'true';
-                            parentForm.submit();
-                        }
-                    }
+                    form.dataset.confirmed = 'true';
+                    form.submit();
                 }
             });
             return false;
@@ -79,7 +103,11 @@
 
         // Global async function for custom logic confirmations (e.g. Alpine.js)
         window.confirmAsync = function(message) {
-            return Swal.fire({
+            const swalInstance = (typeof window.Swal !== 'undefined' ? window.Swal : (typeof window.Sweetalert2 !== 'undefined' ? window.Sweetalert2 : null));
+            if (!swalInstance) {
+                return Promise.resolve(confirm(message));
+            }
+            return swalInstance.fire({
                 title: 'Confirmation',
                 text: message,
                 icon: 'warning',
@@ -88,8 +116,10 @@
                 cancelButtonColor: '#EF4444',
                 confirmButtonText: 'Yes',
                 cancelButtonText: 'Cancel',
+                reverseButtons: true,
                 background: '#ffffff',
-                color: '#1f2937'
+                color: '#1f2937',
+                backdrop: 'rgba(15, 23, 42, 0.6)'
             }).then(result => result.isConfirmed);
         };
 
@@ -125,7 +155,41 @@
                     return;
                 }
 
-                // 4. Intercept legacy onclick buttons blocked by strict CSP
+                // 4. Change Email Modal Trigger (.change-email-btn)
+                const changeEmailBtn = e.target.closest('.change-email-btn');
+                if (changeEmailBtn) {
+                    e.preventDefault();
+                    const id = changeEmailBtn.getAttribute('data-change-email-id') || '';
+                    const name = changeEmailBtn.getAttribute('data-change-email-name') || '';
+                    const currentEmail = changeEmailBtn.getAttribute('data-change-email-current') || '';
+
+                    const idField = document.getElementById('changeEmailUserId');
+                    const nameField = document.getElementById('changeEmailTargetName');
+                    const emailField = document.getElementById('changeEmailCurrentEmail');
+                    const avatarField = document.getElementById('changeEmailAvatar');
+                    const inputField = document.getElementById('changeEmailNewInput');
+
+                    if (idField) idField.value = id;
+                    if (nameField) nameField.textContent = name;
+                    if (emailField) emailField.textContent = currentEmail;
+                    if (avatarField && name.length > 0) {
+                        avatarField.textContent = name.trim().charAt(0).toUpperCase();
+                    }
+                    if (inputField) {
+                        inputField.value = '';
+                        setTimeout(function() { inputField.focus(); }, 120);
+                    }
+                    window.openModal('changeEmailModal');
+                    return;
+                }
+
+                // 5. Click outside changeEmailModal dialog to close
+                if (e.target && e.target.id === 'changeEmailModal') {
+                    window.closeModal('changeEmailModal');
+                    return;
+                }
+
+                // 6. Intercept legacy onclick buttons blocked by strict CSP
                 const legacyBtn = e.target.closest('[onclick]');
                 if (legacyBtn) {
                     const oc = legacyBtn.getAttribute('onclick') || '';

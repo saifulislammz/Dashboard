@@ -182,22 +182,63 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                                <!-- Status Toggle -->
-                                <form action="students.php?action=status" method="POST" class="inline">
-                                    <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
-                                    <input type="hidden" name="status" value="<?php echo $student['status'] == 0 ? 2 : 0; ?>">
-                                    <button type="submit" class="text-primary hover:text-green-700 transition-colors">
-                                        <?php echo $student['status'] == 0 ? 'Deactivate' : 'Activate'; ?>
-                                    </button>
-                                </form>
-                                <!-- Delete -->
-                                <form action="students.php?action=delete" method="POST" class="inline" data-confirm="Are you sure you want to delete this student?">
-                                    <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-                                    <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
-                                    <button type="submit" class="text-red-500 hover:text-red-700 transition-colors">Delete</button>
-                                </form>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <div class="inline-flex items-center justify-end gap-2">
+                                    <?php if (isSuperAdmin() || hasPermission('users.change_email')): ?>
+                                        <!-- Change Email Button -->
+                                        <button type="button" 
+                                                data-change-email-id="<?php echo (int) $student['id']; ?>"
+                                                data-change-email-name="<?php echo htmlspecialchars($student['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-change-email-current="<?php echo htmlspecialchars($student['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                class="change-email-btn inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-primary bg-green-50 hover:bg-green-100 border border-green-200 transition-colors shadow-xs"
+                                                title="Change Email Address">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                            </svg>
+                                            <span>Email</span>
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <!-- Status Toggle Button -->
+                                    <form action="students.php?action=status" method="POST" class="inline">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
+                                        <input type="hidden" name="status" value="<?php echo $student['status'] == 0 ? 2 : 0; ?>">
+                                        <?php if ($student['status'] == 0): ?>
+                                            <button type="submit" 
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors shadow-xs"
+                                                    title="Deactivate Account">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                                <span>Deactivate</span>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="submit" 
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-xs"
+                                                    title="Activate Account">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span>Activate</span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </form>
+
+                                    <!-- Delete Button -->
+                                    <form action="students.php?action=delete" method="POST" class="inline" data-confirm="Are you sure you want to delete this student?">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
+                                        <button type="submit" 
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors shadow-xs"
+                                                title="Delete Account">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            <span>Delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -267,13 +308,110 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                         </a>
                     <?php endif; ?>
                 </nav>
-
-
             </div>
             <?php endif; ?>
         </div>
     </div>
 </main>
 
-<?php require __DIR__ . '/../layouts/footer.php'; ?>
+<!-- Change Email Modal (Executive Modern Redesign) -->
+<div id="changeEmailModal" class="hidden fixed inset-0 z-50 overflow-y-auto items-center justify-center p-4" style="display: none; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(2px);">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-gray-100 overflow-hidden transition-all transform animate-in fade-in zoom-in-95 duration-150">
+        <!-- Header with Accent Bar -->
+        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-green-50 text-primary border border-green-100 flex items-center justify-center shadow-xs">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-gray-900">Change Student Email</h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Update primary login and system notification address</p>
+                </div>
+            </div>
+            <button type="button" data-modal-close="changeEmailModal" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors" title="Close dialog">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
+        <!-- Form Body -->
+        <form action="students.php?action=change_email" method="POST" class="p-6 space-y-5">
+            <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+            <input type="hidden" name="id" id="changeEmailUserId" value="">
+
+            <!-- Target User Profile Card -->
+            <div class="bg-gray-50/80 rounded-xl p-4 border border-gray-200/80 flex items-center gap-3.5">
+                <div id="changeEmailAvatar" class="w-11 h-11 rounded-full bg-green-100 text-primary font-bold flex items-center justify-center text-sm border-2 border-white shadow-xs flex-shrink-0">
+                    S
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                        <span id="changeEmailTargetName" class="text-sm font-bold text-gray-900 truncate">-</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100/80 text-primary border border-green-200/60 flex-shrink-0">
+                            Student Account
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
+                        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                        <span class="text-gray-400">Current:</span>
+                        <span id="changeEmailCurrentEmail" class="font-mono text-gray-800 font-medium truncate">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Email Input Field -->
+            <div>
+                <label for="changeEmailNewInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                    New Email Address <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <input type="email" 
+                           id="changeEmailNewInput" 
+                           name="new_email" 
+                           required 
+                           autocomplete="off"
+                           placeholder="student.new@example.com" 
+                           class="pl-11 block w-full rounded-xl border border-gray-300 bg-white py-3 px-3.5 text-sm text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all placeholder:text-gray-400 shadow-xs">
+                </div>
+                <!-- Warning Notice Box -->
+                <div class="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200/70 text-xs text-amber-800 mt-3 leading-relaxed">
+                    <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>
+                        The student must immediately use this new email to log in. Their previous email address will be permanently disabled for sign-in.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Footer Actions with Explicit High-Contrast Styling -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" 
+                        data-modal-close="changeEmailModal" 
+                        class="px-4 py-2.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl transition-colors shadow-xs">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        style="background-color: #0F766E !important; color: #FFFFFF !important;"
+                        class="px-5 py-2.5 text-xs font-semibold rounded-xl shadow-md hover:opacity-95 transition-all inline-flex items-center gap-2">
+                    <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Update Email Address</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php require __DIR__ . '/../layouts/footer.php'; ?>

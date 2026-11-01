@@ -5,26 +5,50 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Services\UserService;
+use App\Services\UserEmailManagementService;
+use App\Services\Mail\PhpMailerService;
+use App\Repositories\UserRepository;
 
 /**
  * AdminUserController — Thin Controller
  * Handles admin CRUD for both Students and Teachers.
- * Business logic stays in UserService; DB access stays in UserRepository.
+ * Business logic stays in UserService / UserEmailManagementService; DB access stays in UserRepository.
  * No SQL, no business logic here.
  */
 class AdminUserController
 {
-    private UserService $service;
-    private int         $roleMask;
-    private string      $userType;   // 'Student' | 'Teacher'
-    private string      $redirectUrl;
+    private UserService                  $service;
+    private int                          $roleMask;
+    private string                       $userType;   // 'Student' | 'Teacher'
+    private string                       $redirectUrl;
+    private ?UserEmailManagementService  $emailService;
 
-    public function __construct(UserService $service, int $roleMask, string $userType, string $redirectUrl)
+    public function __construct(
+        UserService $service,
+        int $roleMask,
+        string $userType,
+        string $redirectUrl,
+        ?UserEmailManagementService $emailService = null
+    ) {
+        $this->service      = $service;
+        $this->roleMask     = $roleMask;
+        $this->userType     = $userType;
+        $this->redirectUrl  = $redirectUrl;
+        $this->emailService = $emailService;
+    }
+
+    /**
+     * Resolve UserEmailManagementService lazily if not explicitly injected.
+     */
+    private function getEmailService(): UserEmailManagementService
     {
-        $this->service     = $service;
-        $this->roleMask    = $roleMask;
-        $this->userType    = $userType;
-        $this->redirectUrl = $redirectUrl;
+        if ($this->emailService === null) {
+            global $db;
+            $repo   = new UserRepository($db);
+            $mailer = new PhpMailerService();
+            $this->emailService = new UserEmailManagementService($repo, $mailer);
+        }
+        return $this->emailService;
     }
 
     // ─── GET  /admin/students.php  or  GET  /admin/teachers.php ───
@@ -96,9 +120,36 @@ class AdminUserController
                 exit;
             }
 
+            if ($action === 'change_email') {
+                if (!isSuperAdmin() && !hasPermission('users.change_email')) {
+                    throw new \Exception('You do not have permission to change user email.');
+                }
+
+                $id       = (int) ($_POST['id'] ?? 0);
+                $newEmail = (string) ($_POST['new_email'] ?? '');
+
+                global $auth;
+                $adminId = ($auth && $auth->isLoggedIn()) ? (int) $auth->getUserId() : 1;
+                $ip      = (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+                $ua      = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+
+                $this->getEmailService()->changeUserEmail(
+                    $adminId,
+                    $id,
+                    $this->roleMask,
+                    $newEmail,
+                    $ip,
+                    $ua
+                );
+
+                $_SESSION['success_message'] = "{$this->userType} email updated successfully.";
+                header("Location: {$this->redirectUrl}");
+                exit;
+            }
+
         } catch (\Delight\Auth\UserAlreadyExistsException $e) {
-            $errorMessage = 'Email address already exists.';
-        } catch (\Exception $e) {
+            $errorMessage = $e->getMessage() ?: 'Email address already exists.';
+        } catch (\Throwable $e) {
             $errorMessage = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         }
     }
