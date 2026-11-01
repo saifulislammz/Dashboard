@@ -101,7 +101,7 @@ $moduleMeta = [
 
                 <div class="flex items-center gap-3">
                     <label class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 cursor-pointer shadow-sm hover:bg-gray-50 transition-colors">
-                        <input type="checkbox" id="masterSelectAll" onchange="toggleAllPermissions(this.checked)" class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                        <input type="checkbox" id="masterSelectAll" id="masterSelectAll" class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
                         <span>Select All Permissions</span>
                     </label>
                 </div>
@@ -131,7 +131,7 @@ $moduleMeta = [
                             </div>
 
                             <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg cursor-pointer hover:bg-emerald-100 transition-colors">
-                                <input type="checkbox" onchange="toggleModulePermissions('<?= $moduleKey ?>', this.checked)" class="module-master-<?= $moduleKey ?> w-3.5 h-3.5 text-emerald-600 rounded border-gray-300">
+                                <input type="checkbox" data-module-toggle="<?= $moduleKey ?>" class="module-master-<?= $moduleKey ?> w-3.5 h-3.5 text-emerald-600 rounded border-gray-300">
                                 <span>Toggle All</span>
                             </label>
                         </div>
@@ -198,6 +198,19 @@ document.getElementById('roleName').addEventListener('input', function(e) {
 document.getElementById('roleSlug').addEventListener('input', function() {
     this.dataset.manual = "1";
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    var master = document.getElementById('masterSelectAll');
+    if (master) {
+        master.addEventListener('change', function() { toggleAllPermissions(this.checked); });
+    }
+    document.querySelectorAll('[data-module-toggle]').forEach(function(el) {
+        el.addEventListener('change', function() { toggleModulePermissions(this.dataset.moduleToggle, this.checked); });
+    });
+});
+
+window.toggleAllPermissions = toggleAllPermissions;
+window.toggleModulePermissions = toggleModulePermissions;
 
 function toggleAllPermissions(checked) {
     document.querySelectorAll('.perm-checkbox').forEach(cb => {

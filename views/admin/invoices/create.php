@@ -408,7 +408,7 @@ function inv_err(string $key): string
 <!-- ================================================================
      JAVASCRIPT ” Live invoice calculator
 ================================================================ -->
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
 (function () {
     'use strict';
 

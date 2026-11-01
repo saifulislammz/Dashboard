@@ -45,7 +45,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 
         <?php if (!empty($timeConflictError)): ?>
         <!-- Time-slot conflict data passed to JS (sanitised) -->
-        <script>
+        <script nonce="<?php echo csp_nonce(); ?>">
             window._conflictData = {
                 provider:  <?= json_encode(htmlspecialchars($timeConflictError['provider'],   ENT_QUOTES, 'UTF-8')) ?>,
                 date:      <?= json_encode(htmlspecialchars($timeConflictError['date'],       ENT_QUOTES, 'UTF-8')) ?>,
@@ -57,7 +57,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 
         <?php if (!empty($scheduleConflictError)): ?>
         <!-- Schedule conflict data passed to JS -->
-        <script>
+        <script nonce="<?php echo csp_nonce(); ?>">
             window._scheduleConflictData = <?= json_encode($scheduleConflictError, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         </script>
         <?php endif; ?>
@@ -349,7 +349,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
     </div>
 </main>
 
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
     function setMode(mode) {
         document.getElementById('formMode').value = mode;
         const btnSingle = document.getElementById('btnSingle');

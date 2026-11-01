@@ -37,13 +37,13 @@ $error   = $_GET['error'] ?? $error ?? '';
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="border-b border-gray-200 bg-gray-50 px-6 py-3">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button onclick="switchTab('google')" id="tab-google" class="border-primary text-primary whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <button type="button" data-tab="google" onclick="switchTab('google')" id="tab-google" class="border-primary text-primary whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
                         Google Meet
                     </button>
-                    <button onclick="switchTab('zoom')" id="tab-zoom" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <button type="button" data-tab="zoom" onclick="switchTab('zoom')" id="tab-zoom" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
                         Zoom
                     </button>
-                    <button onclick="switchTab('global')" id="tab-global" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
+                    <button type="button" data-tab="global" onclick="switchTab('global')" id="tab-global" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors">
                         Global Settings
                     </button>
                 </nav>
@@ -132,7 +132,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                     <?php endif; ?>
                     
                     <div class="mt-6">
-                        <button type="button" onclick="document.getElementById('add-google-form').classList.toggle('hidden')" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
+                        <button type="button" type="button" data-toggle="add-google-form" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
                             + Add Google Account
                         </button>
                     </div>
@@ -252,7 +252,7 @@ $error   = $_GET['error'] ?? $error ?? '';
                     <?php endif; ?>
 
                     <div class="mt-6">
-                        <button type="button" onclick="document.getElementById('add-zoom-form').classList.toggle('hidden')" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
+                        <button type="button" type="button" data-toggle="add-zoom-form" class="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">
                             + Add Zoom Account
                         </button>
                     </div>
@@ -337,8 +337,9 @@ $error   = $_GET['error'] ?? $error ?? '';
     </div>
 </main>
 
-<script>
-    function switchTab(tabId) {
+<script nonce="<?php echo csp_nonce(); ?>">
+window.switchTab = function(tabId) {
+    
         // Reset all tabs
         ['google', 'zoom', 'global'].forEach(id => {
             const btn = document.getElementById('tab-' + id);
@@ -352,7 +353,12 @@ $error   = $_GET['error'] ?? $error ?? '';
         const activeBtn = document.getElementById('tab-' + tabId);
         activeBtn.className = "border-primary text-primary whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors";
         document.getElementById('content-' + tabId).classList.remove('hidden');
-    }
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-tab]').forEach(function(btn) {
+            btn.addEventListener('click', function() { window.switchTab(this.dataset.tab); });
+        });
+    });
 </script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

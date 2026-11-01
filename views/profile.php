@@ -67,17 +67,17 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <?php if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN)): ?>
                     <div class="mt-4 flex gap-3">
                         <form id="profilePicForm" action="profile.php" method="POST" enctype="multipart/form-data" class="inline">
-                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="action" value="upload_picture">
-                            <input type="file" id="profile_picture" name="profile_picture" accept="image/png" class="hidden" onchange="validateAndSubmitProfilePic(this)">
-                            <button type="button" onclick="document.getElementById('profile_picture').click()" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                            <input type="file" id="profile_picture" name="profile_picture" accept="image/png" class="hidden">
+                            <button type="button" id="uploadPicBtn" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                                 <?php echo !empty($profilePicture) ? 'Change Picture' : 'Upload Picture'; ?>
                             </button>
                         </form>
                         
                         <?php if (!empty($profilePicture)): ?>
-                        <form action="profile.php" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Are you sure you want to remove your profile picture?');">
-                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+                        <form action="profile.php" method="POST" class="inline" data-confirm="Are you sure you want to remove your profile picture?">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="action" value="remove_picture">
                             <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                                 Remove
@@ -89,23 +89,42 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     <?php endif; ?>
                 </div>
             </div>
-            <script>
-            function validateAndSubmitProfilePic(input) {
-                if (input.files && input.files[0]) {
-                    var file = input.files[0];
-                    if (file.size > 1048576) {
-                        alert("File size must be less than 1MB");
-                        input.value = "";
-                        return;
-                    }
-                    if (file.type !== "image/png") {
-                        alert("Only PNG images are allowed");
-                        input.value = "";
-                        return;
-                    }
-                    document.getElementById('profilePicForm').submit();
+            <script nonce="<?php echo csp_nonce(); ?>">
+            document.addEventListener('DOMContentLoaded', function() {
+                var uploadBtn = document.getElementById('uploadPicBtn');
+                var fileInput = document.getElementById('profile_picture');
+                if (uploadBtn && fileInput) {
+                    uploadBtn.addEventListener('click', function() {
+                        fileInput.click();
+                    });
+                    fileInput.addEventListener('change', function() {
+                        if (fileInput.files && fileInput.files[0]) {
+                            var file = fileInput.files[0];
+                            if (file.size > 1048576) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'File size must be less than 1MB',
+                                    icon: 'error',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                fileInput.value = '';
+                                return;
+                            }
+                            if (file.type !== 'image/png') {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Only PNG images are allowed',
+                                    icon: 'error',
+                                    confirmButtonColor: '#EF4444'
+                                });
+                                fileInput.value = '';
+                                return;
+                            }
+                            document.getElementById('profilePicForm').submit();
+                        }
+                    });
                 }
-            }
+            });
             </script>
             <div class="px-6 py-2 sm:px-8">
                 <div class="divide-y divide-gray-50">

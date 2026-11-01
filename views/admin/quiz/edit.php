@@ -142,9 +142,9 @@ $initialJson = json_encode($initialQuestions, JSON_UNESCAPED_UNICODE | JSON_HEX_
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
     window.QUIZ_INITIAL_DATA = <?php echo isset($initialJson) ? $initialJson : '[]'; ?>;
 </script>
-<script src="/js/admin/quiz-builder.js?v=<?php echo time(); ?>"></script>
+<script nonce="<?php echo csp_nonce(); ?>" src="/js/admin/quiz-builder.js?v=<?php echo time(); ?>"></script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

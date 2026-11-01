@@ -137,7 +137,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <span class="text-gray-200">|</span>
                                 
                                 <!-- Duplicate -->
-                                <form action="index.php?action=duplicate" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Duplicate this notice?');">
+                                <form action="index.php?action=duplicate" method="POST" class="inline" data-confirm="Duplicate this notice?">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $notice['id']; ?>">
                                     <button type="submit" class="text-[#d97706] hover:text-[#b45309] transition-colors">Duplicate</button>
@@ -145,7 +145,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                 <span class="text-gray-200">|</span>
 
                                 <!-- Delete -->
-                                <form action="index.php?action=delete" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Are you sure you want to delete this notice?');">
+                                <form action="index.php?action=delete" method="POST" class="inline" data-confirm="Are you sure you want to delete this notice?">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $notice['id']; ?>">
                                     <button type="submit" class="text-[#dc2626] hover:text-[#b91c1c] transition-colors">Delete</button>

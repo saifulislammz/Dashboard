@@ -275,7 +275,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
     </div>
 </div>
 
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
     function confirmCancel(sessionId) {
         document.getElementById('cancel_session_id').value = sessionId;
         document.getElementById('cancelModal').classList.remove('hidden');

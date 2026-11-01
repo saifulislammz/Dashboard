@@ -43,6 +43,7 @@ class RoleController
         $currentUserIsSuperAdmin = isSuperAdmin();
 
         $activeTab = $_GET['tab'] ?? 'staff';
+        $activeMenu = 'roles_manage';
 
         require __DIR__ . '/../../../views/admin/roles/index.php';
     }
@@ -57,7 +58,7 @@ class RoleController
         requirePermission('roles.create');
 
         $modules = $this->service->getPermissionMatrix();
-        $activeMenu = 'roles_manage';
+        $activeMenu = 'roles_create';
 
         require __DIR__ . '/../../../views/admin/roles/create.php';
     }

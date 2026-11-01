@@ -31,7 +31,7 @@ $csrfToken = generateCsrfToken();
                 </a>
                 <?php if ($activeTab === 'staff'): ?>
                     <?php if (hasPermission('roles.assign')): ?>
-                        <button onclick="openModal('createStaffModal')" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
+                        <button type="button" data-modal-open="createStaffModal" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
                             <i class="ph ph-user-plus text-lg"></i> Add Staff Account
                         </button>
                     <?php endif; ?>
@@ -314,7 +314,7 @@ $csrfToken = generateCsrfToken();
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <i class="ph ph-user-plus text-primary text-xl"></i> Create Staff Member
             </h3>
-            <button onclick="closeModal('createStaffModal')" class="text-gray-400 hover:text-gray-600">
+            <button type="button" data-modal-close="createStaffModal" class="text-gray-400 hover:text-gray-600">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
@@ -354,7 +354,7 @@ $csrfToken = generateCsrfToken();
             </div>
 
             <div class="pt-3 border-t border-gray-100 flex gap-3 justify-end">
-                <button type="button" onclick="closeModal('createStaffModal')" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <button type="button" type="button" data-modal-close="createStaffModal" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
                     Cancel
                 </button>
                 <button type="submit" class="px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
@@ -372,7 +372,7 @@ $csrfToken = generateCsrfToken();
             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <i class="ph ph-arrows-clockwise text-primary text-xl"></i> Change Staff Role
             </h3>
-            <button onclick="closeModal('assignRoleModal')" class="text-gray-400 hover:text-gray-600">
+            <button type="button" data-modal-close="assignRoleModal" class="text-gray-400 hover:text-gray-600">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
@@ -399,7 +399,7 @@ $csrfToken = generateCsrfToken();
             </div>
 
             <div class="pt-3 border-t border-gray-100 flex gap-3 justify-end">
-                <button type="button" onclick="closeModal('assignRoleModal')" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <button type="button" type="button" data-modal-close="assignRoleModal" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
                     Cancel
                 </button>
                 <button type="submit" class="px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-emerald-700 transition-colors shadow-sm">
@@ -425,7 +425,7 @@ $csrfToken = generateCsrfToken();
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
             <input type="hidden" id="deleteRoleId" name="id" value="">
 
-            <button type="button" onclick="closeModal('deleteRoleModal')" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+            <button type="button" type="button" data-modal-close="deleteRoleModal" class="px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
                 Cancel
             </button>
             <button type="submit" id="confirmDeleteBtn" class="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm">
@@ -444,7 +444,7 @@ function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
 }
 
-function openAssignModal(userId, username, roleId) {
+window.openAssignModal = function(userId, username, roleId) {
     document.getElementById('assignUserId').value = userId;
     document.getElementById('assignUserName').value = username;
     if (roleId) {
@@ -453,7 +453,7 @@ function openAssignModal(userId, username, roleId) {
     openModal('assignRoleModal');
 }
 
-function confirmDeleteRole(roleId, roleName, usersCount) {
+window.confirmDeleteRole = function(roleId, roleName, usersCount) {
     if (usersCount > 0) {
         alert("Cannot delete role '" + roleName + "' because " + usersCount + " staff member(s) are currently assigned to it. Reassign them first.");
         return;

@@ -130,9 +130,9 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
 <!-- Vanilla JS Quiz Builder -->
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
     window.QUIZ_INITIAL_DATA = [];
 </script>
-<script src="/js/admin/quiz-builder.js?v=<?php echo time(); ?>"></script>
+<script nonce="<?php echo csp_nonce(); ?>" src="/js/admin/quiz-builder.js?v=<?php echo time(); ?>"></script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

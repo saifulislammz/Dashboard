@@ -270,7 +270,7 @@ function rPageUrl(int $p): string
     </div>
 </main>
 
-<script>
+<script nonce="<?php echo csp_nonce(); ?>">
     const CSRF_TOKEN = '<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>';
 
     function voiceReview(attemptId, initialReviewStatus) {

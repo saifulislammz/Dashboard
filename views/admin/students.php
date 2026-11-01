@@ -14,7 +14,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                 <p class="text-sm text-gray-500 mt-1">Manage and view all students in your institution.</p>
             </div>
             <!-- Create Student Button -->
-            <button onclick="document.getElementById('createForm').classList.toggle('hidden')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-green-700 transition-colors gap-2">
+            <button type="button" data-toggle="createForm" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-green-700 transition-colors gap-2">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -131,7 +131,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search by name or email..." class="pl-10 block w-full border-none bg-transparent rounded-lg py-2.5 px-3 focus:ring-0 sm:text-sm text-gray-900 placeholder-gray-400" oninput="if(this.value.trim() === '') this.form.submit()">
+                    <input type="text" name="search" value="<?php echo e($search); ?>" placeholder="Search by name or email..." class="pl-10 block w-full border-none bg-transparent rounded-lg py-2.5 px-3 focus:ring-0 sm:text-sm text-gray-900 placeholder-gray-400" data-auto-submit="true">
                 </div>
                 <button type="submit" class="inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-primary bg-green-50 hover:bg-green-200 transition-colors">Search</button>
             </form>
@@ -193,7 +193,7 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                                     </button>
                                 </form>
                                 <!-- Delete -->
-                                <form action="students.php?action=delete" method="POST" class="inline" onsubmit="return handleConfirm(event, 'Are you sure?');">
+                                <form action="students.php?action=delete" method="POST" class="inline" data-confirm="Are you sure you want to delete this student?">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                                     <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
                                     <button type="submit" class="text-red-500 hover:text-red-700 transition-colors">Delete</button>
