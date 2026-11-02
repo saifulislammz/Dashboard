@@ -334,6 +334,14 @@ function pageUrl(int $p): string
                                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </a>
+                                            <!-- Edit -->
+                                            <a href="/admin/invoices/edit.php?id=<?= $id ?>" title="Edit Invoice"
+                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-600 hover:text-white hover:shadow-md hover:-translate-y-0.5 transform transition-all duration-200">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </a>
                                             <!-- Print/Download -->
                                             <a href="/admin/invoices/print.php?id=<?= $id ?>" target="_blank"
                                                 title="Print / Download PDF"

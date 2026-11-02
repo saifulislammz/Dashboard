@@ -49,7 +49,15 @@ $statusClasses = match ($status) {
                 </div>
                 <p class="text-sm text-[#64748b] mt-1 ml-8">Invoice for <?= $sName ?></p>
             </div>
-            <div class="flex items-center gap-3 ml-8 sm:ml-0">
+            <div class="flex items-center gap-3 ml-8 sm:ml-0 flex-wrap">
+                <a href="/admin/invoices/edit.php?id=<?= (int) $invoice['id'] ?>"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#374151] bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                </a>
                 <a href="/admin/invoices/print.php?id=<?= (int) $invoice['id'] ?>" target="_blank"
                     class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,6 +109,16 @@ $statusClasses = match ($status) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
                 Invoice status updated successfully!
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($updated)): ?>
+            <div
+                class="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-green-700">
+                <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Invoice updated successfully!
             </div>
         <?php endif; ?>
 
@@ -285,6 +303,13 @@ $statusClasses = match ($status) {
                                 </div>
                             </div>
                             <div class="text-center w-48">
+                                <?php if (!empty($settings['invoice_signature'])): ?>
+                                    <div class="mb-2 flex justify-center">
+                                        <img src="<?= htmlspecialchars($settings['invoice_signature'], ENT_QUOTES, 'UTF-8') ?>"
+                                             alt="Authorized Signature"
+                                             class="h-12 max-w-[160px] object-contain">
+                                    </div>
+                                <?php endif; ?>
                                 <div class="border-t border-gray-400 mb-2"></div>
                                 <p class="text-xs font-semibold text-gray-800 uppercase">Authorized Signature</p>
                             </div>

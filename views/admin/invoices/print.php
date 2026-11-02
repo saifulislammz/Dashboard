@@ -506,9 +506,18 @@
             text-align: center;
         }
 
+        .footer-signature .signature-image {
+            max-height: 48px;
+            max-width: 160px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 6px auto;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
         .footer-signature .sig-line {
             border-top: 1px dashed var(--text-muted);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .footer-signature p {
@@ -989,6 +998,11 @@
                 </div>
                 <?php if (!empty($invoice['show_signature'])): ?>
                     <div class="footer-signature">
+                        <?php if (!empty($settings['invoice_signature'])): ?>
+                            <img src="<?= htmlspecialchars($settings['invoice_signature'], ENT_QUOTES, 'UTF-8') ?>"
+                                 alt="Authorized Signature"
+                                 class="signature-image">
+                        <?php endif; ?>
                         <div class="sig-line"></div>
                         <p>Authorized Signature</p>
                     </div>

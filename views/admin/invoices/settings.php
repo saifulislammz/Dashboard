@@ -57,6 +57,7 @@ function serr(string $key): string {
 
         <form method="POST" action="/admin/invoices/settings.php" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="invoice_settings_submitted" value="1">
 
             <div class="space-y-6">
 
@@ -147,7 +148,95 @@ function serr(string $key): string {
                 </div>
 
                 <!-- =============================================
-                     SECTION 2: Invoice Number Format
+                     SECTION 2: Authorized Signature Management
+                ============================================== -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-gray-100 flex-wrap gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-semibold text-[#0f172a]">Authorized Signature Management</h2>
+                                <p class="text-xs text-[#64748b]">Upload a transparent PNG signature and configure global automatic signature inclusion.</p>
+                            </div>
+                        </div>
+
+                        <!-- Global Signature On/Off Switch -->
+                        <div class="flex items-center gap-3 bg-gray-50 px-3.5 py-1.5 rounded-xl border border-gray-200">
+                            <span class="text-xs font-semibold text-[#475569]">Global Signature</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="invoice_signature_enabled" value="1"
+                                       class="sr-only peer"
+                                       <?= (s('invoice_signature_enabled') === '' || s('invoice_signature_enabled') === '1') ? 'checked' : '' ?>>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+                        <!-- File Upload -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-medium text-[#374151]" for="institution_signature">
+                                Upload Signature (Transparent PNG)
+                            </label>
+                            <input type="file" id="institution_signature" name="institution_signature" accept="image/png"
+                                   class="w-full px-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                            <?= serr('institution_signature') ?>
+                            <div class="text-xs text-gray-500 space-y-1 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                <p>• <strong>Format:</strong> Only transparent background PNG (.png) is permitted.</p>
+                                <p>• <strong>Max Size:</strong> 1 MB. Recommended resolution: ~300×100 px.</p>
+                            </div>
+                        </div>
+
+                        <!-- Signature Preview Box -->
+                        <div>
+                            <span class="block text-sm font-medium text-[#374151] mb-2">Current Signature Preview</span>
+                            <?php if (s('invoice_signature')): ?>
+                                <div class="p-4 rounded-xl border border-gray-200 inline-block bg-white shadow-inner">
+                                    <img src="<?= s('invoice_signature') ?>" alt="Signature Preview" class="h-14 max-w-[220px] object-contain">
+                                </div>
+                                <div class="mt-2.5">
+                                    <label class="inline-flex items-center gap-2 text-xs font-medium text-red-600 hover:text-red-700 cursor-pointer bg-red-50/50 px-2.5 py-1 rounded-lg border border-red-100">
+                                        <input type="checkbox" name="remove_signature" value="1" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                                        <span>Remove current signature</span>
+                                    </label>
+                                </div>
+                            <?php else: ?>
+                                <div class="p-6 rounded-xl border-2 border-dashed border-gray-200 text-center bg-gray-50/50">
+                                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                    </svg>
+                                    <p class="text-xs text-gray-400 font-medium">No signature uploaded yet</p>
+                                    <p class="text-[11px] text-gray-400 mt-0.5">Upload a transparent PNG above</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50/70 rounded-xl p-3.5 border border-emerald-100 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-xs text-emerald-800 leading-relaxed">
+                            <strong>Note:</strong> When <strong>Global Signature</strong> is turned ON, newly created invoices will automatically have the signature inclusion option checked by default. You can still manually include or exclude the signature for individual invoices during creation or editing.
+                        </p>
+                    </div>
+
+                    <!-- Save Button for Section 2 -->
+                    <div class="flex justify-end pt-4 border-t border-gray-50 mt-4">
+                        <button type="submit"
+                                class="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Save Signature Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- =============================================
+                     SECTION 3: Invoice Number Format
                 ============================================== -->
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-100">

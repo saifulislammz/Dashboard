@@ -265,15 +265,18 @@ class InvoiceService
     /**
      * Save invoice settings (validates keys before persisting).
      *
-     * @param array $data  Associative array of setting_key => value
+     * @param array      $data          Associative array of setting_key => value
+     * @param array|null $logoFile      Uploaded logo file array
+     * @param array|null $signatureFile Uploaded signature file array
      * @return array ['success' => bool, 'errors' => array]
      */
-    public function saveSettings(array $data, ?array $logoFile = null): array
+    public function saveSettings(array $data, ?array $logoFile = null, ?array $signatureFile = null): array
     {
         $allowedKeys = [
             'invoice_prefix', 'invoice_number_format', 'institution_name', 'institution_tagline',
             'institution_address', 'institution_phone', 'institution_email',
             'institution_logo', 'invoice_footer_note',
+            'invoice_signature', 'invoice_signature_enabled',
         ];
 
         $errors = [];
@@ -283,6 +286,19 @@ class InvoiceService
             if ($prefix === '' || strlen($prefix) > 10) {
                 $errors['invoice_prefix'] = 'Prefix must be 1–10 characters.';
             }
+        }
+
+        // Handle signature removal if requested
+        if (!empty($data['remove_signature'])) {
+            $existingSettings = $this->repo->getSettings();
+            $oldSig = $existingSettings['invoice_signature'] ?? '';
+            if ($oldSig && str_starts_with($oldSig, '/uploads/signatures/')) {
+                $oldPath = __DIR__ . '/../../public' . $oldSig;
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+            $data['invoice_signature'] = '';
         }
 
         // Handle logo upload with strict finfo MIME validation & safe randomization
@@ -325,6 +341,60 @@ class InvoiceService
                     }
                 }
             }
+        }
+
+        // Handle signature upload with strict finfo MIME validation & safe randomization (Transparent PNG)
+        $sigFile = $signatureFile ?? ($_FILES['institution_signature'] ?? null);
+        if ($sigFile && isset($sigFile['error']) && $sigFile['error'] === UPLOAD_ERR_OK && !empty($sigFile['tmp_name'])) {
+            // 1. Max size limit (1MB)
+            if (($sigFile['size'] ?? 0) > 1024 * 1024) {
+                $errors['institution_signature'] = 'Signature file size must not exceed 1MB.';
+            } else {
+                // 2. Strict server-side MIME type check using finfo
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($sigFile['tmp_name']);
+                $ext = strtolower(pathinfo($sigFile['name'] ?? '', PATHINFO_EXTENSION));
+
+                if ($mimeType !== 'image/png' || $ext !== 'png') {
+                    $errors['institution_signature'] = 'Invalid file format. Only transparent PNG images are permitted for signatures.';
+                } else {
+                    // 3. Verify image integrity with getimagesize
+                    $imgInfo = @getimagesize($sigFile['tmp_name']);
+                    if (!$imgInfo || ($imgInfo[2] ?? 0) !== IMAGETYPE_PNG) {
+                        $errors['institution_signature'] = 'Corrupt or invalid PNG image file.';
+                    } else {
+                        $uploadDir = __DIR__ . '/../../public/uploads/signatures/';
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0755, true);
+                        }
+
+                        $filename = 'sig_' . bin2hex(random_bytes(16)) . '.png';
+                        $targetPath = $uploadDir . $filename;
+
+                        // Unlink previous signature file if exists
+                        $existingSettings = $this->repo->getSettings();
+                        $oldSig = $existingSettings['invoice_signature'] ?? '';
+                        if ($oldSig && str_starts_with($oldSig, '/uploads/signatures/')) {
+                            $oldPath = __DIR__ . '/../../public' . $oldSig;
+                            if (file_exists($oldPath)) {
+                                @unlink($oldPath);
+                            }
+                        }
+
+                        if (move_uploaded_file($sigFile['tmp_name'], $targetPath)) {
+                            $data['invoice_signature'] = '/uploads/signatures/' . $filename;
+                        } else {
+                            $errors['institution_signature'] = 'Failed to save uploaded signature file.';
+                        }
+                    }
+                }
+            }
+        }
+
+        // Global on/off setting: if the form was posted for institution/invoice settings,
+        // explicitly set '1' or '0' based on checkbox presence
+        if (isset($data['invoice_settings_submitted']) || isset($data['institution_name']) || isset($data['save_invoice_settings'])) {
+            $data['invoice_signature_enabled'] = !empty($data['invoice_signature_enabled']) ? '1' : '0';
         }
 
         if (!empty($errors)) {

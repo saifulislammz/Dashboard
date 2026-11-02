@@ -98,6 +98,76 @@ class InvoiceController
     }
 
     // ===========================================================
+    // EDIT — Invoice Edit Form
+    // ===========================================================
+
+    /**
+     * Show invoice edit form.
+     * GET /admin/invoices/edit.php?id=
+     */
+    public function edit(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->send404('Invalid invoice ID.');
+        }
+
+        $data = $this->invoiceService->getInvoiceById($id);
+        if ($data === null) {
+            $this->send404('Invoice not found.');
+        }
+
+        $invoice    = $data['invoice'];
+        $items      = $data['items'];
+        $settings   = $this->invoiceService->getSettings();
+        $currencies = $this->invoiceService->getCurrencies();
+        $errors     = [];
+
+        $pageTitle  = 'Edit Invoice #' . htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8');
+        $activeMenu = 'invoice_dashboard';
+
+        require __DIR__ . '/../../../views/admin/invoices/edit.php';
+    }
+
+    /**
+     * Process invoice update form submission.
+     * POST /admin/invoices/edit.php?id=
+     */
+    public function update(): void
+    {
+        $id = (int) ($_POST['id'] ?? ($_GET['id'] ?? 0));
+        if ($id <= 0) {
+            $this->send404('Invalid invoice ID.');
+        }
+
+        $data = $this->invoiceService->getInvoiceById($id);
+        if ($data === null) {
+            $this->send404('Invoice not found.');
+        }
+
+        $result = $this->invoiceService->updateInvoice($id, $_POST);
+
+        if ($result['success']) {
+            header('Location: /admin/invoices/view.php?id=' . $id . '&updated=1');
+            exit;
+        }
+
+        // Re-render edit form with errors and submitted input
+        $errors        = $result['errors'];
+        $settings      = $this->invoiceService->getSettings();
+        $currencies    = $this->invoiceService->getCurrencies();
+        
+        // Merge submitted data into invoice and items for repopulation
+        $invoice = array_merge($data['invoice'], $_POST);
+        $items   = isset($_POST['items']) && is_array($_POST['items']) ? $_POST['items'] : $data['items'];
+
+        $pageTitle  = 'Edit Invoice #' . htmlspecialchars($data['invoice']['invoice_number'], ENT_QUOTES, 'UTF-8');
+        $activeMenu = 'invoice_dashboard';
+
+        require __DIR__ . '/../../../views/admin/invoices/edit.php';
+    }
+
+    // ===========================================================
     // VIEW — Single Invoice Detail
     // ===========================================================
 
@@ -123,6 +193,7 @@ class InvoiceController
         $currencies = $this->invoiceService->getCurrencies();
         $created       = isset($_GET['created']) && $_GET['created'] === '1';
         $statusUpdated = isset($_GET['status_updated']) && $_GET['status_updated'] === '1';
+        $updated       = isset($_GET['updated']) && $_GET['updated'] === '1';
 
         $pageTitle  = 'Invoice #' . htmlspecialchars($invoice['invoice_number'], ENT_QUOTES, 'UTF-8');
         $activeMenu = 'invoice_dashboard';
@@ -241,7 +312,11 @@ class InvoiceController
                 header('Location: /admin/invoices/settings.php?currency_deleted=1');
                 exit;
             } else {
-                $result = $this->invoiceService->saveSettings($_POST, $_FILES['institution_logo'] ?? null);
+                $result = $this->invoiceService->saveSettings(
+                    $_POST,
+                    $_FILES['institution_logo'] ?? null,
+                    $_FILES['institution_signature'] ?? null
+                );
 
                 if ($result['success']) {
                     header('Location: /admin/invoices/settings.php?saved=1');

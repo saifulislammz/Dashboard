@@ -352,9 +352,15 @@ function inv_err(string $key): string
                 </a>
                 
                 <div class="flex items-center gap-6">
-                    <label class="flex items-center gap-2 cursor-pointer border-r border-gray-200 pr-6">
-                        <input type="checkbox" name="show_signature" value="1" class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2">
-                        <span class="text-sm font-medium text-[#475569]">Show Authorized Signature</span>
+                    <?php
+                    $isSignatureChecked = !empty($old) 
+                        ? !empty($old['show_signature']) 
+                        : (($settings['invoice_signature_enabled'] ?? '1') === '1');
+                    ?>
+                    <label class="flex items-center gap-2 cursor-pointer border-r border-gray-200 pr-6 select-none group">
+                        <input type="checkbox" name="show_signature" value="1" <?= $isSignatureChecked ? 'checked' : '' ?>
+                               class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2">
+                        <span class="text-sm font-medium text-[#475569] group-hover:text-primary transition-colors">Include Authorized Signature</span>
                     </label>
                     <div class="flex gap-3">
                         <button type="submit" name="action" value="draft"
