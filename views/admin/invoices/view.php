@@ -209,7 +209,11 @@ $statusClasses = match ($status) {
                                 <tr>
                                     <td class="border border-primary py-3 px-4 text-center text-xs text-[#94a3b8]"><?= $i + 1 ?></td>
                                     <td class="border border-primary py-3 px-4 font-medium text-[#0f172a]">
-                                        <?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?php if (!empty($item['description'])): ?>
+                                            <p class="text-xs text-[#64748b] font-normal mt-0.5"><?= nl2br(htmlspecialchars($item['description'], ENT_QUOTES, 'UTF-8')) ?></p>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="border border-primary py-3 px-4 text-center text-[#475569]">
                                         <?= (int) $item['quantity'] ?></td>
                                     <td class="border border-primary py-3 px-4 text-center text-[#475569] font-mono">

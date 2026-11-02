@@ -514,6 +514,9 @@ class InvoiceService
                 if (empty(trim($item['item_name'] ?? ''))) {
                     $errors["items_{$i}_name"] = "Item #" . ($i + 1) . " name is required.";
                 }
+                if (isset($item['description']) && strlen(trim((string) $item['description'])) > 1000) {
+                    $errors["items_{$i}_desc"] = "Item #" . ($i + 1) . " description must not exceed 1000 characters.";
+                }
                 if (!is_numeric($item['quantity'] ?? '') || (float) $item['quantity'] <= 0) {
                     $errors["items_{$i}_qty"] = "Item #" . ($i + 1) . " quantity must be greater than 0.";
                 }

@@ -142,12 +142,16 @@ function inv_err(string $key): string
                         </div>
 
                         <!-- Invoice Date -->
+                        <?php
+                        $invDateVal = !empty($invoice['invoice_date']) ? date('Y-m-d', strtotime((string)$invoice['invoice_date'])) : date('Y-m-d');
+                        $dueDateVal = !empty($invoice['due_date']) ? date('Y-m-d', strtotime((string)$invoice['due_date'])) : '';
+                        ?>
                         <div>
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="invoice_date">
                                 Invoice Date <span class="text-red-500">*</span>
                             </label>
                             <input type="date" id="invoice_date" name="invoice_date"
-                                   value="<?= inv_val('invoice_date') ?>"
+                                   value="<?= htmlspecialchars($invDateVal, ENT_QUOTES, 'UTF-8') ?>"
                                    class="w-full px-4 py-2.5 text-sm border <?= isset($errors['invoice_date']) ? 'border-red-400 bg-red-50' : 'border-gray-200' ?> rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                    required>
                             <?= inv_err('invoice_date') ?>
@@ -157,7 +161,7 @@ function inv_err(string $key): string
                         <div>
                             <label class="block text-sm font-medium text-[#374151] mb-1.5" for="due_date">Due Date</label>
                             <input type="date" id="due_date" name="due_date"
-                                   value="<?= inv_val('due_date') ?>"
+                                   value="<?= htmlspecialchars($dueDateVal, ENT_QUOTES, 'UTF-8') ?>"
                                    class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
                         </div>
 
@@ -380,10 +384,12 @@ function inv_err(string $key): string
         <td class="py-3 pr-2 text-xs font-medium text-[#94a3b8] align-top pt-4 row-num">__NUM__</td>
         <td class="py-3 pr-2 align-top">
             <input type="text" name="items[__IDX__][item_name]" placeholder="Course or service name"
-                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" required>
+                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-medium" required>
+            <textarea name="items[__IDX__][description]" rows="1" placeholder="Description or notes (optional)"
+                      class="item-desc mt-1.5 w-full px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"></textarea>
         </td>
         <td class="py-3 pr-2 align-top">
-            <input type="number" name="items[__IDX__][quantity]" value="1" min="1" step="1"
+            <input type="number" name="items[__IDX__][quantity]" value="1" min="0.01" step="any"
                    class="item-qty w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
@@ -395,7 +401,7 @@ function inv_err(string $key): string
                    class="item-amount w-full px-3 py-2 text-sm text-right border border-gray-100 rounded-lg bg-gray-50 text-[#0f172a] font-medium cursor-not-allowed">
         </td>
         <td class="py-3 align-top">
-            <button type="button" class="remove-item-btn w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <button type="button" class="remove-item-btn w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Remove item">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </td>
@@ -415,6 +421,7 @@ function inv_err(string $key): string
     const tbody        = document.getElementById('items-body');
     const emptyState   = document.getElementById('items-empty');
     const tpl          = document.getElementById('item-row-tpl');
+    const currencyEl   = document.getElementById('currency');
     const discountEl   = document.getElementById('discount');
     const vatEl        = document.getElementById('vat_percent');
     const amountPaidEl = document.getElementById('amount_paid');
@@ -432,9 +439,10 @@ function inv_err(string $key): string
         tbody.insertAdjacentHTML('beforeend', html);
         const row = tbody.lastElementChild;
 
-        if (name)  row.querySelector('.item-name').value  = name;
-        if (price) row.querySelector('.item-price').value = parseFloat(price).toFixed(2);
-        if (qty)   row.querySelector('.item-qty').value   = parseInt(qty, 10);
+        if (name) row.querySelector('.item-name').value = name;
+        if (desc) row.querySelector('.item-desc').value = desc;
+        if (price !== undefined && price !== null) row.querySelector('.item-price').value = parseFloat(price).toFixed(2);
+        if (qty !== undefined && qty !== null)   row.querySelector('.item-qty').value   = parseFloat(qty);
 
         recalcRow(row);
         itemIndex++;
@@ -457,12 +465,13 @@ function inv_err(string $key): string
         recalcTotals();
     });
 
+    if (currencyEl) currencyEl.addEventListener('change', recalcTotals);
     discountEl.addEventListener('input', recalcTotals);
     vatEl.addEventListener('input', recalcTotals);
     amountPaidEl.addEventListener('input', recalcTotals);
 
     function recalcRow(row) {
-        const qty   = parseInt(row.querySelector('.item-qty').value, 10) || 0;
+        const qty   = parseFloat(row.querySelector('.item-qty').value) || 0;
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
         const amt   = qty * price;
         row.querySelector('.item-amount').value = amt.toFixed(2);
@@ -492,7 +501,7 @@ function inv_err(string $key): string
         grandTotalEl.textContent = grandTotal.toFixed(2);
         dueEl.textContent        = due.toFixed(2);
 
-        if (due <= 0.001) {
+        if (due <= 0.001 && grandTotal > 0) {
             dueSectionEl.classList.add('hidden');
             dueSectionEl.classList.remove('flex');
             paidSectionEl.classList.remove('hidden');

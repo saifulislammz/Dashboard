@@ -100,6 +100,21 @@ class InvoiceRepository
     {
         $this->db->beginTransaction();
         try {
+            // Check existence and lock record to prevent concurrent race conditions
+            $lockStmt = $this->db->prepare("
+                SELECT id 
+                FROM invoices 
+                WHERE id = :id AND deleted_at IS NULL 
+                FOR UPDATE
+            ");
+            $lockStmt->execute(['id' => $id]);
+            if (!$lockStmt->fetchColumn()) {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                return false;
+            }
+
             $stmt = $this->db->prepare("
                 UPDATE invoices
                 SET
@@ -119,13 +134,14 @@ class InvoiceRepository
                     invoice_date    = :invoice_date,
                     due_date        = :due_date,
                     notes           = :notes,
-                    show_signature  = :show_signature
+                    show_signature  = :show_signature,
+                    updated_at      = NOW()
                 WHERE id = :id AND deleted_at IS NULL
             ");
             $invoiceData['id'] = $id;
             $stmt->execute($invoiceData);
 
-            // Replace items: delete all then re-insert
+            // Replace items atomically: delete all existing items, then re-insert updated items
             $delStmt = $this->db->prepare("DELETE FROM invoice_items WHERE invoice_id = :invoice_id");
             $delStmt->execute(['invoice_id' => $id]);
 
@@ -134,7 +150,9 @@ class InvoiceRepository
             $this->db->commit();
             return true;
         } catch (PDOException $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw new \RuntimeException('Invoice update failed: ' . $e->getMessage(), 0, $e);
         }
     }

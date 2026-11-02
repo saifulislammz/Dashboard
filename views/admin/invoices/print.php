@@ -904,8 +904,12 @@
                             <tr>
                                 <td class="center"><?= $i + 1 ?></td>
                                 <td>
-                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?>
-                                    </div>
+                                    <div class="item-name"><?= htmlspecialchars($item['item_name'], ENT_QUOTES, 'UTF-8') ?></div>
+                                    <?php if (!empty($item['description'])): ?>
+                                        <div class="item-desc" style="font-size: 10px; color: #64748b; font-weight: normal; margin-top: 2px; line-height: 1.3;">
+                                            <?= nl2br(htmlspecialchars($item['description'], ENT_QUOTES, 'UTF-8')) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="center"><?= (int) $item['quantity'] ?></td>
                                 <td class="center"><?= number_format((float) $item['unit_price'], 2) ?></td>
