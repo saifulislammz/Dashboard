@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Repositories\InvoiceRepository;
+use App\Repositories\InvoiceActivityRepository;
 
 /**
  * InvoiceService
@@ -16,13 +17,20 @@ use App\Repositories\InvoiceRepository;
 class InvoiceService
 {
     private InvoiceRepository $repo;
+    private ?InvoiceActivityRepository $activityRepo;
 
     private const ALLOWED_STATUSES = ['draft', 'unpaid', 'paid'];
     private const PER_PAGE         = 15;
 
-    public function __construct(InvoiceRepository $repo)
+    public function __construct(InvoiceRepository $repo, ?InvoiceActivityRepository $activityRepo = null)
     {
         $this->repo = $repo;
+
+        if ($activityRepo === null && isset($GLOBALS['db']) && $GLOBALS['db'] instanceof \PDO) {
+            $this->activityRepo = new InvoiceActivityRepository($GLOBALS['db']);
+        } else {
+            $this->activityRepo = $activityRepo;
+        }
     }
 
     // ===========================================================
@@ -94,6 +102,25 @@ class InvoiceService
 
         try {
             $invoiceId = $this->repo->create($invoiceData, $items);
+
+            if ($this->activityRepo !== null) {
+                $this->activityRepo->logActivity(
+                    $invoiceId,
+                    $invoiceData['invoice_number'],
+                    $adminId,
+                    'CREATED',
+                    "Invoice {$invoiceData['invoice_number']} created for {$invoiceData['student_name']}",
+                    [
+                        'grand_total' => $invoiceData['grand_total'],
+                        'amount_paid' => $invoiceData['amount_paid'],
+                        'amount_due'  => $invoiceData['amount_due'],
+                        'currency'    => $invoiceData['currency'],
+                        'status'      => $invoiceData['status'],
+                        'items_count' => count($items)
+                    ]
+                );
+            }
+
             return ['success' => true, 'invoice_id' => $invoiceId, 'errors' => []];
         } catch (\RuntimeException $e) {
             error_log('[InvoiceService] Create failed: ' . $e->getMessage());
@@ -104,11 +131,12 @@ class InvoiceService
     /**
      * Update an existing invoice.
      *
-     * @param int   $id     Invoice ID
-     * @param array $input  Raw POST data
+     * @param int      $id      Invoice ID
+     * @param array    $input   Raw POST data
+     * @param int|null $actorId User ID of the user performing the update
      * @return array  ['success' => bool, 'errors' => array]
      */
-    public function updateInvoice(int $id, array $input): array
+    public function updateInvoice(int $id, array $input, ?int $actorId = null): array
     {
         $errors = $this->validateInvoiceInput($input);
         if (!empty($errors)) {
@@ -144,7 +172,32 @@ class InvoiceService
         ];
 
         try {
+            $existing = $this->repo->findById($id);
+            $invNum   = $existing['invoice']['invoice_number'] ?? "ID-{$id}";
+
             $ok = $this->repo->update($id, $invoiceData, $items);
+
+            if ($ok && $this->activityRepo !== null) {
+                if ($actorId === null && isset($GLOBALS['auth']) && $GLOBALS['auth']->isLoggedIn()) {
+                    $actorId = (int) $GLOBALS['auth']->getUserId();
+                }
+
+                $this->activityRepo->logActivity(
+                    $id,
+                    $invNum,
+                    $actorId,
+                    'UPDATED',
+                    "Invoice {$invNum} details and line items updated",
+                    [
+                        'grand_total' => $invoiceData['grand_total'],
+                        'amount_paid' => $invoiceData['amount_paid'],
+                        'amount_due'  => $invoiceData['amount_due'],
+                        'status'      => $invoiceData['status'],
+                        'items_count' => count($items)
+                    ]
+                );
+            }
+
             return ['success' => $ok, 'errors' => $ok ? [] : ['system' => 'Invoice not found or already deleted.']];
         } catch (\RuntimeException $e) {
             error_log('[InvoiceService] Update failed: ' . $e->getMessage());
@@ -155,16 +208,40 @@ class InvoiceService
     /**
      * Update the status of an invoice.
      *
-     * @param int    $id
-     * @param string $status
+     * @param int      $id
+     * @param string   $status
+     * @param int|null $actorId
      * @return array ['success' => bool, 'errors' => array]
      */
-    public function updateStatus(int $id, string $status): array
+    public function updateStatus(int $id, string $status, ?int $actorId = null): array
     {
         $status = $this->sanitizeStatus($status);
         
         try {
+            $existing = $this->repo->findById($id);
+            $invNum   = $existing['invoice']['invoice_number'] ?? "ID-{$id}";
+            $oldStatus = $existing['invoice']['status'] ?? 'unknown';
+
             $ok = $this->repo->updateStatus($id, $status);
+
+            if ($ok && $this->activityRepo !== null) {
+                if ($actorId === null && isset($GLOBALS['auth']) && $GLOBALS['auth']->isLoggedIn()) {
+                    $actorId = (int) $GLOBALS['auth']->getUserId();
+                }
+
+                $this->activityRepo->logActivity(
+                    $id,
+                    $invNum,
+                    $actorId,
+                    'STATUS_CHANGED',
+                    "Invoice {$invNum} status changed from {$oldStatus} to {$status}",
+                    [
+                        'old_status' => $oldStatus,
+                        'new_status' => $status
+                    ]
+                );
+            }
+
             return ['success' => $ok, 'errors' => $ok ? [] : ['system' => 'Invoice not found or already deleted.']];
         } catch (\RuntimeException $e) {
             error_log('[InvoiceService] Update status failed: ' . $e->getMessage());
@@ -175,12 +252,37 @@ class InvoiceService
     /**
      * Soft-delete an invoice.
      *
-     * @param int $id
+     * @param int      $id
+     * @param int|null $deletedBy
      * @return bool
      */
-    public function deleteInvoice(int $id): bool
+    public function deleteInvoice(int $id, ?int $deletedBy = null): bool
     {
-        return $this->repo->softDelete($id);
+        if ($deletedBy === null && isset($GLOBALS['auth']) && $GLOBALS['auth']->isLoggedIn()) {
+            $deletedBy = (int) $GLOBALS['auth']->getUserId();
+        }
+
+        $existing = $this->repo->findById($id);
+        $invNum   = $existing['invoice']['invoice_number'] ?? "ID-{$id}";
+
+        $ok = $this->repo->softDelete($id, $deletedBy);
+
+        if ($ok && $this->activityRepo !== null) {
+            $this->activityRepo->logActivity(
+                $id,
+                $invNum,
+                $deletedBy,
+                'SOFT_DELETED',
+                "Invoice {$invNum} soft-deleted from billing registry",
+                [
+                    'deleted_by' => $deletedBy,
+                    'grand_total' => $existing['invoice']['grand_total'] ?? null,
+                    'student_name' => $existing['invoice']['student_name'] ?? null
+                ]
+            );
+        }
+
+        return $ok;
     }
 
     // ===========================================================

@@ -171,7 +171,7 @@ class InvoiceController
      * Process invoice update form submission.
      * POST /admin/invoices/edit.php?id=
      */
-    public function update(): void
+    public function update(?int $adminId = null): void
     {
         $id = (int) ($_POST['id'] ?? ($_GET['id'] ?? 0));
         if ($id <= 0) {
@@ -183,7 +183,7 @@ class InvoiceController
             $this->send404('Invoice not found.');
         }
 
-        $result = $this->invoiceService->updateInvoice($id, $_POST);
+        $result = $this->invoiceService->updateInvoice($id, $_POST, $adminId);
 
         if ($result['success']) {
             header('Location: /admin/invoices/view.php?id=' . $id . '&updated=1');
@@ -276,14 +276,14 @@ class InvoiceController
      * Soft-delete an invoice.
      * POST /admin/invoices/delete.php
      */
-    public function delete(): void
+    public function delete(?int $adminId = null): void
     {
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             $this->sendJsonError('Invalid invoice ID.');
         }
 
-        $ok = $this->invoiceService->deleteInvoice($id);
+        $ok = $this->invoiceService->deleteInvoice($id, $adminId);
 
         if ($ok) {
             header('Location: /admin/invoices/index.php?deleted=1');
@@ -302,7 +302,7 @@ class InvoiceController
      * Update invoice status.
      * POST /admin/invoices/update_status.php
      */
-    public function updateStatus(): void
+    public function updateStatus(?int $adminId = null): void
     {
         $id = (int) ($_POST['id'] ?? 0);
         $status = $_POST['status'] ?? '';
@@ -311,7 +311,7 @@ class InvoiceController
             $this->sendJsonError('Invalid invoice ID.');
         }
 
-        $result = $this->invoiceService->updateStatus($id, $status);
+        $result = $this->invoiceService->updateStatus($id, $status, $adminId);
 
         if ($result['success']) {
             header('Location: /admin/invoices/view.php?id=' . $id . '&status_updated=1');

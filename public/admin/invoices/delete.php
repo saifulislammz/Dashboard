@@ -15,6 +15,8 @@ require_once __DIR__ . '/../../../src/Services/InvoiceService.php';
 require_once __DIR__ . '/../../../src/Controllers/Admin/InvoiceController.php';
 
 requireRole(ROLE_ADMIN);
+require_once __DIR__ . '/../../../src/middleware/PermissionMiddleware.php';
+requirePermission('invoices.delete');
 
 // Only POST allowed
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,9 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 validateCsrfToken($_POST['csrf_token'] ?? '');
 
+$adminId    = (int) $auth->getUserId();
 $repository = new \App\Repositories\InvoiceRepository($db);
 $service    = new \App\Services\InvoiceService($repository);
 $controller = new \App\Controllers\Admin\InvoiceController($service);
 
-$controller->delete();
+$controller->delete($adminId);
 

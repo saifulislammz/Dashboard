@@ -17,15 +17,55 @@ use PDOException;
 class InvoiceRepository
 {
     private PDO $db;
+    private static ?bool $hasDeletedByColumn = null;
 
     // Allowed status values — used to whitelist ORDER BY / filter columns
     private const ALLOWED_STATUSES = ['draft', 'unpaid', 'paid'];
 
-
-
     public function __construct(PDO $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * Check if the deleted_by column exists in the invoices table.
+     * Automatically attempts schema self-healing if missing.
+     *
+     * @return bool
+     */
+    private function hasDeletedByColumn(): bool
+    {
+        if (self::$hasDeletedByColumn !== null) {
+            return self::$hasDeletedByColumn;
+        }
+
+        try {
+            $stmt = $this->db->query("SHOW COLUMNS FROM `invoices` LIKE 'deleted_by'");
+            $col = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($col !== false && !empty($col)) {
+                self::$hasDeletedByColumn = true;
+                return true;
+            }
+
+            // Attempt self-healing schema migration
+            try {
+                $this->db->exec("
+                    ALTER TABLE `invoices` 
+                    ADD COLUMN `deleted_by` INT UNSIGNED NULL DEFAULT NULL COMMENT 'references users.id' AFTER `deleted_at`,
+                    ADD INDEX `idx_invoices_deleted_by` (`deleted_by`)
+                ");
+                self::$hasDeletedByColumn = true;
+                return true;
+            } catch (\Throwable $alterError) {
+                error_log('[InvoiceRepository] Auto-migration of deleted_by column failed: ' . $alterError->getMessage());
+                self::$hasDeletedByColumn = false;
+                return false;
+            }
+        } catch (\Throwable $e) {
+            self::$hasDeletedByColumn = false;
+            return false;
+        }
     }
 
     // ===========================================================
@@ -200,17 +240,61 @@ class InvoiceRepository
     }
 
     /**
-     * Soft-delete an invoice (sets deleted_at timestamp).
+     * Soft-delete an invoice (sets deleted_at timestamp and records deleted_by).
      *
-     * @param int $id Invoice ID
+     * @param int      $id        Invoice ID
+     * @param int|null $deletedBy User ID of the admin who requested deletion
      * @return bool
      */
-    public function softDelete(int $id): bool
+    public function softDelete(int $id, ?int $deletedBy = null): bool
     {
+        $hasDeletedBy = $this->hasDeletedByColumn();
+
+        if ($hasDeletedBy) {
+            $stmt = $this->db->prepare("
+                UPDATE invoices
+                SET deleted_at = NOW(),
+                    deleted_by = :deleted_by
+                WHERE id = :id AND deleted_at IS NULL
+            ");
+            return $stmt->execute([
+                'id'         => $id,
+                'deleted_by' => $deletedBy,
+            ]);
+        }
+
         $stmt = $this->db->prepare("
             UPDATE invoices
             SET deleted_at = NOW()
             WHERE id = :id AND deleted_at IS NULL
+        ");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Restore a previously soft-deleted invoice.
+     *
+     * @param int $id Invoice ID
+     * @return bool
+     */
+    public function restore(int $id): bool
+    {
+        $hasDeletedBy = $this->hasDeletedByColumn();
+
+        if ($hasDeletedBy) {
+            $stmt = $this->db->prepare("
+                UPDATE invoices
+                SET deleted_at = NULL,
+                    deleted_by = NULL
+                WHERE id = :id AND deleted_at IS NOT NULL
+            ");
+            return $stmt->execute(['id' => $id]);
+        }
+
+        $stmt = $this->db->prepare("
+            UPDATE invoices
+            SET deleted_at = NULL
+            WHERE id = :id AND deleted_at IS NOT NULL
         ");
         return $stmt->execute(['id' => $id]);
     }
@@ -220,21 +304,28 @@ class InvoiceRepository
     // ===========================================================
 
     /**
-     * Find a single invoice with all its items.
+     * Find a single active invoice with all its items and creator metadata.
      *
      * @param int $id Invoice ID
      * @return array|null  ['invoice' => [...], 'items' => [...]]
      */
     public function findById(int $id): ?array
     {
+        $hasDeletedBy = $this->hasDeletedByColumn();
+        $deletedByCol = $hasDeletedBy ? 'i.deleted_by' : 'NULL AS deleted_by';
+
         $stmt = $this->db->prepare("
             SELECT
-                id, invoice_number, student_name, student_email, student_phone, student_country,
-                currency, subtotal, discount, vat_percent, vat_amount, grand_total,
-                amount_paid, amount_due,
-                status, invoice_date, due_date, notes, show_signature, created_by, created_at, updated_at
-            FROM invoices
-            WHERE id = :id AND deleted_at IS NULL
+                i.id, i.invoice_number, i.student_name, i.student_email, i.student_phone, i.student_country,
+                i.currency, i.subtotal, i.discount, i.vat_percent, i.vat_amount, i.grand_total,
+                i.amount_paid, i.amount_due,
+                i.status, i.invoice_date, i.due_date, i.notes, i.show_signature,
+                i.created_by, i.created_at, i.updated_at, i.deleted_at,
+                {$deletedByCol},
+                u.username AS creator_name, u.email AS creator_email
+            FROM invoices i
+            LEFT JOIN users u ON i.created_by = u.id
+            WHERE i.id = :id AND i.deleted_at IS NULL
         ");
         $stmt->execute(['id' => $id]);
         $invoice = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -250,6 +341,54 @@ class InvoiceRepository
             ORDER BY sort_order ASC, id ASC
         ");
         $itemStmt->execute(['invoice_id' => $id]);
+        $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return ['invoice' => $invoice, 'items' => $items];
+    }
+
+    /**
+     * Find an invoice by invoice number including soft-deleted records for tracking purposes.
+     * Joins both creator and deleter account details.
+     *
+     * @param string $invoiceNumber
+     * @return array|null ['invoice' => [...], 'items' => [...]]
+     */
+    public function findByInvoiceNumberWithAudit(string $invoiceNumber): ?array
+    {
+        $hasDeletedBy = $this->hasDeletedByColumn();
+        $deletedByCol = $hasDeletedBy ? 'i.deleted_by' : 'NULL AS deleted_by';
+        $deleterJoin  = $hasDeletedBy ? 'LEFT JOIN users ud ON i.deleted_by = ud.id' : 'LEFT JOIN users ud ON 1=0';
+
+        $stmt = $this->db->prepare("
+            SELECT
+                i.id, i.invoice_number, i.student_name, i.student_email, i.student_phone, i.student_country,
+                i.currency, i.subtotal, i.discount, i.vat_percent, i.vat_amount, i.grand_total,
+                i.amount_paid, i.amount_due,
+                i.status, i.invoice_date, i.due_date, i.notes, i.show_signature,
+                i.created_by, i.created_at, i.updated_at, i.deleted_at,
+                {$deletedByCol},
+                uc.username AS creator_name, uc.email AS creator_email,
+                ud.username AS deleter_name, ud.email AS deleter_email
+            FROM invoices i
+            LEFT JOIN users uc ON i.created_by = uc.id
+            {$deleterJoin}
+            WHERE i.invoice_number = :invoice_number
+            LIMIT 1
+        ");
+        $stmt->execute(['invoice_number' => $invoiceNumber]);
+        $invoice = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$invoice) {
+            return null;
+        }
+
+        $itemStmt = $this->db->prepare("
+            SELECT id, item_name, description, quantity, unit_price, amount, sort_order
+            FROM invoice_items
+            WHERE invoice_id = :invoice_id
+            ORDER BY sort_order ASC, id ASC
+        ");
+        $itemStmt->execute(['invoice_id' => (int) $invoice['id']]);
         $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
 
         return ['invoice' => $invoice, 'items' => $items];
@@ -300,6 +439,70 @@ class InvoiceRepository
 
         $stmt = $this->db->prepare("
             SELECT COUNT(id) FROM invoices {$whereClause}
+        ");
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Paginated list of all invoices including soft-deleted ones for the Super Admin tracking view.
+     * Joins creator and deleter user info.
+     *
+     * @param array $filters
+     * @param int   $limit
+     * @param int   $offset
+     * @return array
+     */
+    public function findAllIncludingDeleted(array $filters, int $limit, int $offset): array
+    {
+        [$whereClause, $params] = $this->buildTrackWhereClause($filters);
+        $hasDeletedBy = $this->hasDeletedByColumn();
+
+        $deletedByCol = $hasDeletedBy ? 'i.deleted_by' : 'NULL AS deleted_by';
+        $deleterJoin  = $hasDeletedBy ? 'LEFT JOIN users ud ON i.deleted_by = ud.id' : 'LEFT JOIN users ud ON 1=0';
+
+        $stmt = $this->db->prepare("
+            SELECT
+                i.id, i.invoice_number, i.student_name, i.student_email,
+                i.currency, i.grand_total, i.amount_paid, i.amount_due,
+                i.status, i.invoice_date, i.created_at, i.deleted_at, i.created_by,
+                {$deletedByCol},
+                uc.username AS creator_name, uc.email AS creator_email,
+                ud.username AS deleter_name, ud.email AS deleter_email
+            FROM invoices i
+            LEFT JOIN users uc ON i.created_by = uc.id
+            {$deleterJoin}
+            {$whereClause}
+            ORDER BY i.created_at DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':limit',  $limit,  PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Count total invoices for tracking view matching filters.
+     *
+     * @param array $filters
+     * @return int
+     */
+    public function countAllIncludingDeleted(array $filters): int
+    {
+        [$whereClause, $params] = $this->buildTrackWhereClause($filters);
+
+        $stmt = $this->db->prepare("
+            SELECT COUNT(i.id) FROM invoices i {$whereClause}
         ");
         foreach ($params as $key => $value) {
             $stmt->bindValue($key, $value);
@@ -507,6 +710,49 @@ class InvoiceRepository
         }
 
         $whereClause = 'WHERE ' . implode(' AND ', $conditions);
+        return [$whereClause, $params];
+    }
+
+    /**
+     * Build WHERE clause for the Super Admin tracking view.
+     * Supports filtering by deletion status: 'all', 'active', 'deleted'.
+     *
+     * @param array $filters
+     * @return array [string $whereClause, array $params]
+     */
+    private function buildTrackWhereClause(array $filters): array
+    {
+        $conditions = [];
+        $params     = [];
+
+        $deletionStatus = $filters['deletion_status'] ?? 'all';
+        if ($deletionStatus === 'active') {
+            $conditions[] = 'i.deleted_at IS NULL';
+        } elseif ($deletionStatus === 'deleted') {
+            $conditions[] = 'i.deleted_at IS NOT NULL';
+        }
+
+        if (!empty($filters['status']) && in_array($filters['status'], self::ALLOWED_STATUSES, true)) {
+            $conditions[] = 'i.status = :status';
+            $params[':status'] = $filters['status'];
+        }
+
+        if (!empty($filters['date_from'])) {
+            $conditions[] = 'i.invoice_date >= :date_from';
+            $params[':date_from'] = $filters['date_from'];
+        }
+        if (!empty($filters['date_to'])) {
+            $conditions[] = 'i.invoice_date <= :date_to';
+            $params[':date_to'] = $filters['date_to'];
+        }
+
+        if (!empty($filters['search'])) {
+            $conditions[] = '(i.student_name LIKE :search OR i.invoice_number LIKE :search_exact)';
+            $params[':search']       = '%' . $filters['search'] . '%';
+            $params[':search_exact'] = $filters['search'] . '%';
+        }
+
+        $whereClause = !empty($conditions) ? ('WHERE ' . implode(' AND ', $conditions)) : '';
         return [$whereClause, $params];
     }
 

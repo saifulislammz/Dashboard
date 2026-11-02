@@ -25,7 +25,8 @@ $controller = new \App\Controllers\Admin\InvoiceController($service);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     validateCsrfToken($_POST['csrf_token'] ?? '');
-    $controller->update();
+    $adminId = (int) $auth->getUserId();
+    $controller->update($adminId);
 } else {
     $controller->edit();
 }

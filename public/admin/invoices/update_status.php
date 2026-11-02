@@ -25,9 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 validateCsrfToken($_POST['csrf_token'] ?? '');
 
+$adminId    = (int) $auth->getUserId();
 $repository = new \App\Repositories\InvoiceRepository($db);
 $service    = new \App\Services\InvoiceService($repository);
 $controller = new \App\Controllers\Admin\InvoiceController($service);
 
-$controller->updateStatus();
+$controller->updateStatus($adminId);
 
