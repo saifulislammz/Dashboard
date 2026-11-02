@@ -19,7 +19,11 @@
             <button id="profileDropdownBtn"
                 class="flex items-center gap-3 cursor-pointer focus:outline-none p-1 rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-600 to-primary flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white overflow-hidden">
-                    <i class="ph ph-users text-xl"></i>
+                    <?php if (!empty($_SESSION['user_profile_picture'])): ?>
+                        <img src="/uploads/avatars/<?php echo htmlspecialchars($_SESSION['user_profile_picture'], ENT_QUOTES, 'UTF-8'); ?>" alt="Profile" class="h-full w-full object-cover">
+                    <?php else: ?>
+                        <i class="ph ph-users text-xl"></i>
+                    <?php endif; ?>
                 </div>
                 <div class="hidden sm:block text-left">
                     <p class="text-sm font-bold text-brandText leading-tight"><?php echo e($auth->getUsername() ?: $auth->getEmail()); ?></p>

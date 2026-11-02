@@ -833,4 +833,60 @@ class InvoiceRepository
             return false;
         }
     }
+
+    /**
+     * Retrieve invoice history for a specific student by email.
+     *
+     * @param string $studentEmail
+     * @param int $limit
+     * @return array
+     */
+    public function findByStudentEmail(string $studentEmail, int $limit = 50): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, invoice_number, student_name, student_email, student_phone, student_country,
+                   currency, subtotal, discount, vat_percent, vat_amount, grand_total,
+                   amount_paid, amount_due, status, invoice_date, due_date, created_at
+            FROM invoices
+            WHERE student_email = :student_email
+              AND deleted_at IS NULL
+            ORDER BY invoice_date DESC, id DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':student_email', trim($studentEmail));
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieve lifetime invoice financial summary for a student by email.
+     *
+     * @param string $studentEmail
+     * @return array{total_invoices: int, total_billed: float, total_paid: float, total_due: float}
+     */
+    public function getSummaryByStudentEmail(string $studentEmail): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                COUNT(id) AS total_invoices,
+                COALESCE(SUM(grand_total), 0) AS total_billed,
+                COALESCE(SUM(amount_paid), 0) AS total_paid,
+                COALESCE(SUM(amount_due), 0) AS total_due
+            FROM invoices
+            WHERE student_email = :student_email
+              AND deleted_at IS NULL
+        ");
+        $stmt->bindValue(':student_email', trim($studentEmail));
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'total_invoices' => (int) ($row['total_invoices'] ?? 0),
+            'total_billed'   => (float) ($row['total_billed'] ?? 0),
+            'total_paid'     => (float) ($row['total_paid'] ?? 0),
+            'total_due'      => (float) ($row['total_due'] ?? 0),
+        ];
+    }
 }

@@ -162,15 +162,33 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-primary font-bold text-sm uppercase">
-                                        <?php echo substr($teacher['name'], 0, 1); ?>
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-primary font-bold text-sm uppercase overflow-hidden border border-gray-100 shadow-xs">
+                                        <?php if (!empty($teacher['profile_picture'])): ?>
+                                            <img src="/uploads/avatars/<?php echo htmlspecialchars($teacher['profile_picture'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($teacher['name'], ENT_QUOTES, 'UTF-8'); ?>" class="h-full w-full object-cover">
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars(mb_substr($teacher['name'] ?? '', 0, 1), ENT_QUOTES, 'UTF-8'); ?>
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900"><?php echo e($teacher['name']); ?></div>
+                                    <div class="ml-3.5">
+                                        <div class="text-sm font-semibold text-gray-900"><?php echo e($teacher['name']); ?></div>
+                                        <?php if (!empty($teacher['phone'])): ?>
+                                            <div class="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                                <i class="ph ph-phone text-xs text-primary"></i>
+                                                <span><?php echo e($teacher['phone']); ?></span>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo e($teacher['email']); ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div><?php echo e($teacher['email']); ?></div>
+                                <?php if (!empty($teacher['country'])): ?>
+                                    <div class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                        <i class="ph ph-map-pin text-xs"></i>
+                                        <span><?php echo e($teacher['country']); ?></span>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <?php if($teacher['status'] == 0): ?>
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
@@ -184,6 +202,14 @@ require __DIR__ . '/../layouts/sidebar_admin.php';
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
                                 <div class="inline-flex items-center justify-end gap-2">
+                                    <!-- View Complete Profile Hub Button -->
+                                    <a href="/admin/users/view.php?id=<?php echo (int) $teacher['id']; ?>" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-xs"
+                                       title="View Complete 360° Profile">
+                                        <i class="ph ph-user-circle text-sm"></i>
+                                        <span>Profile</span>
+                                    </a>
+
                                     <?php if (isSuperAdmin() || hasPermission('users.change_email')): ?>
                                         <!-- Change Email Button -->
                                         <button type="button" 

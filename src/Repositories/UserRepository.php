@@ -17,25 +17,28 @@ class UserRepository
 
     public function getPaginatedUsersByRole(int $roleMask, int $limit, int $offset, string $search = '', string $sort = 'id', string $order = 'DESC'): array
     {
-        $whereClause = "roles_mask & :role1 = :role2";
+        $whereClause = "(u.roles_mask & :role1) = :role2";
         $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
-            $whereClause .= " AND (username LIKE :search1 OR email LIKE :search2)";
+            $whereClause .= " AND (u.username LIKE :search1 OR u.email LIKE :search2 OR up.phone LIKE :search3)";
             $params['search1'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
+            $params['search3'] = '%' . $search . '%';
         }
 
-        $sortColumn = 'id';
-        if ($sort === 'name') $sortColumn = 'username';
-        elseif ($sort === 'email') $sortColumn = 'email';
-        elseif ($sort === 'status') $sortColumn = 'status';
+        $sortColumn = 'u.id';
+        if ($sort === 'name') $sortColumn = 'u.username';
+        elseif ($sort === 'email') $sortColumn = 'u.email';
+        elseif ($sort === 'status') $sortColumn = 'u.status';
 
         $orderDirection = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 
         $stmt = $this->db->prepare("
-            SELECT id, email, username as name, status, registered 
-            FROM users 
+            SELECT u.id, u.email, u.username as name, u.profile_picture, u.status, u.registered,
+                   up.phone, up.country, up.city, up.gender, up.date_of_birth
+            FROM users u
+            LEFT JOIN user_profiles up ON u.id = up.user_id
             WHERE $whereClause 
             ORDER BY $sortColumn $orderDirection 
             LIMIT :limit OFFSET :offset
@@ -53,16 +56,22 @@ class UserRepository
 
     public function countTotalUsersByRole(int $roleMask, string $search = ''): int
     {
-        $whereClause = "roles_mask & :role1 = :role2";
+        $whereClause = "(u.roles_mask & :role1) = :role2";
         $params = ['role1' => $roleMask, 'role2' => $roleMask];
 
         if (!empty($search)) {
-            $whereClause .= " AND (username LIKE :search1 OR email LIKE :search2)";
+            $whereClause .= " AND (u.username LIKE :search1 OR u.email LIKE :search2 OR up.phone LIKE :search3)";
             $params['search1'] = '%' . $search . '%';
             $params['search2'] = '%' . $search . '%';
+            $params['search3'] = '%' . $search . '%';
         }
 
-        $stmt = $this->db->prepare("SELECT COUNT(id) FROM users WHERE $whereClause");
+        $stmt = $this->db->prepare("
+            SELECT COUNT(u.id) 
+            FROM users u
+            LEFT JOIN user_profiles up ON u.id = up.user_id
+            WHERE $whereClause
+        ");
         foreach ($params as $key => $val) {
             $stmt->bindValue(':' . $key, $val);
         }
@@ -137,6 +146,28 @@ class UserRepository
         );
         $stmt->execute(['id' => $userId]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $user ?: null;
+    }
+
+    /**
+     * Retrieve complete user details combining users and user_profiles in a single query.
+     */
+    public function findUserDetailsById(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT u.id, u.email, u.username, u.profile_picture, u.status, u.verified, 
+                   u.roles_mask, u.registered, u.last_login, u.force_logout,
+                   up.phone, up.date_of_birth, up.gender, up.country, up.city, up.address,
+                   up.created_at AS profile_created_at, up.updated_at AS profile_updated_at
+            FROM users u
+            LEFT JOIN user_profiles up ON u.id = up.user_id
+            WHERE u.id = :id
+            LIMIT 1
+        ");
+        $stmt->bindValue(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
         return $user ?: null;
     }
 
