@@ -11,7 +11,7 @@ use App\Services\ClassroomService;
 /**
  * AdminClassroomController — Thin Controller
  * Handles admin classroom CRUD: index, create, edit, delete.
- * No business logic, no SQL here — delegates to ClassroomService.
+ * Enforces Role-Based Access Control and strict observer access scoping.
  */
 class AdminClassroomController
 {
@@ -22,9 +22,29 @@ class AdminClassroomController
         $this->service = $service;
     }
 
+    private function getUserId(): int
+    {
+        global $auth;
+        return $auth ? (int) $auth->getUserId() : (int) ($GLOBALS['auth']?->getUserId() ?? 0);
+    }
+
+    private function canViewAllClassrooms(): bool
+    {
+        if (function_exists('isSuperAdmin') && isSuperAdmin()) {
+            return true;
+        }
+
+        if (function_exists('hasPermission') && hasPermission('classrooms.view_all')) {
+            return true;
+        }
+
+        return false;
+    }
+
     // ─── GET /admin/classrooms/index.php ───────────────────────────
     public function index(): void
     {
+        $userId = $this->getUserId();
         $page    = max(1, (int) ($_GET['page'] ?? 1));
         $search  = trim($_GET['search'] ?? '');
         $limit   = 20;
@@ -34,7 +54,13 @@ class AdminClassroomController
         if (!in_array($sort, ['id', 'status', 'created_at'])) $sort = 'created_at';
         if (!in_array($order, ['ASC', 'DESC'])) $order = 'DESC';
 
-        $result      = $this->service->getPaginatedClassrooms($page, $limit, $search, $sort, $order);
+        // Check if user has global view or is restricted to assigned observer classes
+        $allowedIds = null; // null represents unrestricted
+        if (!$this->canViewAllClassrooms()) {
+            $allowedIds = (new \App\Repositories\ClassObserverRepository($GLOBALS['db']))->getAssignedClassroomIds($userId);
+        }
+
+        $result      = $this->service->getPaginatedClassrooms($page, $limit, $search, $sort, $order, $allowedIds);
         $classrooms  = $result['data'];
         $totalPages  = $result['pages'];
         $currentPage = $result['current_page'];
@@ -51,14 +77,19 @@ class AdminClassroomController
     {
         global $auth;
 
+        if (function_exists('requirePermission')) {
+            requirePermission('classrooms.create');
+        }
+
         $pageTitle  = 'Create Classroom';
         $activeMenu = 'classrooms_create';
         $error      = '';
         $success    = '';
 
         // Fetch teachers & students via service (which uses UserRepository)
-        $teachers = $this->service->getUsersByRole(ROLE_TEACHER);
-        $students = $this->service->getUsersByRole(ROLE_STUDENT);
+        $teachers          = $this->service->getUsersByRole(ROLE_TEACHER);
+        $students          = $this->service->getUsersByRole(ROLE_STUDENT);
+        $eligibleObservers = $this->service->getEligibleObservers();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -86,17 +117,39 @@ class AdminClassroomController
             return;
         }
 
-        $pageTitle  = 'Edit Classroom';
-        $activeMenu = 'classrooms_manage';
-        $error      = '';
-        $success    = '';
+        $userId = $this->getUserId();
+
+        // Security / IDOR Check: Ensure user is Super Admin, has view_all, or is assigned observer
+        if (!$this->canViewAllClassrooms()) {
+            $isObserver = (new \App\Repositories\ClassObserverRepository($GLOBALS['db']))->isUserObserverForClassroom($id, $userId);
+            if (!$isObserver) {
+                if (function_exists('renderForbiddenResponse')) {
+                    renderForbiddenResponse('Access Denied: You are not assigned to observe this classroom.');
+                }
+                http_response_code(403);
+                exit('<h1>403 Forbidden</h1><p>Access Denied: You are not assigned to observe this classroom.</p>');
+            }
+        }
+
+        $pageTitle           = 'Edit Classroom';
+        $activeMenu          = 'classrooms_manage';
+        $error               = '';
+        $success             = '';
+        $eligibleObservers   = $this->service->getEligibleObservers();
+        $assignedObserverIds = $this->service->getClassroomObserverIds($id);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
+                // If user doesn't have edit permission, block POST changes
+                if (function_exists('hasPermission') && !hasPermission('classrooms.edit') && !(function_exists('isSuperAdmin') && isSuperAdmin())) {
+                    throw new \RuntimeException('You do not have permission to modify classroom settings.');
+                }
+
                 validateCsrfToken($_POST['csrf_token'] ?? '');
-                $this->service->updateClassroom($id, $_POST);
-                $success   = 'Classroom updated successfully.';
-                $classroom = $this->service->getClassroomDetails($id); // refresh
+                $this->service->updateClassroom($id, $_POST, $userId);
+                $success             = 'Classroom updated successfully.';
+                $classroom           = $this->service->getClassroomDetails($id); // refresh
+                $assignedObserverIds = $this->service->getClassroomObserverIds($id);
             } catch (\Exception $e) {
                 $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
             }
@@ -112,6 +165,10 @@ class AdminClassroomController
             http_response_code(405);
             header('Location: /admin/classrooms/index.php');
             exit;
+        }
+
+        if (function_exists('requirePermission')) {
+            requirePermission('classrooms.delete');
         }
 
         $id = (int) ($_GET['id'] ?? ($_POST['id'] ?? 0));

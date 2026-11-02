@@ -274,8 +274,18 @@ class AttendanceRepository
      * Paginated admin overview: one row per classroom (teacher+student pair).
      * Returns classroom info + total non-cancelled sessions count.
      */
-    public function getAdminClassroomList(int $limit, int $offset): array
+    public function getAdminClassroomList(int $limit, int $offset, ?array $allowedClassroomIds = null): array
     {
+        if ($allowedClassroomIds !== null && empty($allowedClassroomIds)) {
+            return [];
+        }
+
+        $whereClause = "";
+        if ($allowedClassroomIds !== null && !empty($allowedClassroomIds)) {
+            $sanitizedIds = implode(',', array_map('intval', $allowedClassroomIds));
+            $whereClause = "WHERE c.id IN ($sanitizedIds)";
+        }
+
         $stmt = $this->db->prepare("
             SELECT
                 c.id          AS classroom_id,
@@ -292,6 +302,7 @@ class AttendanceRepository
             LEFT JOIN class_sessions cs
                 ON cs.classroom_id = c.id
                AND cs.status NOT IN ('cancelled')
+            {$whereClause}
             GROUP BY
                 c.id, c.class_name, c.class_code,
                 t.id, t.username,
@@ -308,9 +319,19 @@ class AttendanceRepository
     /**
      * Total classroom count for admin overview pagination.
      */
-    public function countAdminClassrooms(): int
+    public function countAdminClassrooms(?array $allowedClassroomIds = null): int
     {
-        $stmt = $this->db->query("SELECT COUNT(id) FROM classrooms");
+        if ($allowedClassroomIds !== null && empty($allowedClassroomIds)) {
+            return 0;
+        }
+
+        $whereClause = "";
+        if ($allowedClassroomIds !== null && !empty($allowedClassroomIds)) {
+            $sanitizedIds = implode(',', array_map('intval', $allowedClassroomIds));
+            $whereClause = "WHERE id IN ($sanitizedIds)";
+        }
+
+        $stmt = $this->db->query("SELECT COUNT(id) FROM classrooms {$whereClause}");
         return (int) $stmt->fetchColumn();
     }
 

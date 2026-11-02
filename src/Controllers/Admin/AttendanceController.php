@@ -26,18 +26,43 @@ class AttendanceController
         $this->classroomRepo     = $classroomRepo;
     }
 
+    private function getUserId(): int
+    {
+        global $auth;
+        return $auth ? (int) $auth->getUserId() : (int) ($GLOBALS['auth']?->getUserId() ?? 0);
+    }
+
+    private function canViewAllClassrooms(): bool
+    {
+        if (function_exists('isSuperAdmin') && isSuperAdmin()) {
+            return true;
+        }
+
+        if (function_exists('hasPermission') && hasPermission('classrooms.view_all')) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Overview page: one row per classroom with teacher + student info.
      * Replaces old session-level overview.
      */
     public function overview(): void
     {
+        $userId = $this->getUserId();
         $page   = max(1, (int) ($_GET['page'] ?? 1));
         $limit  = 20;
         $offset = ($page - 1) * $limit;
 
-        $rows  = $this->attendanceService->getAdminClassroomList($limit, $offset);
-        $total = $this->attendanceService->countAdminClassrooms();
+        $allowedIds = null;
+        if (!$this->canViewAllClassrooms()) {
+            $allowedIds = (new \App\Repositories\ClassObserverRepository($GLOBALS['db']))->getAssignedClassroomIds($userId);
+        }
+
+        $rows  = $this->attendanceService->getAdminClassroomList($limit, $offset, $allowedIds);
+        $total = $this->attendanceService->countAdminClassrooms($allowedIds);
         $pages = (int) ceil($total / $limit);
 
         $pageTitle  = 'Attendance Overview';
@@ -59,6 +84,20 @@ class AttendanceController
         if ($classroomId <= 0) {
             http_response_code(404);
             exit('<h1>404 — Page not found.</h1>');
+        }
+
+        $userId = $this->getUserId();
+
+        // IDOR / Observer check
+        if (!$this->canViewAllClassrooms()) {
+            $isObserver = (new \App\Repositories\ClassObserverRepository($GLOBALS['db']))->isUserObserverForClassroom($classroomId, $userId);
+            if (!$isObserver) {
+                if (function_exists('renderForbiddenResponse')) {
+                    renderForbiddenResponse('Access Denied: You are not assigned to observe this classroom.');
+                }
+                http_response_code(403);
+                exit('<h1>403 Forbidden</h1><p>Access Denied: You are not assigned to observe this classroom.</p>');
+            }
         }
 
         // Fetch classroom (includes teacher_id, student_id via ClassroomRepository::findById)

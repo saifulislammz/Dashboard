@@ -9,12 +9,13 @@ use App\Exceptions\ScheduleConflictException;
 use App\Services\Sessions\ClassSessionService;
 use App\Repositories\ClassSessionRepository;
 use App\Repositories\ClassroomRepository;
+use App\Repositories\ClassObserverRepository;
 
 /**
  * AdminSessionController
  *
  * Handles all admin-facing session management actions.
- * Wires into existing classrooms module cleanly.
+ * Enforces strict observer access control and IDOR protections.
  */
 class AdminSessionController
 {
@@ -23,24 +24,49 @@ class AdminSessionController
     private ClassroomRepository    $classroomRepo;
     private ?\Delight\Auth\Auth    $auth;
     private ?\App\Repositories\ProviderAccountRepository $providerRepo;
+    private ?ClassObserverRepository $observerRepo;
 
     public function __construct(
         ClassSessionService    $sessionService,
         ClassSessionRepository $sessionRepo,
         ClassroomRepository    $classroomRepo,
         ?\Delight\Auth\Auth    $auth = null,
-        ?\App\Repositories\ProviderAccountRepository $providerRepo = null
+        ?\App\Repositories\ProviderAccountRepository $providerRepo = null,
+        ?ClassObserverRepository $observerRepo = null
     ) {
         $this->sessionService = $sessionService;
         $this->sessionRepo    = $sessionRepo;
         $this->classroomRepo  = $classroomRepo;
         $this->auth           = $auth ?? ($GLOBALS['auth'] ?? null);
         $this->providerRepo   = $providerRepo;
+        $this->observerRepo   = $observerRepo ?? (isset($GLOBALS['db']) ? new ClassObserverRepository($GLOBALS['db']) : null);
     }
 
     private function getUserId(): int
     {
         return $this->auth ? (int) $this->auth->getUserId() : (int) ($GLOBALS['auth']?->getUserId() ?? 0);
+    }
+
+    private function canViewAllClassrooms(): bool
+    {
+        if (function_exists('isSuperAdmin') && isSuperAdmin()) {
+            return true;
+        }
+
+        if (function_exists('hasPermission') && hasPermission('classrooms.view_all')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function getObserverRepo(): ClassObserverRepository
+    {
+        if ($this->observerRepo === null) {
+            $db = $GLOBALS['db'] ?? null;
+            $this->observerRepo = new ClassObserverRepository($db);
+        }
+        return $this->observerRepo;
     }
 
     private function getProviderRepo(): \App\Repositories\ProviderAccountRepository
@@ -66,6 +92,20 @@ class AdminSessionController
             die('<h1>Classroom not found.</h1>');
         }
 
+        $userId = $this->getUserId();
+
+        // IDOR / Security check: verify user has access to view this classroom's sessions
+        if (!$this->canViewAllClassrooms()) {
+            $isObserver = $this->getObserverRepo()->isUserObserverForClassroom($classroomId, $userId);
+            if (!$isObserver) {
+                if (function_exists('renderForbiddenResponse')) {
+                    renderForbiddenResponse('Access Denied: You are not assigned to observe this classroom.');
+                }
+                http_response_code(403);
+                die('<h1>403 Forbidden</h1><p>Access Denied: You are not assigned to observe this classroom.</p>');
+            }
+        }
+
         $page   = max(1, (int) ($_GET['page'] ?? 1));
         $status = trim($_GET['status'] ?? '');
         $limit  = 20;
@@ -77,6 +117,9 @@ class AdminSessionController
 
         $pageTitle  = "Live Sessions — {$classroom['class_name']}";
         $activeMenu = 'classrooms_manage';
+
+        // Check observer state for action rendering in view
+        $isObserver = $this->getObserverRepo()->isUserObserverForClassroom($classroomId, $userId);
 
         require __DIR__ . '/../../../views/admin/sessions/index.php';
     }
@@ -95,11 +138,16 @@ class AdminSessionController
             die('<h1>Classroom not found.</h1>');
         }
 
+        // Permission check: only staff with sessions.create or Super Admin can schedule sessions
+        if (function_exists('requirePermission')) {
+            requirePermission('sessions.create');
+        }
+
         $error                = '';
         $success              = '';
         $result               = null;
         $timeConflictError    = null;
-        $scheduleConflictError = null; // Teacher/Student schedule overlap
+        $scheduleConflictError = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -116,7 +164,6 @@ class AdminSessionController
                         : 'Session created but meeting generation failed: ' . ($out['error'] ?? '');
                     $result  = $out;
                 } else {
-                    // Bulk: parse submitted dates array
                     $rawDates = $_POST['dates'] ?? [];
                     $dates    = [];
 
@@ -137,7 +184,6 @@ class AdminSessionController
                     $success = "Bulk generation complete: {$out['succeeded']} succeeded, {$out['failed']} failed out of {$out['total']} sessions{$skipNote}.";
                     $result  = $out;
 
-                    // Pass conflict skips to view for detailed reporting
                     if (!empty($out['conflict_skips'])) {
                         $scheduleConflictError = [
                             'type'    => 'bulk_skips',
@@ -146,7 +192,6 @@ class AdminSessionController
                     }
                 }
             } catch (ScheduleConflictException $e) {
-                // Teacher or Student has overlapping session — block creation entirely for single mode.
                 $scheduleConflictError = [
                     'type'         => $e->getConflictType(),
                     'person_name'  => $e->getPersonName(),
@@ -156,8 +201,6 @@ class AdminSessionController
                     'class_name'   => $e->getConflictClassName(),
                 ];
             } catch (TimeSlotConflictException $e) {
-                // Time slot is already booked — do NOT create the session.
-                // Pass structured data to the view so it can render the conflict modal.
                 $timeConflictError = [
                     'provider'   => $e->getProvider(),
                     'date'       => $e->getSessionDate(),
@@ -181,6 +224,9 @@ class AdminSessionController
         $googleAccounts = $providerRepo->findAllByProvider('google_meet');
         $zoomAccounts = $providerRepo->findAllByProvider('zoom');
 
+        // Fetch assigned classroom observers for display
+        $classroomObservers = $this->getObserverRepo()->getClassroomObservers($classroomId);
+
         require __DIR__ . '/../../../views/admin/sessions/create.php';
     }
 
@@ -195,6 +241,11 @@ class AdminSessionController
         if (!$session) {
             http_response_code(404);
             die('<h1>Session not found.</h1>');
+        }
+
+        // Permission check
+        if (function_exists('requirePermission')) {
+            requirePermission('sessions.edit');
         }
 
         $error   = '';
@@ -223,6 +274,10 @@ class AdminSessionController
      */
     public function cancel(): void
     {
+        if (function_exists('requirePermission')) {
+            requirePermission('sessions.cancel');
+        }
+
         $sessionId   = (int) ($_POST['session_id'] ?? 0);
         $classroomId = (int) ($_POST['classroom_id'] ?? 0);
         $reason      = htmlspecialchars(trim($_POST['reason'] ?? ''));
@@ -244,6 +299,10 @@ class AdminSessionController
      */
     public function retry(): void
     {
+        if (function_exists('requirePermission')) {
+            requirePermission('sessions.retry');
+        }
+
         $sessionId   = (int) ($_POST['session_id'] ?? 0);
         $classroomId = (int) ($_POST['classroom_id'] ?? 0);
 

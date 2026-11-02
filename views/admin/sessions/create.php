@@ -251,6 +251,29 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         </div>
                     </div>
 
+                    <!-- Classroom Observers Info -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Class Observers</label>
+                        <div class="mt-1 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <?php if (empty($classroomObservers)): ?>
+                                <p class="text-xs text-gray-500 italic">No observers assigned to this classroom yet. You can assign observers in <a href="/admin/classrooms/edit.php?id=<?= $classroom['id'] ?>" class="text-primary underline">Edit Classroom</a>.</p>
+                            <?php else: ?>
+                                <div class="flex flex-wrap gap-2">
+                                    <?php foreach ($classroomObservers as $obs): ?>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                            <?= htmlspecialchars($obs['username']) ?>
+                                            <?php if (!empty($obs['role_name'])): ?>
+                                                <span class="text-[10px] text-emerald-600">(<?= htmlspecialchars($obs['role_name']) ?>)</span>
+                                            <?php endif; ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                                <p class="text-[11px] text-gray-500 mt-2">These observers will automatically be able to observe the scheduled session(s).</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
                     <div class="sm:col-span-2">
                         <label for="provider" class="block text-sm font-medium text-gray-700">Meeting Provider <span class="text-red-500">*</span></label>
                         <div class="mt-1">

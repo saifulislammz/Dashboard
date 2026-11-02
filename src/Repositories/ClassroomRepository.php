@@ -76,8 +76,27 @@ class ClassroomRepository
         return $result ?: null;
     }
 
-    public function getPaginatedClassrooms(int $limit, int $offset, string $search = '', string $sort = 'created_at', string $order = 'DESC'): array
+    public function findByClassCode(string $code): ?array
     {
+        $stmt = $this->db->prepare("SELECT id, class_code, class_name FROM classrooms WHERE class_code = :code LIMIT 1");
+        $stmt->execute(['code' => $code]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function getPaginatedClassrooms(
+        int $limit, 
+        int $offset, 
+        string $search = '', 
+        string $sort = 'created_at', 
+        string $order = 'DESC',
+        ?array $allowedClassroomIds = null
+    ): array {
+        // If an explicit scope was passed and it is empty, return early with zero results
+        if ($allowedClassroomIds !== null && empty($allowedClassroomIds)) {
+            return [];
+        }
+
         $query = "
             SELECT c.id, c.class_code, c.class_name, c.class_title, c.status, c.created_at,
                    t.username as teacher_name, t.email as teacher_email,
@@ -87,11 +106,21 @@ class ClassroomRepository
             LEFT JOIN users s ON c.student_id = s.id
         ";
 
+        $whereConditions = [];
         $params = [];
 
         if (!empty($search)) {
-            $query .= " WHERE CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
+            $whereConditions[] = "CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
             $params['search'] = "%$search%";
+        }
+
+        if ($allowedClassroomIds !== null && !empty($allowedClassroomIds)) {
+            $sanitizedIds = implode(',', array_map('intval', $allowedClassroomIds));
+            $whereConditions[] = "c.id IN ($sanitizedIds)";
+        }
+
+        if (!empty($whereConditions)) {
+            $query .= " WHERE " . implode(" AND ", $whereConditions);
         }
 
         // Map allowed sort columns to table aliases to prevent SQL injection
@@ -118,8 +147,13 @@ class ClassroomRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countTotalClassrooms(string $search = ''): int
+    public function countTotalClassrooms(string $search = '', ?array $allowedClassroomIds = null): int
     {
+        // If an explicit scope was passed and it is empty, return 0
+        if ($allowedClassroomIds !== null && empty($allowedClassroomIds)) {
+            return 0;
+        }
+
         $query = "
             SELECT COUNT(c.id) as total
             FROM classrooms c
@@ -127,10 +161,21 @@ class ClassroomRepository
             LEFT JOIN users s ON c.student_id = s.id
         ";
         
+        $whereConditions = [];
         $params = [];
+
         if (!empty($search)) {
-            $query .= " WHERE CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
+            $whereConditions[] = "CONCAT_WS(' ', c.class_name, c.class_title, t.username, s.username) LIKE :search";
             $params['search'] = "%$search%";
+        }
+
+        if ($allowedClassroomIds !== null && !empty($allowedClassroomIds)) {
+            $sanitizedIds = implode(',', array_map('intval', $allowedClassroomIds));
+            $whereConditions[] = "c.id IN ($sanitizedIds)";
+        }
+
+        if (!empty($whereConditions)) {
+            $query .= " WHERE " . implode(" AND ", $whereConditions);
         }
 
         $stmt = $this->db->prepare($query);

@@ -1,16 +1,31 @@
 <?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
+
+$canAssign = (function_exists('isSuperAdmin') && isSuperAdmin()) || (function_exists('hasPermission') && hasPermission('classrooms.assign_observer'));
+$canEdit = (function_exists('isSuperAdmin') && isSuperAdmin()) || (function_exists('hasPermission') && hasPermission('classrooms.edit'));
+$assignedObserverIds = $assignedObserverIds ?? [];
 ?>
 
 <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-    <div class="max-w-3xl mx-auto space-y-6">
+    <div class="max-w-4xl mx-auto space-y-6">
         
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Edit Classroom: <?= htmlspecialchars($classroom['class_code']) ?></h1>
-            <a href="/admin/classrooms/index.php" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
-                &larr; Back to Classrooms
-            </a>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Edit Classroom: <?= htmlspecialchars($classroom['class_code']) ?></h1>
+                <p class="text-sm text-gray-500 mt-1">Manage classroom details, enrolled members, and assigned observers.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/admin/attendance/detail.php?classroom_id=<?= (int) $classroom['id'] ?>" class="inline-flex items-center gap-1.5 py-2 px-3.5 border border-gray-200 rounded-lg shadow-xs text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Attendance Report
+                </a>
+                <a href="/admin/classrooms/index.php" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+                    &larr; Back to Classrooms
+                </a>
+            </div>
         </div>
 
         <?php if (!empty($error)): ?>
@@ -58,14 +73,14 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                     <div class="sm:col-span-2">
                         <label for="class_name" class="block text-sm font-medium text-gray-700">Class Name <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <input type="text" name="class_name" id="class_name" value="<?= htmlspecialchars($classroom['class_name']) ?>" required class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="text" name="class_name" id="class_name" value="<?= htmlspecialchars($classroom['class_name']) ?>" required <?= !$canEdit ? 'readonly' : '' ?> class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md <?= !$canEdit ? 'bg-gray-50' : '' ?>">
                         </div>
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="class_title" class="block text-sm font-medium text-gray-700">Class Title <span class="text-red-500">*</span></label>
                         <div class="mt-1">
-                            <input type="text" name="class_title" id="class_title" value="<?= htmlspecialchars($classroom['class_title']) ?>" required class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <input type="text" name="class_title" id="class_title" value="<?= htmlspecialchars($classroom['class_title']) ?>" required <?= !$canEdit ? 'readonly' : '' ?> class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md <?= !$canEdit ? 'bg-gray-50' : '' ?>">
                         </div>
                     </div>
 
@@ -85,10 +100,45 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         <p class="mt-1 text-xs text-gray-500">Student assignment cannot be modified.</p>
                     </div>
 
+                    <!-- Assign Class Observers -->
+                    <div class="sm:col-span-2 pt-2 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-800">Assigned Class Observers</label>
+                                <p class="text-xs text-gray-500">Designated Admin or Moderator accounts who can monitor live sessions and view reports.</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                <?= count($assignedObserverIds) ?> Assigned
+                            </span>
+                        </div>
+
+                        <?php if (empty($eligibleObservers)): ?>
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs text-gray-500">
+                                No eligible moderator or staff accounts found in system.
+                            </div>
+                        <?php else: ?>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 max-h-56 overflow-y-auto">
+                                <?php foreach ($eligibleObservers as $obs): ?>
+                                    <?php $isChecked = in_array((int) $obs['id'], $assignedObserverIds, true); ?>
+                                    <label class="relative flex items-center p-2.5 bg-white rounded-lg border <?= $isChecked ? 'border-primary ring-1 ring-primary/20' : 'border-gray-200' ?> <?= $canAssign ? 'hover:border-primary/50 cursor-pointer' : 'cursor-default' ?> transition-colors shadow-2xs">
+                                        <input type="checkbox" name="observer_ids[]" value="<?= (int) $obs['id'] ?>" <?= $isChecked ? 'checked' : '' ?> <?= !$canAssign ? 'disabled' : '' ?> class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                        <div class="ml-3 flex flex-col min-w-0">
+                                            <span class="text-xs font-semibold text-gray-900 truncate"><?= htmlspecialchars($obs['username']) ?></span>
+                                            <span class="text-[11px] text-gray-500 truncate"><?= htmlspecialchars($obs['email']) ?></span>
+                                            <?php if (!empty($obs['role_name'])): ?>
+                                                <span class="inline-block mt-0.5 text-[10px] text-primary font-medium"><?= htmlspecialchars($obs['role_name']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="sm:col-span-2">
                         <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                         <div class="mt-1">
-                            <select id="status" name="status" class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md">
+                            <select id="status" name="status" <?= !$canEdit ? 'disabled' : '' ?> class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md <?= !$canEdit ? 'bg-gray-50' : '' ?>">
                                 <option value="Active" <?= $classroom['status'] === 'Active' ? 'selected' : '' ?>>Active</option>
                                 <option value="Inactive" <?= $classroom['status'] === 'Inactive' ? 'selected' : '' ?>>Inactive</option>
                             </select>
@@ -109,9 +159,11 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         <a href="/admin/classrooms/index.php" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                             Cancel
                         </a>
+                        <?php if ($canEdit || $canAssign): ?>
                         <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                             Update Classroom
                         </button>
+                        <?php endif; ?>
                     </div>
                 </div>
             </form>

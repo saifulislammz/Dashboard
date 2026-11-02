@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\ClassroomRepository;
+use App\Repositories\ClassObserverRepository;
 use App\Repositories\UserRepository;
 use Exception;
 
@@ -10,11 +11,28 @@ class ClassroomService
 {
     private ClassroomRepository $repository;
     private ?UserRepository $userRepository;
+    private ?ClassObserverRepository $observerRepo;
 
-    public function __construct(ClassroomRepository $repository, ?UserRepository $userRepository = null)
-    {
+    public function __construct(
+        ClassroomRepository $repository, 
+        ?UserRepository $userRepository = null,
+        ?ClassObserverRepository $observerRepo = null
+    ) {
         $this->repository     = $repository;
         $this->userRepository = $userRepository ?? (isset($GLOBALS['db']) ? new UserRepository($GLOBALS['db']) : null);
+        $this->observerRepo   = $observerRepo ?? (isset($GLOBALS['db']) ? new ClassObserverRepository($GLOBALS['db']) : null);
+    }
+
+    private function getObserverRepo(): ClassObserverRepository
+    {
+        if ($this->observerRepo === null) {
+            if (isset($GLOBALS['db'])) {
+                $this->observerRepo = new ClassObserverRepository($GLOBALS['db']);
+            } else {
+                throw new \LogicException('ClassObserverRepository is required for observer operations.');
+            }
+        }
+        return $this->observerRepo;
     }
 
     public function createClassroom(array $data, int $adminId): bool
@@ -41,10 +59,23 @@ class ClassroomService
             'created_by' => $adminId
         ];
 
-        return $this->repository->create($classroomData);
+        $created = $this->repository->create($classroomData);
+        if (!$created) {
+            return false;
+        }
+
+        // If observer IDs were supplied, assign them to the new classroom
+        if (!empty($data['observer_ids']) && is_array($data['observer_ids'])) {
+            $newClass = $this->repository->findByClassCode($classCode);
+            if ($newClass && !empty($newClass['id'])) {
+                $this->getObserverRepo()->assignClassroomObservers((int) $newClass['id'], $data['observer_ids'], $adminId);
+            }
+        }
+
+        return true;
     }
 
-    public function updateClassroom(int $id, array $data): bool
+    public function updateClassroom(int $id, array $data, ?int $actorId = null): bool
     {
         if (empty($data['class_name']) || empty($data['class_title'])) {
             throw new Exception("Class Name and Title are required.");
@@ -56,7 +87,18 @@ class ClassroomService
             'status' => in_array($data['status'], ['Active', 'Inactive']) ? $data['status'] : 'Active'
         ];
 
-        return $this->repository->update($id, $classroomData);
+        $updated = $this->repository->update($id, $classroomData);
+        if (!$updated) {
+            return false;
+        }
+
+        // Synchronize observer assignments if observer_ids field is present in request
+        if (isset($data['observer_ids'])) {
+            $observerIds = is_array($data['observer_ids']) ? $data['observer_ids'] : [];
+            $this->getObserverRepo()->assignClassroomObservers($id, $observerIds, $actorId ?? 1);
+        }
+
+        return true;
     }
 
     public function deleteClassroom(int $id): bool
@@ -69,11 +111,32 @@ class ClassroomService
         return $this->repository->findById($id);
     }
 
-    public function getPaginatedClassrooms(int $page, int $limit, string $search = '', string $sort = 'created_at', string $order = 'DESC'): array
+    public function getClassroomObservers(int $id): array
     {
+        return $this->getObserverRepo()->getClassroomObservers($id);
+    }
+
+    public function getClassroomObserverIds(int $id): array
+    {
+        return $this->getObserverRepo()->getClassroomObserverIds($id);
+    }
+
+    public function getEligibleObservers(): array
+    {
+        return $this->getObserverRepo()->getEligibleObservers();
+    }
+
+    public function getPaginatedClassrooms(
+        int $page, 
+        int $limit, 
+        string $search = '', 
+        string $sort = 'created_at', 
+        string $order = 'DESC',
+        ?array $allowedClassroomIds = null
+    ): array {
         $offset = ($page - 1) * $limit;
-        $classrooms = $this->repository->getPaginatedClassrooms($limit, $offset, $search, $sort, $order);
-        $total = $this->repository->countTotalClassrooms($search);
+        $classrooms = $this->repository->getPaginatedClassrooms($limit, $offset, $search, $sort, $order, $allowedClassroomIds);
+        $total = $this->repository->countTotalClassrooms($search, $allowedClassroomIds);
 
         return [
             'data' => $classrooms,

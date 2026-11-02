@@ -95,14 +95,14 @@ class AttendanceService
     /**
      * Paginated classroom list for admin attendance overview.
      */
-    public function getAdminClassroomList(int $limit, int $offset): array
+    public function getAdminClassroomList(int $limit, int $offset, ?array $allowedClassroomIds = null): array
     {
-        return $this->attendanceRepo->getAdminClassroomList($limit, $offset);
+        return $this->attendanceRepo->getAdminClassroomList($limit, $offset, $allowedClassroomIds);
     }
 
-    public function countAdminClassrooms(): int
+    public function countAdminClassrooms(?array $allowedClassroomIds = null): int
     {
-        return $this->attendanceRepo->countAdminClassrooms();
+        return $this->attendanceRepo->countAdminClassrooms($allowedClassroomIds);
     }
 
     /**

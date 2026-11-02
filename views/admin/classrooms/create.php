@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 ?>
@@ -9,7 +9,7 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Create Classroom</h1>
-                <p class="mt-1 text-sm text-gray-500">Add a new classroom and assign teacher and student.</p>
+                <p class="mt-1 text-sm text-gray-500">Add a new classroom, assign teacher, student, and monitor observers.</p>
             </div>
             <a href="/admin/classrooms/index.php" class="inline-flex items-center text-sm font-semibold text-primary hover:text-green-700 transition-colors">
                 <svg class="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,6 +120,42 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         </div>
                     </div>
 
+                    <!-- Assign Class Observers (Admin / Moderator) -->
+                    <?php if ((function_exists('isSuperAdmin') && isSuperAdmin()) || (function_exists('hasPermission') && hasPermission('classrooms.assign_observer'))): ?>
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-800">Assign Class Observers (Optional)</label>
+                                <p class="text-xs text-gray-500 mt-0.5">Assigned Admin or Moderator accounts will be able to observe live sessions, view attendance, and inspect class history.</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                Observer Access
+                            </span>
+                        </div>
+
+                        <?php if (empty($eligibleObservers)): ?>
+                            <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500">
+                                No eligible moderator or staff accounts found.
+                            </div>
+                        <?php else: ?>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-gray-50/80 rounded-xl border border-gray-100 max-h-56 overflow-y-auto">
+                                <?php foreach ($eligibleObservers as $obs): ?>
+                                    <label class="relative flex items-center p-2.5 bg-white rounded-lg border border-gray-200 hover:border-primary/50 cursor-pointer transition-colors shadow-xs group">
+                                        <input type="checkbox" name="observer_ids[]" value="<?= (int) $obs['id'] ?>" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                        <div class="ml-3 flex flex-col min-w-0">
+                                            <span class="text-xs font-semibold text-gray-900 truncate"><?= htmlspecialchars($obs['username']) ?></span>
+                                            <span class="text-[11px] text-gray-500 truncate"><?= htmlspecialchars($obs['email']) ?></span>
+                                            <?php if (!empty($obs['role_name'])): ?>
+                                                <span class="inline-block mt-0.5 text-[10px] text-primary font-medium"><?= htmlspecialchars($obs['role_name']) ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Status -->
                     <div class="space-y-1.5">
                         <label for="status" class="block text-sm font-semibold text-gray-800">Status</label>
@@ -161,4 +197,3 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
 </main>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>
-

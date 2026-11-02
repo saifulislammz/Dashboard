@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers\Admin;
 
 use App\Services\AnalyticsService;
+use App\Services\ClassObserverService;
 
 class DashboardController
 {
@@ -13,12 +16,16 @@ class DashboardController
         $this->analyticsService = $analyticsService;
     }
 
-    public function index()
+    public function index(): void
     {
         global $auth, $db;
         
         $stats = $this->analyticsService->getDashboardStats();
         
+        $userId = (int) ($auth ? $auth->getUserId() : 0);
+        $observerService = new ClassObserverService($db);
+        $observerData = $observerService->getObserverDashboardData($userId);
+
         $pageTitle = 'Admin Dashboard';
         $activeMenu = 'dashboard';
         
