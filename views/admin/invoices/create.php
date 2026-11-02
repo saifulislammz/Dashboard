@@ -6,11 +6,12 @@
 require __DIR__ . '/../../layouts/header.php';
 require __DIR__ . '/../../layouts/sidebar_admin.php';
 
-// Repopulate old values after failed submission
-$old      = $old      ?? [];
-$errors   = $errors   ?? [];
-$todayDate = date('Y-m-d');
-$dueDateDefault = '';
+// Repopulate old values after failed submission or duplication
+$old                  = $old                  ?? [];
+$errors               = $errors               ?? [];
+$duplicateFromInvoice = $duplicateFromInvoice ?? null;
+$todayDate            = date('Y-m-d');
+$dueDateDefault       = '';
 
 /**
  * Helper: safe old value with htmlspecialchars
@@ -36,8 +37,14 @@ function inv_err(string $key): string
         <!-- Page Header -->
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-[#1e293b] tracking-tight">Generate Invoice</h1>
-                <p class="text-sm text-[#64748b] mt-1">Create a new payment invoice for a student manually.</p>
+                <h1 class="text-2xl font-bold text-[#1e293b] tracking-tight">
+                    <?= !empty($duplicateFromInvoice) ? 'Duplicate Invoice' : 'Generate Invoice' ?>
+                </h1>
+                <p class="text-sm text-[#64748b] mt-1">
+                    <?= !empty($duplicateFromInvoice)
+                        ? 'Review and adjust pre-filled details to create a new independent invoice.'
+                        : 'Create a new payment invoice for a student manually.' ?>
+                </p>
             </div>
             <a href="/admin/invoices/index.php"
                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#64748b] bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
@@ -45,6 +52,25 @@ function inv_err(string $key): string
                 Back to Dashboard
             </a>
         </div>
+
+        <?php if (!empty($duplicateFromInvoice)): ?>
+        <!-- Duplicate Info Banner -->
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-blue-900">
+                    Duplicating from Invoice #<?= htmlspecialchars($duplicateFromInvoice['invoice_number'], ENT_QUOTES, 'UTF-8') ?> (Student: <?= htmlspecialchars($duplicateFromInvoice['student_name'], ENT_QUOTES, 'UTF-8') ?>)
+                </p>
+                <p class="text-xs text-blue-700 mt-1">
+                    Student details, line items, and rates have been pre-filled. Changes made will generate a brand-new invoice with a new ID and unique invoice number. The original invoice remains unchanged.
+                </p>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <?php if (!empty($errors)): ?>
         <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
@@ -389,10 +415,12 @@ function inv_err(string $key): string
         <td class="py-3 pr-2 text-xs font-medium text-[#94a3b8] align-top pt-4 row-num">__NUM__</td>
         <td class="py-3 pr-2 align-top">
             <input type="text" name="items[__IDX__][item_name]" placeholder="Course or service name"
-                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" required>
+                   class="item-name w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-medium" required>
+            <textarea name="items[__IDX__][description]" rows="1" placeholder="Description or notes (optional)"
+                      class="item-desc mt-1.5 w-full px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"></textarea>
         </td>
         <td class="py-3 pr-2 align-top">
-            <input type="number" name="items[__IDX__][quantity]" value="1" min="1" step="1"
+            <input type="number" name="items[__IDX__][quantity]" value="1" min="0.01" step="any"
                    class="item-qty w-full px-3 py-2 text-sm text-right border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
         </td>
         <td class="py-3 pr-2 align-top">
@@ -404,7 +432,7 @@ function inv_err(string $key): string
                    class="item-amount w-full px-3 py-2 text-sm text-right border border-gray-100 rounded-lg bg-gray-50 text-[#0f172a] font-medium cursor-not-allowed">
         </td>
         <td class="py-3 align-top">
-            <button type="button" class="remove-item-btn w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+            <button type="button" class="remove-item-btn w-8 h-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Remove item">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </td>
@@ -435,7 +463,7 @@ function inv_err(string $key): string
     const paidSectionEl = document.getElementById('fully-paid-section');
     const form         = document.getElementById('invoice-form');
 
-    // â”€â”€ Add row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Add row
     function addRow(name = '', desc = '', qty = 1, price = 0) {
         const html = tpl.innerHTML
             .replaceAll('__IDX__', itemIndex)
@@ -443,10 +471,12 @@ function inv_err(string $key): string
         tbody.insertAdjacentHTML('beforeend', html);
         const row = tbody.lastElementChild;
 
-        // Populate values if provided (re-fill on error)
-        if (name)  row.querySelector('.item-name').value  = name;
-        if (price) row.querySelector('.item-price').value = parseFloat(price).toFixed(2);
-        if (qty)   row.querySelector('.item-qty').value   = parseInt(qty, 10);
+        // Populate values if provided (re-fill on error or duplication)
+        if (name) row.querySelector('.item-name').value = name;
+        const descEl = row.querySelector('.item-desc');
+        if (descEl && desc) descEl.value = desc;
+        if (price !== undefined && price !== null) row.querySelector('.item-price').value = parseFloat(price).toFixed(2);
+        if (qty !== undefined && qty !== null)   row.querySelector('.item-qty').value   = parseFloat(qty);
 
         recalcRow(row);
         itemIndex++;
@@ -475,33 +505,55 @@ function inv_err(string $key): string
     vatEl.addEventListener('input', recalcTotals);
     amountPaidEl.addEventListener('input', recalcTotals);
 
-    // ── Recalculate a single row amount ──────────────────────────────────
+    // Recalculate a single row amount
     function recalcRow(row) {
-        const qty   = parseInt(row.querySelector('.item-qty').value, 10) || 0;
+        const qty   = parseFloat(row.querySelector('.item-qty').value) || 0;
         const price = parseFloat(row.querySelector('.item-price').value) || 0;
         const amt   = qty * price;
         row.querySelector('.item-amount').value = amt.toFixed(2);
     }
 
-    // ── Recalculate totals ──────────────────────────────────────────
+    // Recalculate totals
     function recalcTotals() {
         let subtotal = 0;
         tbody.querySelectorAll('.item-amount').forEach(function (el) {
             subtotal += parseFloat(el.value) || 0;
         });
 
-        const discount    = Math.max(0, parseFloat(discountEl.value) || 0);
-        const vatPercent  = Math.max(0, Math.min(100, parseFloat(vatEl.value) || 0));
-        const afterDisc   = Math.max(0, subtotal - discount);
-        const vatAmount   = afterDisc * (vatPercent / 100);
-        const grandTotal  = afterDisc + vatAmount;
+        const discount   = Math.max(0, parseFloat(discountEl.value) || 0);
+        const vatPercent = Math.max(0, Math.min(100, parseFloat(vatEl.value) || 0));
+        const afterDisc  = Math.max(0, subtotal - discount);
+        const vatAmount  = afterDisc * (vatPercent / 100);
+        const grandTotal = afterDisc + vatAmount;
 
-        subtotalEl.textContent  = subtotal.toFixed(2);
-        vatAmtEl.textContent    = vatAmount.toFixed(2);
+        let paid = Math.max(0, parseFloat(amountPaidEl.value) || 0);
+        if (paid > grandTotal) {
+            paid = grandTotal;
+        }
+
+        const due = Math.max(0, grandTotal - paid);
+
+        subtotalEl.textContent   = subtotal.toFixed(2);
+        vatAmtEl.textContent     = vatAmount.toFixed(2);
         grandTotalEl.textContent = grandTotal.toFixed(2);
+        if (dueEl) dueEl.textContent = due.toFixed(2);
+
+        if (dueSectionEl && paidSectionEl) {
+            if (due <= 0.001 && grandTotal > 0) {
+                dueSectionEl.classList.add('hidden');
+                dueSectionEl.classList.remove('flex');
+                paidSectionEl.classList.remove('hidden');
+                paidSectionEl.classList.add('flex');
+            } else {
+                dueSectionEl.classList.remove('hidden');
+                dueSectionEl.classList.add('flex');
+                paidSectionEl.classList.add('hidden');
+                paidSectionEl.classList.remove('flex');
+            }
+        }
     }
 
-    // â”€â”€ Renumber rows after removal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Renumber rows after removal
     function renumberRows() {
         tbody.querySelectorAll('tr.item-row').forEach(function (row, i) {
             row.querySelector('.row-num').textContent = i + 1;
@@ -513,14 +565,14 @@ function inv_err(string $key): string
         });
     }
 
-    // â”€â”€ Toggle empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Toggle empty state
     function toggleEmpty() {
         const hasRows = tbody.querySelectorAll('tr.item-row').length > 0;
         emptyState.style.display = hasRows ? 'none' : 'block';
         document.querySelector('#items-table thead').style.display = hasRows ? '' : 'none';
     }
 
-    // â”€â”€ Handle Draft vs Generate button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Handle Draft vs Generate button
     form.addEventListener('submit', function (e) {
         const action = document.activeElement?.value;
         if (action === 'draft') {
@@ -528,7 +580,7 @@ function inv_err(string $key): string
         }
     });
 
-    // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Init
     addBtn.addEventListener('click', function () { addRow(); });
 
     // Re-fill form if POST validation failed

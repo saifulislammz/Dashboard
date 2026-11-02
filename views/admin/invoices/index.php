@@ -342,6 +342,14 @@ function pageUrl(int $p): string
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
+                                            <!-- Duplicate / Clone -->
+                                            <a href="/admin/invoices/create.php?duplicate_from=<?= $id ?>" title="Duplicate Invoice"
+                                                class="w-9 h-9 flex items-center justify-center rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white hover:shadow-md hover:-translate-y-0.5 transform transition-all duration-200">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                                                </svg>
+                                            </a>
                                             <!-- Print/Download -->
                                             <a href="/admin/invoices/print.php?id=<?= $id ?>" target="_blank"
                                                 title="Print / Download PDF"

@@ -56,15 +56,53 @@ class InvoiceController
 
     /**
      * Show invoice creation form.
+     * Supports duplicating/cloning an existing invoice via ?duplicate_from={id}
      * GET /admin/invoices/create.php
      */
     public function create(): void
     {
-        $settings     = $this->invoiceService->getSettings();
-        $invoiceNumber = $this->invoiceService->generateInvoiceNumberPreview($settings);
-        $currencies   = $this->invoiceService->getCurrencies();
+        $settings             = $this->invoiceService->getSettings();
+        $invoiceNumber        = $this->invoiceService->generateInvoiceNumberPreview($settings);
+        $currencies           = $this->invoiceService->getCurrencies();
+        $old                  = [];
+        $duplicateFromInvoice = null;
 
-        $pageTitle  = 'Generate Invoice';
+        $duplicateFromId = isset($_GET['duplicate_from']) ? (int) $_GET['duplicate_from'] : 0;
+        if ($duplicateFromId > 0) {
+            $sourceData = $this->invoiceService->getInvoiceById($duplicateFromId);
+            if ($sourceData !== null && !empty($sourceData['invoice'])) {
+                $duplicateFromInvoice = $sourceData['invoice'];
+                $old = [
+                    'student_name'    => $sourceData['invoice']['student_name'] ?? '',
+                    'student_email'   => $sourceData['invoice']['student_email'] ?? '',
+                    'student_phone'   => $sourceData['invoice']['student_phone'] ?? '',
+                    'student_country' => $sourceData['invoice']['student_country'] ?? '',
+                    'currency'        => $sourceData['invoice']['currency'] ?? 'BDT',
+                    'discount'        => $sourceData['invoice']['discount'] ?? 0,
+                    'vat_percent'     => $sourceData['invoice']['vat_percent'] ?? 0,
+                    'status'          => 'unpaid',
+                    'invoice_date'    => date('Y-m-d'),
+                    'due_date'        => '',
+                    'notes'           => $sourceData['invoice']['notes'] ?? '',
+                    'show_signature'  => $sourceData['invoice']['show_signature'] ?? 1,
+                    'amount_paid'     => '0.00',
+                    'items'           => [],
+                ];
+
+                if (!empty($sourceData['items']) && is_array($sourceData['items'])) {
+                    foreach ($sourceData['items'] as $item) {
+                        $old['items'][] = [
+                            'item_name'   => $item['item_name'] ?? '',
+                            'description' => $item['description'] ?? '',
+                            'quantity'    => $item['quantity'] ?? 1,
+                            'unit_price'  => $item['unit_price'] ?? 0,
+                        ];
+                    }
+                }
+            }
+        }
+
+        $pageTitle  = $duplicateFromInvoice ? 'Duplicate Invoice #' . htmlspecialchars($duplicateFromInvoice['invoice_number'], ENT_QUOTES, 'UTF-8') : 'Generate Invoice';
         $activeMenu = 'invoice_create';
 
         require __DIR__ . '/../../../views/admin/invoices/create.php';
