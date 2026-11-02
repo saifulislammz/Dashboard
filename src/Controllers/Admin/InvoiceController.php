@@ -381,6 +381,46 @@ class InvoiceController
     }
 
     // ===========================================================
+    // SEND EMAIL — Manual Invoice PDF Email Dispatch
+    // ===========================================================
+
+    /**
+     * Send invoice PDF to student/client via email.
+     * POST /admin/invoices/send_email.php
+     *
+     * @param int|null $adminId Logged-in admin ID
+     */
+    public function sendEmail(?int $adminId = null): void
+    {
+        $id        = (int) ($_POST['id'] ?? ($_POST['invoice_id'] ?? 0));
+        $recipient = !empty($_POST['recipient_email']) ? trim($_POST['recipient_email']) : null;
+
+        if ($id <= 0) {
+            $this->sendJsonError('Invalid invoice ID.');
+        }
+
+        $emailService = $this->invoiceService->getEmailService();
+        $result = $emailService->sendInvoiceEmail($id, $recipient, $adminId, 'manual');
+
+        header('Content-Type: application/json');
+        if ($result['success']) {
+            echo json_encode([
+                'success' => true,
+                'message' => $result['message'],
+            ]);
+            exit;
+        }
+
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => $result['message'],
+            'errors'  => $result['errors'] ?? [],
+        ]);
+        exit;
+    }
+
+    // ===========================================================
     // PRIVATE HELPERS
     // ===========================================================
 

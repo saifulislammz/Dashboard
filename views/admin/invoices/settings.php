@@ -320,6 +320,79 @@ function serr(string $key): string {
                     </div>
                 </div>
 
+                <!-- =============================================
+                     SECTION 4: Invoice Email Settings
+                ============================================== -->
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+                    <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-semibold text-[#0f172a]">Invoice Email Settings</h2>
+                            <p class="text-xs text-[#64748b]">Configure automatic delivery and custom invoice email parameters.</p>
+                        </div>
+                    </div>
+
+                    <!-- Automatic Email Dispatch Toggle -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div>
+                            <span class="text-sm font-semibold text-[#1e293b] block">Automatic Email Dispatch on Invoice Generation</span>
+                            <span class="text-xs text-[#64748b] block mt-0.5">When enabled, newly created invoices will be automatically compiled into vector PDFs and emailed to the student/customer.</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+                            <input type="checkbox" name="invoice_auto_email_enabled" value="1"
+                                   <?= (!empty($settings['invoice_auto_email_enabled']) && $settings['invoice_auto_email_enabled'] === '1') ? 'checked' : '' ?>
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Email Subject Template -->
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-[#374151] mb-1.5" for="invoice_email_subject">
+                                Email Subject Line
+                            </label>
+                            <input type="text" id="invoice_email_subject" name="invoice_email_subject"
+                                   value="<?= s('invoice_email_subject') ?: 'Invoice #{invoice_number} from {institution_name}' ?>"
+                                   placeholder="e.g. Invoice #{invoice_number} from {institution_name}"
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <p class="text-xs text-[#64748b] mt-1.5">
+                                Available variables: <code class="bg-gray-100 px-1 py-0.5 rounded text-primary">{invoice_number}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-primary">{institution_name}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-primary">{student_name}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-primary">{grand_total}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-primary">{currency}</code>
+                            </p>
+                        </div>
+
+                        <!-- BCC Email -->
+                        <div>
+                            <label class="block text-sm font-medium text-[#374151] mb-1.5" for="invoice_email_bcc">
+                                Accounts / Admin BCC Email (Optional)
+                            </label>
+                            <input type="email" id="invoice_email_bcc" name="invoice_email_bcc"
+                                   value="<?= s('invoice_email_bcc') ?>"
+                                   placeholder="e.g. accounts@institute.edu"
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <?= serr('invoice_email_bcc') ?>
+                            <p class="text-xs text-[#64748b] mt-1">Receive a silent blind copy of every invoice sent.</p>
+                        </div>
+
+                        <!-- Notes in Email Body -->
+                        <div>
+                            <label class="block text-sm font-medium text-[#374151] mb-1.5" for="invoice_email_custom_notes">
+                                Custom Note in Email Body (Optional)
+                            </label>
+                            <input type="text" id="invoice_email_custom_notes" name="invoice_email_custom_notes"
+                                   value="<?= s('invoice_email_custom_notes') ?>"
+                                   placeholder="e.g. Thank you for your payment."
+                                   class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                            <p class="text-xs text-[#64748b] mt-1">Appears above the invoice breakdown in the email body.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Save Button -->
                 <div class="flex justify-end">
                     <button type="submit"

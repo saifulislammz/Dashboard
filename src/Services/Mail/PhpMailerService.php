@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Mail;
 
 use App\Contracts\MailerInterface;
+use App\Contracts\AttachmentMailerInterface;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
@@ -16,7 +17,7 @@ use Throwable;
  * Enterprise-grade SMTP mailing implementation powered by PHPMailer.
  * Configured via .env variables with secure defaults and robust error logging.
  */
-class PhpMailerService implements MailerInterface
+class PhpMailerService implements AttachmentMailerInterface
 {
     private string $host;
     private int $port;
@@ -118,6 +119,108 @@ class PhpMailerService implements MailerInterface
             return false;
         } catch (Throwable $e) {
             error_log(sprintf('[PhpMailerService] General Error to %s: %s', $to, $e->getMessage()));
+            return false;
+        }
+    }
+
+    /**
+     * Send an email message with attachments and optional BCC recipient.
+     *
+     * @param string $to Recipient email address
+     * @param string $subject Subject line
+     * @param string $htmlBody HTML body content
+     * @param string $textBody Plain-text fallback content
+     * @param string|null $recipientName Optional recipient display name
+     * @param array $attachments Array of attachments:
+     *   [
+     *     ['data' => string, 'name' => string, 'mime' => 'application/pdf', 'encoding' => 'base64'],
+     *     ['path' => string, 'name' => string, 'mime' => 'application/pdf']
+     *   ]
+     * @param string|null $bcc Optional BCC email address
+     * @return bool True if sent successfully, false otherwise
+     */
+    public function sendWithAttachment(
+        string $to,
+        string $subject,
+        string $htmlBody,
+        string $textBody = '',
+        ?string $recipientName = null,
+        array $attachments = [],
+        ?string $bcc = null
+    ): bool {
+        if (strtolower($this->driver) === 'mail') {
+            return $this->sendNativeMail($to, $subject, $htmlBody, $textBody);
+        }
+
+        $mail = new PHPMailer(true);
+
+        try {
+            // Server configuration
+            $mail->isSMTP();
+            $mail->Host        = $this->host;
+            $mail->Port        = $this->port;
+            $mail->CharSet     = PHPMailer::CHARSET_UTF8;
+            $mail->SMTPAutoTLS = true;
+
+            // Authentication
+            if (!empty($this->username)) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $this->username;
+                $mail->Password = $this->password;
+            } else {
+                $mail->SMTPAuth = false;
+            }
+
+            // Encryption (tls, ssl, or none)
+            if (!empty($this->encryption)) {
+                $enc = strtolower($this->encryption);
+                if ($enc === 'tls') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                } elseif ($enc === 'ssl') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                }
+            }
+
+            // Timeout prevention
+            $mail->Timeout = 10;
+
+            // Recipients
+            $mail->setFrom($this->fromAddress, $this->fromName);
+            $mail->addAddress($to, $recipientName ?? '');
+
+            // Optional BCC
+            if (!empty($bcc) && filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
+                $mail->addBCC($bcc);
+            }
+
+            // Attachments
+            foreach ($attachments as $att) {
+                if (!empty($att['data'])) {
+                    $name     = $att['name'] ?? 'attachment.pdf';
+                    $encoding = $att['encoding'] ?? PHPMailer::ENCODING_BASE64;
+                    $mime     = $att['mime'] ?? 'application/pdf';
+                    $mail->addStringAttachment((string) $att['data'], $name, $encoding, $mime);
+                } elseif (!empty($att['path']) && file_exists($att['path'])) {
+                    $name     = $att['name'] ?? basename($att['path']);
+                    $encoding = $att['encoding'] ?? PHPMailer::ENCODING_BASE64;
+                    $mime     = $att['mime'] ?? 'application/pdf';
+                    $mail->addAttachment($att['path'], $name, $encoding, $mime);
+                }
+            }
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body    = $htmlBody;
+            $mail->AltBody = !empty($textBody) ? $textBody : strip_tags($htmlBody);
+
+            $mail->send();
+            return true;
+        } catch (PHPMailerException $e) {
+            error_log(sprintf('[PhpMailerService] Attachment PHPMailer Error to %s: %s', $to, $e->getMessage()));
+            return false;
+        } catch (Throwable $e) {
+            error_log(sprintf('[PhpMailerService] Attachment General Error to %s: %s', $to, $e->getMessage()));
             return false;
         }
     }

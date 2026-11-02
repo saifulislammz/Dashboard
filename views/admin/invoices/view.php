@@ -74,6 +74,16 @@ $statusClasses = match ($status) {
                     </svg>
                     Print / Download
                 </a>
+                <button type="button"
+                    id="btnSendInvoiceEmail"
+                    onclick="handleSendInvoiceEmail(<?= (int) $invoice['id'] ?>, '<?= htmlspecialchars($invoice['student_email'] ?? '', ENT_QUOTES, 'UTF-8') ?>')"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors shadow-sm cursor-pointer">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Send Email
+                </button>
                 <form method="POST" action="/admin/invoices/update_status.php" class="flex items-center">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="id" value="<?= (int) $invoice['id'] ?>">
@@ -351,5 +361,93 @@ $statusClasses = match ($status) {
 
     </div><!-- /max-w -->
 </main>
+
+<script>
+function handleSendInvoiceEmail(invoiceId, defaultEmail) {
+    const csrfToken = '<?= htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>';
+
+    Swal.fire({
+        title: 'Send Invoice PDF via Email',
+        html: `
+            <div class="text-left space-y-3">
+                <p class="text-sm text-gray-600">The recipient will receive a formatted email with the official vector PDF invoice attached.</p>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Recipient Email</label>
+                    <input type="email" id="swalRecipientEmail" class="swal2-input !m-0 !w-full text-sm" value="${defaultEmail || ''}" placeholder="student@example.com">
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Send PDF Now',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#0F766E',
+        cancelButtonColor: '#6b7280',
+        focusConfirm: false,
+        preConfirm: () => {
+            const email = document.getElementById('swalRecipientEmail').value.trim();
+            if (!email) {
+                Swal.showValidationMessage('Please enter a recipient email address.');
+                return false;
+            }
+            return email;
+        }
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        const recipientEmail = result.value;
+
+        // Show loading state
+        Swal.fire({
+            title: 'Generating & Sending PDF...',
+            html: '<p class="text-sm text-gray-500">Creating vector PDF and delivering via SMTP. Please wait...</p>',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const formData = new FormData();
+        formData.append('csrf_token', csrfToken);
+        formData.append('id', invoiceId);
+        formData.append('recipient_email', recipientEmail);
+
+        fetch('/admin/invoices/send_email.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (ok && data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Email Sent!',
+                    text: data.message,
+                    confirmButtonColor: '#0F766E'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delivery Failed',
+                    text: data.message || 'Could not send invoice email.',
+                    confirmButtonColor: '#0F766E'
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Network Error',
+                text: 'An error occurred while communicating with the server: ' + err.message,
+                confirmButtonColor: '#0F766E'
+            });
+        });
+    });
+}
+</script>
 
 <?php require __DIR__ . '/../../layouts/footer.php'; ?>

@@ -18,12 +18,16 @@ class InvoiceService
 {
     private InvoiceRepository $repo;
     private ?InvoiceActivityRepository $activityRepo;
+    private ?InvoiceEmailService $emailService;
 
     private const ALLOWED_STATUSES = ['draft', 'unpaid', 'paid'];
     private const PER_PAGE         = 15;
 
-    public function __construct(InvoiceRepository $repo, ?InvoiceActivityRepository $activityRepo = null)
-    {
+    public function __construct(
+        InvoiceRepository $repo,
+        ?InvoiceActivityRepository $activityRepo = null,
+        ?InvoiceEmailService $emailService = null
+    ) {
         $this->repo = $repo;
 
         if ($activityRepo === null && isset($GLOBALS['db']) && $GLOBALS['db'] instanceof \PDO) {
@@ -31,6 +35,32 @@ class InvoiceService
         } else {
             $this->activityRepo = $activityRepo;
         }
+
+        $this->emailService = $emailService;
+    }
+
+    /**
+     * Get or lazy-instantiate the InvoiceEmailService.
+     */
+    public function getEmailService(): InvoiceEmailService
+    {
+        if ($this->emailService === null) {
+            $db           = $GLOBALS['db'] ?? null;
+            $mailer       = new \App\Services\Mail\PhpMailerService();
+            $pdfService   = new \App\Services\InvoicePdfService();
+            $emailLogRepo = ($db instanceof \PDO) ? new \App\Repositories\InvoiceEmailLogRepository($db) : null;
+            $activityRepo = $this->activityRepo;
+
+            $this->emailService = new InvoiceEmailService(
+                $this->repo,
+                $mailer,
+                $pdfService,
+                $emailLogRepo,
+                $activityRepo
+            );
+        }
+
+        return $this->emailService;
     }
 
     // ===========================================================
@@ -119,6 +149,14 @@ class InvoiceService
                         'items_count' => count($items)
                     ]
                 );
+            }
+
+            // Safe Decoupled Auto-Email Dispatch (Fail-safe: never interrupts invoice creation)
+            try {
+                $emailService = $this->getEmailService();
+                $emailService->triggerAutoEmailIfEnabled($invoiceId, $adminId);
+            } catch (\Throwable $e) {
+                error_log('[InvoiceService] Auto email trigger failure: ' . $e->getMessage());
             }
 
             return ['success' => true, 'invoice_id' => $invoiceId, 'errors' => []];
@@ -379,6 +417,7 @@ class InvoiceService
             'institution_address', 'institution_phone', 'institution_email',
             'institution_logo', 'invoice_footer_note',
             'invoice_signature', 'invoice_signature_enabled',
+            'invoice_auto_email_enabled', 'invoice_email_subject', 'invoice_email_bcc', 'invoice_email_custom_notes',
         ];
 
         $errors = [];
@@ -387,6 +426,13 @@ class InvoiceService
             $prefix = trim($data['invoice_prefix']);
             if ($prefix === '' || strlen($prefix) > 10) {
                 $errors['invoice_prefix'] = 'Prefix must be 1–10 characters.';
+            }
+        }
+
+        if (!empty($data['invoice_email_bcc'])) {
+            $bcc = trim($data['invoice_email_bcc']);
+            if (!filter_var($bcc, FILTER_VALIDATE_EMAIL)) {
+                $errors['invoice_email_bcc'] = 'Invalid BCC email address format.';
             }
         }
 
@@ -496,7 +542,8 @@ class InvoiceService
         // Global on/off setting: if the form was posted for institution/invoice settings,
         // explicitly set '1' or '0' based on checkbox presence
         if (isset($data['invoice_settings_submitted']) || isset($data['institution_name']) || isset($data['save_invoice_settings'])) {
-            $data['invoice_signature_enabled'] = !empty($data['invoice_signature_enabled']) ? '1' : '0';
+            $data['invoice_signature_enabled']  = !empty($data['invoice_signature_enabled']) ? '1' : '0';
+            $data['invoice_auto_email_enabled'] = !empty($data['invoice_auto_email_enabled']) ? '1' : '0';
         }
 
         if (!empty($errors)) {
