@@ -49,13 +49,22 @@ function pageUrl(int $p): string
                 <h1 class="text-2xl font-bold text-[#1e293b] tracking-tight">Invoice Dashboard</h1>
                 <p class="text-sm text-[#64748b] mt-1">View, manage and track all generated invoices.</p>
             </div>
-            <a href="/admin/invoices/create.php"
-                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm self-start sm:self-auto">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Generate Invoice
-            </a>
+            <div class="flex items-center gap-3 self-start sm:self-auto">
+                <a href="/admin/invoices/bulk_upload.php"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#475569] bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Bulk Upload
+                </a>
+                <a href="/admin/invoices/create.php"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-green-700 transition-colors shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Generate Invoice
+                </a>
+            </div>
         </div>
 
         <?php if ($deleted): ?>

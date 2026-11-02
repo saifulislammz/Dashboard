@@ -40,7 +40,7 @@ $adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? nul
         $isNoticeActive = in_array($activeMenu ?? '', ['notices_create', 'notices_manage']);
         $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage', 'classrooms_meetings']);
         $isAttendanceActive = in_array($activeMenu ?? '', ['admin_attendance']);
-        $isInvoiceActive = in_array($activeMenu ?? '', ['invoice_create', 'invoice_dashboard', 'invoice_settings', 'invoice_track']);
+        $isInvoiceActive = in_array($activeMenu ?? '', ['invoice_create', 'invoice_bulk', 'invoice_dashboard', 'invoice_settings', 'invoice_track']);
         $isQuizActive = in_array($activeMenu ?? '', ['quiz_list', 'quiz_create', 'quiz_view'], true);
         $isRolesActive = in_array($activeMenu ?? '', ['roles_manage', 'roles_create', 'roles_audit'], true);
         $isAccountActive = in_array($activeMenu ?? '', ['profile']);
@@ -197,6 +197,10 @@ $adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? nul
                         <a href="/admin/invoices/create.php"
                             class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'invoice_create' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
                             <i class="ph ph-file-plus text-lg"></i> Generate Invoice
+                        </a>
+                        <a href="/admin/invoices/bulk_upload.php"
+                            class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'invoice_bulk' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
+                            <i class="ph ph-upload-simple text-lg"></i> Bulk Upload
                         </a>
                     <?php endif; ?>
                     <?php if (hasPermission('invoices.view')): ?>
