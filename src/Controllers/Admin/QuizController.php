@@ -30,6 +30,7 @@ class QuizController
     {
         $filters  = [
             'status' => $_GET['status'] ?? '',
+            'type'   => $_GET['type'] ?? '',
             'search' => $_GET['search'] ?? '',
         ];
         $page     = max(1, (int) ($_GET['page'] ?? 1));
@@ -159,7 +160,7 @@ class QuizController
 
     // ──────────────────────────────────────────────
     // GET /admin/quiz/serve_voice.php?a=ATTEMPT_ID
-    // Serve Auth-protected voice file
+    // Serve Auth-protected student voice file
     // ──────────────────────────────────────────────
     public function serveVoice(): void
     {
@@ -198,6 +199,136 @@ class QuizController
         header('Accept-Ranges: bytes');
         header('Cache-Control: private, no-cache');
         readfile($realPath);
+        exit;
+    }
+
+    // ──────────────────────────────────────────────
+    // GET /admin/quiz/serve_admin_voice.php?a=ATTEMPT_ID
+    // Serve Auth-protected admin review voice file
+    // ──────────────────────────────────────────────
+    public function serveAdminVoice(): void
+    {
+        $attemptId = (int) ($_GET['a'] ?? 0);
+        if ($attemptId <= 0) {
+            http_response_code(400);
+            exit;
+        }
+
+        $attempt = $this->quizService->getAttemptById($attemptId);
+
+        if (!$attempt || empty($attempt['admin_voice_file_path'])) {
+            http_response_code(404);
+            exit;
+        }
+
+        $filePath = __DIR__ . '/../../../storage/' . $attempt['admin_voice_file_path'];
+        $realPath = realpath($filePath);
+
+        // Prevent path traversal
+        $storageBase = realpath(__DIR__ . '/../../../storage/admin_review_voices');
+        if (!$realPath || !str_starts_with($realPath, $storageBase)) {
+            http_response_code(403);
+            exit;
+        }
+
+        if (!file_exists($realPath)) {
+            http_response_code(404);
+            exit;
+        }
+
+        $mime = mime_content_type($realPath) ?: 'application/octet-stream';
+
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($realPath));
+        header('Accept-Ranges: bytes');
+        header('Cache-Control: private, no-cache');
+        readfile($realPath);
+        exit;
+    }
+
+    // ──────────────────────────────────────────────
+    // POST /admin/quiz/upload_admin_voice.php (AJAX multipart)
+    // ──────────────────────────────────────────────
+    public function uploadAdminVoice(): void
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        validateCsrfToken($_POST['csrf_token'] ?? '');
+
+        $attemptId = (int) ($_POST['attempt_id'] ?? 0);
+        if ($attemptId <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid attempt.']);
+            exit;
+        }
+
+        if (empty($_FILES['voice_file']) || $_FILES['voice_file']['error'] === UPLOAD_ERR_NO_FILE) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'No audio file provided.']);
+            exit;
+        }
+
+        $voiceMarks = isset($_POST['voice_marks']) && $_POST['voice_marks'] !== ''
+            ? (float) $_POST['voice_marks']
+            : null;
+        $voiceNote = isset($_POST['voice_note'])
+            ? trim($_POST['voice_note'])
+            : null;
+
+        try {
+            $relativePath = $this->quizService->uploadAdminVoiceReview(
+                $attemptId,
+                $_FILES['voice_file'],
+                $voiceMarks,
+                $voiceNote
+            );
+
+            $waUrl = $this->quizService->generateWhatsAppShareUrl($attemptId);
+
+            echo json_encode([
+                'success'      => true,
+                'message'      => 'Teacher voice review saved successfully.',
+                'file_path'    => $relativePath,
+                'whatsapp_url' => $waUrl,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            error_log('[QuizController::uploadAdminVoice] ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to save voice file.']);
+        }
+        exit;
+    }
+
+    // ──────────────────────────────────────────────
+    // GET /admin/quiz/get_whatsapp_url.php?a=ATTEMPT_ID (AJAX)
+    // ──────────────────────────────────────────────
+    public function getWhatsAppUrl(): void
+    {
+        header('Content-Type: application/json');
+
+        $attemptId = (int) ($_GET['a'] ?? 0);
+        if ($attemptId <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid attempt ID']);
+            exit;
+        }
+
+        try {
+            $url = $this->quizService->generateWhatsAppShareUrl($attemptId);
+            echo json_encode(['success' => true, 'whatsapp_url' => $url]);
+        } catch (\Throwable $e) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
         exit;
     }
 

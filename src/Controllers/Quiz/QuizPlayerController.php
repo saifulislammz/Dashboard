@@ -9,7 +9,7 @@ use App\Services\QuizService;
 
 /**
  * QuizPlayerController — Public (No Login Required)
- * Handles all public routes from Guest form to quiz play.
+ * Handles all public routes from candidate registration to quiz/exam play, auto-submit, and review listening.
  */
 class QuizPlayerController
 {
@@ -92,7 +92,7 @@ class QuizPlayerController
         $attempt = $this->repo->findAttemptByToken($token);
         if (!$attempt || $attempt['status'] === 'voice_submitted' || $attempt['status'] === 'completed') {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized or exam already completed.']);
             exit;
         }
 
@@ -101,13 +101,14 @@ class QuizPlayerController
                 (int) $attempt['id'],
                 $questionId,
                 $selectedOptionId,
-                (int) $attempt['quiz_id']
+                (int) $attempt['quiz_id'],
+                $token
             );
             echo json_encode(['success' => true, ...$result]);
         } catch (\Throwable $e) {
             error_log('[QuizPlayerController::submitAnswer] ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Could not save the answer.']);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         exit;
     }
@@ -176,6 +177,88 @@ class QuizPlayerController
     }
 
     // ──────────────────────────────────────────────
+    // POST /quiz/auto_submit.php (AJAX JSON)
+    // Triggered automatically when Countdown Timer reaches 00:00
+    // ──────────────────────────────────────────────
+    public function autoSubmit(): void
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+        validateCsrfToken($body['csrf_token'] ?? '');
+
+        $token = $body['token'] ?? '';
+        if ($token === '') {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid token.']);
+            exit;
+        }
+
+        try {
+            $result = $this->quizService->autoSubmitAttempt($token);
+            echo json_encode($result);
+        } catch (\Throwable $e) {
+            error_log('[QuizPlayerController::autoSubmit] ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Could not auto-submit exam.']);
+        }
+        exit;
+    }
+
+    // ──────────────────────────────────────────────
+    // GET /quiz/listen_review.php?t=TOKEN
+    // Public / Protected audio stream of teacher's voice review
+    // ──────────────────────────────────────────────
+    public function listenReview(): void
+    {
+        $token = $_GET['t'] ?? '';
+        if ($token === '') {
+            http_response_code(400);
+            echo 'Invalid request.';
+            exit;
+        }
+
+        $attempt = $this->repo->findAttemptByToken($token);
+        if (!$attempt || empty($attempt['admin_voice_file_path'])) {
+            http_response_code(404);
+            echo 'Review audio not found.';
+            exit;
+        }
+
+        $filePath = __DIR__ . '/../../../storage/' . $attempt['admin_voice_file_path'];
+        $realPath = realpath($filePath);
+
+        // Security: Prevent path traversal outside storage/admin_review_voices
+        $storageBase = realpath(__DIR__ . '/../../../storage/admin_review_voices');
+        if (!$realPath || !str_starts_with($realPath, $storageBase)) {
+            http_response_code(403);
+            echo 'Access forbidden.';
+            exit;
+        }
+
+        if (!file_exists($realPath)) {
+            http_response_code(404);
+            echo 'Audio file not found on server.';
+            exit;
+        }
+
+        $mime = mime_content_type($realPath) ?: 'application/octet-stream';
+
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($realPath));
+        header('Accept-Ranges: bytes');
+        header('Cache-Control: public, max-age=86400');
+        readfile($realPath);
+        exit;
+    }
+
+    // ──────────────────────────────────────────────
     // GET /quiz/result.php?t=TOKEN
     // ──────────────────────────────────────────────
     public function result(): void
@@ -224,12 +307,12 @@ class QuizPlayerController
         $error = null;
 
         try {
-            $participant = $this->quizService->validateParticipant($_POST);
+            $customDefs  = $quiz['custom_fields'] ?? [];
+            $participant = $this->quizService->validateParticipant($_POST, $customDefs);
             $result      = $this->quizService->startOrResumeAttempt($quizId, $participant);
             header('Location: /quiz/play.php?t=' . urlencode($result['token']));
             exit;
         } catch (\RuntimeException $e) {
-            // If permanently blocked → error message
             $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
         } catch (\InvalidArgumentException $e) {
             $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
@@ -258,6 +341,13 @@ class QuizPlayerController
 
         // Voice already submitted or quiz completed → redirect to result
         if ($attempt['voice_submitted'] || $attempt['status'] === 'completed') {
+            header('Location: /quiz/result.php?t=' . urlencode($token));
+            exit;
+        }
+
+        // Check if duration has already expired
+        if (!empty($attempt['expires_at']) && (int) ($attempt['remaining_seconds'] ?? 0) <= 0) {
+            $this->quizService->finalizeAttempt((int) $attempt['id'], autoSubmitted: true);
             header('Location: /quiz/result.php?t=' . urlencode($token));
             exit;
         }
