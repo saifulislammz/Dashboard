@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../src/config/security.php';
 require_once __DIR__ . '/../../../src/config/database.php';
 require_once __DIR__ . '/../../../src/config/roles.php';
 require_once __DIR__ . '/../../../src/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../src/middleware/CsrfMiddleware.php';
 require_once __DIR__ . '/../../../src/middleware/PermissionMiddleware.php';
 require_once __DIR__ . '/../../../src/Repositories/UserRepository.php';
 require_once __DIR__ . '/../../../src/Repositories/UserProfileRepository.php';

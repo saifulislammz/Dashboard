@@ -54,8 +54,14 @@ class AdminUserProfileController
 
             require __DIR__ . '/../../../views/admin/users/view.php';
         } catch (Throwable $e) {
-            $_SESSION['error_message'] = 'User profile not found: ' . $e->getMessage();
-            header("Location: /admin/dashboard.php");
+            if (!headers_sent()) {
+                $_SESSION['error_message'] = 'User profile not found: ' . $e->getMessage();
+                $backUrl = !empty($data['is_teacher']) ? '/admin/teachers.php' : '/admin/students.php';
+                header("Location: " . $backUrl);
+                exit;
+            }
+            echo '<main class="flex-1 p-6"><div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl"><strong>Error loading profile:</strong> ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</div></main>';
+            require_once __DIR__ . '/../../../views/layouts/footer.php';
             exit;
         }
     }

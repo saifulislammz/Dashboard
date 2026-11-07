@@ -1,3 +1,8 @@
+<?php
+if (!function_exists('generateCsrfToken')) {
+    require_once __DIR__ . '/../../src/middleware/CsrfMiddleware.php';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
