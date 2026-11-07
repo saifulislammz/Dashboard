@@ -1,0 +1,501 @@
+:root {
+  --green: #00613b;
+  --deep-green: #004d30;
+  --gold: #ffc629;
+  --ink: #171923;
+  --muted: #414858;
+  --line: #cbd2dc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: var(--ink);
+  background: #eef4f5;
+}
+
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  background-image: url("../images/login-background.webp"), url("../images/login-background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Left content is positioned over the dark-green portion of the background image */
+.brand-panel {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  min-height: 100vh;
+  color: #fff;
+  padding: clamp(40px, 5.5vw, 88px) 0 40px clamp(36px, 5.9vw, 98px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+}
+
+.brand-logo {
+  height: clamp(74px, 7vw, 96px);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.hero-copy {
+  margin-top: clamp(50px, 4.8vw, 80px);
+  max-width: 500px;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: clamp(32px, 3.1vw, 50px);
+  line-height: 1.16;
+  font-weight: 800;
+  letter-spacing: -1.35px;
+  color: #ffffff;
+  text-wrap: balance;
+}
+
+.gold-rule {
+  width: 68px;
+  height: 5px;
+  border-radius: 8px;
+  background: var(--gold);
+  margin: 25px 0 22px;
+}
+
+.hero-copy p {
+  margin: 0;
+  max-width: 440px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: clamp(15px, 1.28vw, 21px);
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: -0.15px;
+  color: #ffffff;
+}
+
+/* Main white container - synchronized identically with Forgot Password card */
+.form-panel {
+  position: relative;
+  z-index: 2;
+  width: min(590px, calc(100% - 54px));
+  min-height: 660px;
+  justify-self: center;
+  margin: 0 0 0 -2px;
+  padding: clamp(38px, 4.2vw, 54px) clamp(30px, 3.25vw, 52px) 36px;
+  background: rgba(255, 255, 255, 0.91);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 28px;
+  box-shadow: 0 15px 35px rgba(24, 62, 73, 0.12);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  display: flex;
+  flex-direction: column;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.form-header h2 {
+  margin: 0 0 8px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: clamp(26px, 2.1vw, 34px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -1.1px;
+  color: var(--ink);
+}
+
+.form-header p {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Auth Alerts */
+.auth-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
+
+.auth-alert svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.auth-alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.auth-alert-success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.field {
+  margin-bottom: 24px;
+}
+
+.field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 11px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #17191f;
+}
+
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #17191f;
+}
+
+.field-label svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+
+.forgot {
+  color: #006a3c;
+  text-decoration: none;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  transition: color 0.18s;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap input {
+  display: block;
+  width: 100%;
+  height: 52px;
+  padding: 0 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.34);
+  color: #202432;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.input-wrap input[type="password"],
+.input-wrap input#password {
+  padding-right: 50px;
+}
+
+.input-wrap input::placeholder {
+  color: #657084;
+  opacity: 1;
+}
+
+.input-wrap input:focus {
+  border-color: #16845a;
+  box-shadow: 0 0 0 3px rgba(0, 97, 59, 0.11);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 3px;
+  background: transparent;
+  color: #7d8799;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+}
+
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: -2px 0 24px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #16191f;
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  margin: 0;
+  border: 1.5px solid #bdc7d4;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  transition: all 0.15s ease-in-out;
+  outline: none;
+}
+
+.remember-row input:hover {
+  border-color: var(--green);
+}
+
+.remember-row input:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.remember-row input:checked {
+  background-color: var(--green);
+  border-color: var(--green);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 8.5L6.5 11.5L12.5 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 13px 13px;
+}
+
+/* Button synchronized with Forgot Password Send Reset Link */
+.login-button {
+  width: 100%;
+  height: 58px;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(100deg, #00663d, #00512f);
+  color: #fff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 70, 40, 0.14);
+  transition: filter 0.18s, transform 0.18s;
+}
+
+.login-button:hover {
+  filter: brightness(1.07);
+}
+
+.login-button:active {
+  transform: translateY(1px);
+}
+
+.login-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.copyright {
+  margin-top: auto;
+  padding-top: 28px;
+  text-align: center;
+  color: #536078;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.notice {
+  margin: 13px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #00613b;
+  display: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1050px) {
+  .login-page {
+    grid-template-columns: 44% 56%;
+    background-position: 43% center;
+  }
+
+  .brand-panel {
+    padding-left: 5vw;
+  }
+
+  .hero-copy {
+    max-width: 380px;
+    margin-top: 50px;
+  }
+
+  .form-panel {
+    width: calc(100% - 36px);
+    padding: 36px 30px 32px;
+  }
+}
+
+/* Mobile View: Center Brand Logo and set height to 65px */
+@media (max-width: 760px) {
+  .login-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 28px 16px 40px;
+    background-position: 28% center;
+  }
+
+  .brand-panel {
+    min-height: auto;
+    width: 100%;
+    padding: 0 0 24px;
+    align-self: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .brand-logo {
+    height: 65px;
+    width: auto;
+    margin: 0 auto;
+  }
+
+  .hero-copy {
+    display: none;
+  }
+
+  .form-panel {
+    width: min(100%, 520px);
+    min-height: 560px;
+    margin: 0;
+    padding: 30px 24px 28px;
+    border-radius: 22px;
+  }
+
+  .form-header {
+    margin-bottom: 20px;
+  }
+
+  .form-header h2 {
+    font-size: 28px;
+  }
+
+  .form-header p {
+    font-size: 14px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .login-button {
+    height: 56px;
+    font-size: 15.5px;
+  }
+
+  .copyright {
+    padding-top: 24px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .brand-logo {
+    height: 65px;
+  }
+
+  .form-panel {
+    padding: 26px 18px 24px;
+  }
+
+  .field-heading {
+    font-size: 14px;
+  }
+
+  .input-wrap input {
+    font-size: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .input-wrap input[type="password"],
+  .input-wrap input#password {
+    padding-right: 44px;
+  }
+}
+

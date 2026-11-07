@@ -1,140 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - Rahe Nazat Institute</title>
-    <!-- Tailwind CLI generated CSS -->
-    <link href="css/app.css?v=<?php echo time(); ?>" rel="stylesheet">
-    <!-- Universal CSS: Colors, Fonts, Sizes -->
-    <link href="css/universal.css?v=<?php echo time(); ?>" rel="stylesheet">
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons -->
-    <script src="phosphor-icons/index.js"></script>
-    <style>
-        .auth-body {
-            font-family: var(--font-family-primary);
-            background-color: #F5F6F8;
-            color: var(--color-black);
-        }
-
-        .auth-card {
-            background-color: var(--color-white);
-        }
-
-        .auth-label {
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-semibold);
-        }
-
-        .auth-input {
-            font-size: var(--font-size-sm);
-            color: var(--color-black);
-        }
-
-        .auth-btn {
-            background-color: var(--color-primary-green);
-            color: var(--color-white);
-            font-weight: var(--font-weight-medium);
-            font-size: var(--font-size-base);
-        }
-
-        .auth-btn:hover {
-            filter: brightness(0.9);
-        }
-
-        .input-focus-ring:focus-within {
-            border-color: var(--color-primary-green);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password | Rahe Nazat Institute</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/forgot_password.css?v=<?php echo file_exists(__DIR__ . '/../../public/css/forgot_password.css') ? filemtime(__DIR__ . '/../../public/css/forgot_password.css') : time(); ?>">
 </head>
+<body>
+  <main class="page">
+    <section class="brand-panel" aria-label="Rahe Nazat Institute">
+      <div class="brand">
+        <picture>
+          <source srcset="images/Rahenazat-Logo-White.webp" type="image/webp">
+          <img src="images/Rahenazat-Logo-White.png" alt="Rahe Nazat Institute" class="brand-logo">
+        </picture>
+      </div>
+      <div class="hero-copy">
+        <h1>Reset Your<br>Password</h1>
+        <div class="gold-rule"></div>
+        <p>Enter your registered email address<br>and we’ll send you secure link to<br>reset your password.</p>
+      </div>
+    </section>
 
-<body class="auth-body min-h-screen flex items-center justify-center p-4">
+    <section class="card" aria-label="Forgot password form">
+      <a class="back-link" href="index.php" aria-label="Back to Login">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Login
+      </a>
 
-    <!-- Card Container -->
-    <div class="auth-card w-full max-w-[480px] p-8 md:p-10 rounded-2xl shadow-sm border border-[#E5E7EB]">
-
-        <!-- Back to Login Navigation -->
-        <div class="mb-6">
-            <a href="index.php" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-                <i class="ph ph-arrow-left text-[16px]"></i>
-                Back to Login
-            </a>
+      <div class="card-content">
+        <div class="mail-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="1.5"/>
+            <path d="m3 5 9 8 9-8M3 19l6-7M21 19l-6-7"/>
+          </svg>
         </div>
+        <h2>Forgot Password?</h2>
 
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 mb-4">
-                <i class="ph ph-key text-[28px]"></i>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Forgot Password?</h1>
-            <p class="text-sm md:text-base text-gray-500 mt-2">
-                No worries! Enter your registered email address and we'll send you a secure link to reset your password.
-            </p>
-        </div>
-
-        <!-- Success Alert -->
-        <?php if (!empty($success)): ?>
-            <div class="mb-6 p-4 rounded-xl border-l-4 border-emerald-500 bg-emerald-50 flex items-start gap-3">
-                <i class="ph ph-check-circle text-[22px] text-emerald-600 mt-0.5 flex-shrink-0"></i>
-                <div>
-                    <h3 class="text-sm font-semibold text-emerald-800">Check your inbox</h3>
-                    <p class="text-sm text-emerald-700 mt-0.5"><?php echo htmlspecialchars($success, ENT_QUOTES, 'UTF-8'); ?></p>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Error Alert -->
         <?php if (!empty($error)): ?>
-            <div class="mb-6 p-4 rounded-xl border-l-4 border-red-500 bg-red-50 flex items-start gap-3">
-                <i class="ph ph-warning-circle text-[22px] text-red-500 mt-0.5 flex-shrink-0"></i>
-                <p class="text-sm text-red-700 font-medium"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
-            </div>
+          <div class="auth-alert auth-alert-error" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span><?php echo e($error); ?></span>
+          </div>
         <?php endif; ?>
 
-        <!-- Forgot Password Form -->
-        <form action="forgot_password.php" method="POST">
-            <!-- CSRF Token -->
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+        <?php if (!empty($success)): ?>
+          <div class="auth-alert auth-alert-success" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span><?php echo e($success); ?></span>
+          </div>
+        <?php endif; ?>
 
-            <!-- Email Input Group -->
-            <div class="mb-6">
-                <label for="email" class="auth-label block mb-2 text-gray-700">Registered Email Address</label>
-                <div class="input-focus-ring relative flex items-center border border-[#E5E7EB] rounded-xl transition-all duration-200 bg-white overflow-hidden group">
-                    <div class="pl-4 pr-3 flex items-center justify-center text-gray-400 group-focus-within:text-[#6B7280] transition-colors">
-                        <i class="ph ph-envelope-simple text-[22px]"></i>
-                    </div>
-                    <input type="email" id="email" name="email"
-                        value="<?php echo htmlspecialchars($oldEmail ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                        placeholder="teacher@example.com or student@example.com"
-                        class="auth-input w-full py-3.5 pr-4 outline-none placeholder:text-gray-400 bg-transparent"
-                        maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" autocorrect="off"
-                        autocapitalize="off" required autofocus>
-                </div>
-                <p class="text-xs text-gray-400 mt-1.5">Applies to both Student and Teacher portal accounts.</p>
-            </div>
+        <form id="resetForm" method="POST" action="forgot_password.php" novalidate>
+          <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken ?? ''); ?>">
+          
+          <label class="field-label" for="email">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+            Registered Email Address
+          </label>
+          <input class="email-input" id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email address" value="<?php echo e($oldEmail ?? ''); ?>" maxlength="254" required spellcheck="false" autocorrect="off" autocapitalize="off">
+          <p class="helper">Applies to both <strong>Student</strong> and <strong>Teacher</strong> portal accounts.</p>
 
-            <!-- Submit Button -->
-            <button type="submit"
-                class="auth-btn w-full py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none shadow-sm cursor-pointer">
-                <i class="ph ph-paper-plane-tilt text-[20px]"></i>
-                Send Reset Link
-            </button>
+          <button class="submit" type="submit" id="submitBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            Send Reset Link
+          </button>
         </form>
+      </div>
 
-        <!-- Footer -->
-        <div class="mt-8 text-center text-xs text-gray-400">
-            &copy; <?php echo date('Y'); ?> Rahe Nazat Institute. All rights reserved.
-        </div>
+      <footer class="copyright">© <?php echo date('Y'); ?> Rahe Nazat Institute. All rights reserved.</footer>
+    </section>
+  </main>
 
-    </div>
+  <script nonce="<?php echo csp_nonce(); ?>">
+    const resetForm = document.getElementById('resetForm');
+    const emailInput = document.getElementById('email');
+    const submitBtn = document.getElementById('submitBtn');
 
+    resetForm.addEventListener('submit', (e) => {
+      const email = emailInput.value.trim().toLowerCase();
+      emailInput.value = email;
+
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
+      if (!email || !emailRegex.test(email) || email.length > 254) {
+        e.preventDefault();
+        alert('Please enter a valid email address (max 254 characters).');
+        emailInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.8';
+      submitBtn.style.cursor = 'not-allowed';
+      submitBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;animation:spin 1s linear infinite;" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending…';
+    });
+  </script>
 </body>
-
 </html>
-
