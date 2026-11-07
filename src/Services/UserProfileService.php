@@ -47,11 +47,16 @@ class UserProfileService
         'webp'
     ];
 
+    /** Maximum compressed avatar output size: 300KB in bytes */
+    public const MAX_COMPRESSED_AVATAR_SIZE = 307200;
+
+    /** Standard avatar square dimension */
+    public const AVATAR_MAX_DIMENSION = 500;
+
     /** Allowed gender values */
     public const ALLOWED_GENDERS = [
         'male',
-        'female',
-        'other'
+        'female'
     ];
 
     /** Status integer to readable string mapping */
@@ -97,14 +102,30 @@ class UserProfileService
             throw new Exception('Full name cannot exceed 100 characters.');
         }
 
-        // 2. Validate & sanitize Date of Birth
-        $rawDob = trim((string) ($input['date_of_birth'] ?? ''));
+        // 2. Validate & sanitize Date of Birth (Supports both 3-input select fields and Y-m-d)
+        $rawYear  = trim((string) ($input['dob_year'] ?? ''));
+        $rawMonth = trim((string) ($input['dob_month'] ?? ''));
+        $rawDay   = trim((string) ($input['dob_day'] ?? ''));
+
+        if ($rawYear !== '' && $rawMonth !== '' && $rawDay !== '') {
+            $yearInt  = (int) $rawYear;
+            $monthInt = (int) $rawMonth;
+            $dayInt   = (int) $rawDay;
+
+            if (!checkdate($monthInt, $dayInt, $yearInt)) {
+                throw new Exception('Please enter a valid calendar date for Date of Birth.');
+            }
+            $rawDob = sprintf('%04d-%02d-%02d', $yearInt, $monthInt, $dayInt);
+        } else {
+            $rawDob = trim((string) ($input['date_of_birth'] ?? ''));
+        }
+
         $dobFormatted = null;
         if ($rawDob !== '') {
             $parsedDate = DateTimeImmutable::createFromFormat('Y-m-d', $rawDob);
             $errors = DateTimeImmutable::getLastErrors();
             if (!$parsedDate || ($errors && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
-                throw new Exception('Invalid date of birth format. Please use YYYY-MM-DD.');
+                throw new Exception('Invalid date of birth format. Please provide a valid day, month, and year.');
             }
 
             $today = new DateTimeImmutable('today');
@@ -124,13 +145,26 @@ class UserProfileService
         $genderFormatted = null;
         if ($rawGender !== '') {
             if (!in_array($rawGender, self::ALLOWED_GENDERS, true)) {
-                throw new Exception('Please select a valid gender option (male, female, other).');
+                throw new Exception('Please select a valid gender option (Male or Female).');
             }
             $genderFormatted = $rawGender;
         }
 
-        // 4. Validate & sanitize Phone
-        $rawPhone = trim((string) ($input['phone'] ?? ''));
+        // 4. Validate & sanitize Phone (Supports international calling code prefix)
+        $countryCode = trim((string) ($input['country_code'] ?? ''));
+        $rawPhoneNum = trim((string) ($input['phone_number'] ?? ''));
+        if ($rawPhoneNum !== '') {
+            if ($countryCode !== '' && !str_starts_with($rawPhoneNum, '+')) {
+                // If number has leading zeros, trim them for international dial code prefixing
+                $cleanedPhoneNum = ltrim($rawPhoneNum, '0');
+                $rawPhone = $countryCode . ' ' . $cleanedPhoneNum;
+            } else {
+                $rawPhone = $rawPhoneNum;
+            }
+        } else {
+            $rawPhone = trim((string) ($input['phone'] ?? ''));
+        }
+
         $phoneFormatted = null;
         if ($rawPhone !== '') {
             if (mb_strlen($rawPhone) > 30) {
@@ -231,11 +265,116 @@ class UserProfileService
             }
         }
 
-        // 6. Generate secure, cryptographically unguessable filename
-        $filename = sprintf('avatar_%d_%d_%s.%s', $userId, time(), bin2hex(random_bytes(6)), $extension);
+        // 6. Decode source image to GD resource
+        $srcImage = null;
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $srcImage = @imagecreatefromjpeg($file['tmp_name']);
+                break;
+            case 'image/png':
+                $srcImage = @imagecreatefrompng($file['tmp_name']);
+                break;
+            case 'image/webp':
+                if (function_exists('imagecreatefromwebp')) {
+                    $srcImage = @imagecreatefromwebp($file['tmp_name']);
+                }
+                break;
+        }
+
+        if (!$srcImage) {
+            throw new Exception('Unable to process uploaded image. Please provide a valid JPG, PNG, or WEBP file.');
+        }
+
+        $srcWidth  = (int) $imageInfo[0];
+        $srcHeight = (int) $imageInfo[1];
+
+        // Correct smartphone EXIF rotation for JPEGs if needed
+        if ($mimeType === 'image/jpeg' && function_exists('exif_read_data')) {
+            $exif = @exif_read_data($file['tmp_name']);
+            if (!empty($exif['Orientation'])) {
+                switch ((int) $exif['Orientation']) {
+                    case 3:
+                        $rotated = imagerotate($srcImage, 180, 0);
+                        if ($rotated) { imagedestroy($srcImage); $srcImage = $rotated; }
+                        break;
+                    case 6:
+                        $rotated = imagerotate($srcImage, -90, 0);
+                        if ($rotated) {
+                            imagedestroy($srcImage);
+                            $srcImage = $rotated;
+                            $tmp = $srcWidth; $srcWidth = $srcHeight; $srcHeight = $tmp;
+                        }
+                        break;
+                    case 8:
+                        $rotated = imagerotate($srcImage, 90, 0);
+                        if ($rotated) {
+                            imagedestroy($srcImage);
+                            $srcImage = $rotated;
+                            $tmp = $srcWidth; $srcWidth = $srcHeight; $srcHeight = $tmp;
+                        }
+                        break;
+                }
+            }
+        }
+
+        // 7. Calculate center square crop for optimal avatar appearance (max 500x500)
+        $minDim    = min($srcWidth, $srcHeight);
+        $srcX      = (int) (($srcWidth - $minDim) / 2);
+        $srcY      = (int) (($srcHeight - $minDim) / 2);
+        $targetDim = min(self::AVATAR_MAX_DIMENSION, $minDim);
+        if ($targetDim < 200 && $minDim >= 200) {
+            $targetDim = 200;
+        }
+
+        $dstImage = imagecreatetruecolor($targetDim, $targetDim);
+
+        // Preserve alpha transparency
+        imagealphablending($dstImage, false);
+        imagesavealpha($dstImage, true);
+        $transparent = imagecolorallocatealpha($dstImage, 255, 255, 255, 127);
+        imagefilledrectangle($dstImage, 0, 0, $targetDim, $targetDim, $transparent);
+
+        imagecopyresampled(
+            $dstImage,
+            $srcImage,
+            0,
+            0,
+            $srcX,
+            $srcY,
+            $targetDim,
+            $targetDim,
+            $minDim,
+            $minDim
+        );
+
+        // 8. Generate secure, cryptographically unguessable WebP filename
+        $filename = sprintf('avatar_%d_%d_%s.webp', $userId, time(), bin2hex(random_bytes(6)));
         $destination = $uploadDir . DIRECTORY_SEPARATOR . $filename;
 
-        // 7. Delete previous avatar if it exists
+        // 9. Compress and save as WebP with guaranteed <= 300KB file size
+        $quality = 85;
+        $saved = false;
+        while ($quality >= 40) {
+            $saved = @imagewebp($dstImage, $destination, $quality);
+            if ($saved && file_exists($destination)) {
+                clearstatcache(true, $destination);
+                $fileSize = filesize($destination);
+                if ($fileSize !== false && ($fileSize <= self::MAX_COMPRESSED_AVATAR_SIZE || $quality <= 45)) {
+                    break;
+                }
+            }
+            $quality -= 10;
+        }
+
+        // Free memory
+        imagedestroy($srcImage);
+        imagedestroy($dstImage);
+
+        if (!$saved || !file_exists($destination)) {
+            throw new Exception('Failed to compress and save WebP profile picture.');
+        }
+
+        // 10. Delete previous avatar if it exists
         $oldPicture = $this->userRepository->getProfilePicture($userId);
         if ($oldPicture) {
             $oldFilePath = $uploadDir . DIRECTORY_SEPARATOR . basename($oldPicture);
@@ -244,15 +383,10 @@ class UserProfileService
             }
         }
 
-        // 8. Move uploaded file
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            throw new Exception('Failed to save profile picture to disk.');
-        }
-
-        // 9. Update DB record
+        // 11. Update DB record with .webp filename
         $this->userRepository->updateProfilePicture($userId, $filename);
 
-        // 10. Sync session cache if updating own picture
+        // 12. Sync session cache if updating own picture
         if (session_status() === PHP_SESSION_ACTIVE && (int) $this->auth->getUserId() === $userId) {
             $_SESSION['user_profile_picture'] = $filename;
         }

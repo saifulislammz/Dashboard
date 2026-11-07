@@ -77,6 +77,41 @@ class ProfileController
             ];
         }
 
+        // Load 195 countries config
+        $countries = require __DIR__ . '/../config/countries.php';
+
+        // Parse date of birth into day, month, year
+        $dobDay   = '';
+        $dobMonth = '';
+        $dobYear  = '';
+        if (!empty($profile['date_of_birth'])) {
+            $parts = explode('-', (string) $profile['date_of_birth']);
+            if (count($parts) === 3) {
+                $dobYear  = (int) $parts[0];
+                $dobMonth = (int) $parts[1];
+                $dobDay   = (int) $parts[2];
+            }
+        }
+
+        // Parse existing phone into dial code and local number
+        $currentPhone     = trim((string) ($profile['phone'] ?? ''));
+        $phoneDialCode    = '+880'; // default Bangladesh
+        $phoneLocalNumber = $currentPhone;
+        if ($currentPhone !== '' && str_starts_with($currentPhone, '+')) {
+            $dialCodes = [];
+            foreach ($countries as $c) {
+                $dialCodes[$c['dial_code']] = true;
+            }
+            uksort($dialCodes, fn($a, $b) => strlen($b) <=> strlen($a));
+            foreach (array_keys($dialCodes) as $dc) {
+                if (str_starts_with($currentPhone, $dc)) {
+                    $phoneDialCode    = $dc;
+                    $phoneLocalNumber = trim(substr($currentPhone, strlen($dc)));
+                    break;
+                }
+            }
+        }
+
         $auth = $this->auth;
         require __DIR__ . '/../../views/profile.php';
     }
