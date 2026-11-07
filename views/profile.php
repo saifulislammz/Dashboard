@@ -50,20 +50,20 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                     </div>
                 </div>
 
-                <div class="flex-1 text-center sm:text-left space-y-2">
+                <div class="flex-1 text-left space-y-2" style="text-align: left;">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                         <h2 class="text-2xl font-bold text-gray-900"><?php echo e($username ?: 'Not Set'); ?></h2>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 self-center sm:self-auto">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
                             <?php echo e($role); ?>
                         </span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php echo $statusInt === 0 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'; ?> self-center sm:self-auto">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php echo $statusInt === 0 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'; ?>">
                             <?php echo e($statusText); ?>
                         </span>
                     </div>
                     <p class="text-sm text-gray-500"><?php echo e($email); ?></p>
 
-                    <!-- Avatar Upload / Remove Actions (Aligned strictly to left) -->
-                    <div class="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                    <!-- Avatar Upload / Remove Actions (Aligned strictly to left under email) -->
+                    <div class="pt-2 flex flex-wrap items-center gap-3" style="justify-content: flex-start;">
                         <form id="profilePicForm" action="profile.php" method="POST" enctype="multipart/form-data" class="inline">
                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken(), ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="action" value="upload_picture">
@@ -85,7 +85,7 @@ if ($auth->hasRole(ROLE_ADMIN) || $auth->hasRole(\Delight\Auth\Role::SUPER_ADMIN
                         </form>
                         <?php endif; ?>
                     </div>
-                    <p class="text-xs text-gray-400 pt-1">Recommended: 500x500 px. Supported formats: JPG, PNG, WEBP. Maximum file size: 2MB.</p>
+                    <p class="text-xs text-gray-400 pt-1" style="text-align: left;">Recommended: 500x500 px. Supported formats: JPG, PNG, WEBP. Maximum file size: 2MB.</p>
                 </div>
             </div>
 
