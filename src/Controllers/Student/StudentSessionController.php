@@ -33,17 +33,20 @@ class StudentSessionController
         $offset = ($page - 1) * $limit;
 
         if ($classroomId > 0) {
-            // Verify student is enrolled in this classroom
+            // Verify student is enrolled in this classroom (single or group)
             $classroom = $this->classroomRepo->findById($classroomId);
-            if (!$classroom || (int) $classroom['student_id'] !== $studentId) {
+            if (!$classroom || !$this->classroomRepo->isStudentInClassroom($classroomId, (int) $studentId)) {
                 http_response_code(403);
                 die('<h1>Access denied.</h1>');
             }
             
             // For student view, only show active or recently completed sessions.
-            // Wait, maybe show all so they know the schedule? Yes, show all not cancelled.
             $stmt = $this->db->prepare("
-                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, u.username AS teacher_name
+                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, 
+                       COALESCE(
+                           (SELECT ut.username FROM classroom_teachers ct JOIN users ut ON ut.id = ct.user_id WHERE ct.classroom_id = c.id ORDER BY ct.is_primary DESC LIMIT 1),
+                           u.username
+                       ) AS teacher_name
                 FROM class_sessions cs 
                 LEFT JOIN session_meetings sm ON sm.session_id = cs.id
                 JOIN classrooms c ON c.id = cs.classroom_id
@@ -63,29 +66,35 @@ class StudentSessionController
             
             $pageTitle = "Live Sessions — " . $classroom['class_name'];
         } else {
-            // All upcoming sessions for this student across all their classrooms
+            // All upcoming sessions for this student across all their classrooms (single or group)
             $stmt = $this->db->prepare("
-                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, u.username AS teacher_name
+                SELECT cs.*, sm.generation_status, sm.join_url, c.class_name, 
+                       COALESCE(
+                           (SELECT ut.username FROM classroom_teachers ct JOIN users ut ON ut.id = ct.user_id WHERE ct.classroom_id = c.id ORDER BY ct.is_primary DESC LIMIT 1),
+                           u.username
+                       ) AS teacher_name
                 FROM class_sessions cs 
                 LEFT JOIN session_meetings sm ON sm.session_id = cs.id
                 JOIN classrooms c ON c.id = cs.classroom_id
                 LEFT JOIN users u ON u.id = c.teacher_id
-                WHERE c.student_id = :sid 
+                WHERE (c.student_id = :sid OR EXISTS (SELECT 1 FROM classroom_students cstud WHERE cstud.classroom_id = c.id AND cstud.user_id = :sid2))
                   AND cs.session_date >= CURDATE()
                   AND cs.status NOT IN ('cancelled', 'completed')
                 ORDER BY cs.session_date ASC, cs.start_time ASC
                 LIMIT :limit OFFSET :offset
             ");
-            $stmt->bindValue(':sid', $studentId, PDO::PARAM_INT);
+            $stmt->bindValue(':sid',  $studentId, PDO::PARAM_INT);
+            $stmt->bindValue(':sid2', $studentId, PDO::PARAM_INT);
             
             $countStmt = $this->db->prepare("
                 SELECT COUNT(*) FROM class_sessions cs
                 JOIN classrooms c ON c.id = cs.classroom_id
-                WHERE c.student_id = :sid 
+                WHERE (c.student_id = :sid OR EXISTS (SELECT 1 FROM classroom_students cstud WHERE cstud.classroom_id = c.id AND cstud.user_id = :sid2))
                   AND cs.session_date >= CURDATE()
                   AND cs.status NOT IN ('cancelled', 'completed')
             ");
-            $countStmt->bindValue(':sid', $studentId, PDO::PARAM_INT);
+            $countStmt->bindValue(':sid',  $studentId, PDO::PARAM_INT);
+            $countStmt->bindValue(':sid2', $studentId, PDO::PARAM_INT);
             
             $pageTitle = "My Upcoming Live Classes";
         }

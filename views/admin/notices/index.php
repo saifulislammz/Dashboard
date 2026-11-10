@@ -104,7 +104,44 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                         <?php foreach($notices as $notice): ?>
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-5 whitespace-nowrap text-sm font-semibold text-gray-900"><?php echo e(mb_strimwidth($notice['title'], 0, 40, '...')); ?></td>
-                            <td class="px-6 py-5 whitespace-nowrap text-sm text-gray-600 capitalize"><?php echo e($notice['target_audience']); ?></td>
+                            <td class="px-6 py-5 whitespace-nowrap text-xs">
+                                <?php if (($notice['target_type'] ?? '') === 'all'): ?>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+                                        <i class="ph ph-broadcast text-sm"></i> Broadcast (All)
+                                    </span>
+                                <?php elseif (!empty($notice['targets'])): ?>
+                                    <div class="flex flex-wrap gap-1 max-w-xs">
+                                        <?php
+                                        $roleBadges = [];
+                                        $classroomCount = 0;
+                                        $userCount = 0;
+                                        foreach ($notice['targets'] as $t) {
+                                            if ($t['target_type'] === 'role') {
+                                                if ((int)$t['target_id'] === 4) $roleBadges[] = 'Students';
+                                                elseif ((int)$t['target_id'] === 2) $roleBadges[] = 'Teachers';
+                                                elseif ((int)$t['target_id'] === 1) $roleBadges[] = 'Admins';
+                                            } elseif ($t['target_type'] === 'classroom') {
+                                                $classroomCount++;
+                                            } elseif ($t['target_type'] === 'user') {
+                                                $userCount++;
+                                            }
+                                        }
+                                        foreach ($roleBadges as $rb): ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200/50"><?php echo e($rb); ?></span>
+                                        <?php endforeach; ?>
+                                        <?php if ($classroomCount > 0): ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/50"><?php echo $classroomCount; ?> Classroom(s)</span>
+                                        <?php endif; ?>
+                                        <?php if ($userCount > 0): ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/50"><?php echo $userCount; ?> User(s)</span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 capitalize">
+                                        <?php echo e($notice['target_audience']); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-6 py-5 whitespace-nowrap text-sm">
                                 <?php if($notice['status'] === 'active'): ?>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#dcfce7] text-[#166534]">

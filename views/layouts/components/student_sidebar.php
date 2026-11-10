@@ -48,6 +48,12 @@ global $auth, $db;
             <span class="text-sm">Classes</span>
         </a>
 
+        <a href="/student/resources.php"
+            class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors <?php echo ($activeMenu ?? '') === 'student_resources' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium'; ?>">
+            <i class="ph ph-books text-xl"></i>
+            <span class="text-sm">Study Materials</span>
+        </a>
+
         <a href="/student/sessions.php"
             class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors <?php echo ($activeMenu ?? '') === 'student_sessions' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium'; ?>">
             <i class="ph ph-video-camera text-xl"></i>

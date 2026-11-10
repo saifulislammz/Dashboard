@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+[x-cloak] {
+  display: none !important;
+}
+
 @theme {
   --color-primary: var(--color-primary-green);
   --color-primary-dark: color-mix(in srgb, var(--color-primary-green) 85%, black);

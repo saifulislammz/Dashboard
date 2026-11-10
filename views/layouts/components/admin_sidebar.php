@@ -38,7 +38,7 @@ $adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? nul
         <?php
         $isUserMgmtActive = in_array($activeMenu ?? '', ['teachers', 'students']);
         $isNoticeActive = in_array($activeMenu ?? '', ['notices_create', 'notices_manage']);
-        $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage', 'classrooms_meetings']);
+        $isClassroomsActive = in_array($activeMenu ?? '', ['classrooms_create', 'classrooms_manage', 'classrooms_meetings', 'classroom_resources', 'classroom_resources_create']);
         $isAttendanceActive = in_array($activeMenu ?? '', ['admin_attendance']);
         $isInvoiceActive = in_array($activeMenu ?? '', ['invoice_create', 'invoice_bulk', 'invoice_dashboard', 'invoice_settings', 'invoice_track']);
         $isQuizActive = in_array($activeMenu ?? '', ['quiz_list', 'quiz_create', 'quiz_view'], true);
@@ -49,7 +49,7 @@ $adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? nul
         $canViewAnalytics = hasPermission('analytics.view');
         $canManageUsers = hasAnyPermission(['users.view', 'users.create', 'users.edit', 'users.delete', 'users.ban']);
         $canManageNotices = hasAnyPermission(['notices.view', 'notices.create', 'notices.edit', 'notices.delete']);
-        $canManageClassrooms = hasAnyPermission(['classrooms.view', 'classrooms.create', 'classrooms.edit', 'sessions.view']);
+        $canManageClassrooms = hasAnyPermission(['classrooms.view', 'classrooms.create', 'classrooms.edit', 'sessions.view', 'classroom_resources.view']);
         $canManageAttendance = hasPermission('attendance.view');
         $canManageInvoices = hasAnyPermission(['invoices.view', 'invoices.create', 'invoices.settings']);
         $canManageQuiz = hasAnyPermission(['quiz.view', 'quiz.create']);
@@ -145,6 +145,12 @@ $adminProfilePic = $adminProfilePic ?? ($_SESSION['user_profile_picture'] ?? nul
                         <a href="/admin/classrooms/index.php"
                             class="flex items-center gap-2 py-2 text-sm <?php echo ($activeMenu ?? '') === 'classrooms_manage' ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
                             <i class="ph ph-kanban text-lg"></i> Manage Classrooms
+                        </a>
+                    <?php endif; ?>
+                    <?php if (hasPermission('classroom_resources.view')): ?>
+                        <a href="/admin/resources/index.php"
+                            class="flex items-center gap-2 py-2 text-sm <?php echo in_array($activeMenu ?? '', ['classroom_resources', 'classroom_resources_create']) ? 'text-primary font-bold' : 'text-gray-500 hover:text-primary font-medium'; ?> transition-colors">
+                            <i class="ph ph-folder-open text-lg"></i> Class Resources
                         </a>
                     <?php endif; ?>
                     <?php if (hasPermission('sessions.view')): ?>

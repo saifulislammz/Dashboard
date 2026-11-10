@@ -123,7 +123,11 @@ $teacherAbsent  = (int)   ($summary['teacher_absent']  ?? 0);
                     </span>
                     <div>
                         <h2 class="text-sm font-semibold text-gray-800">
-                            <?= htmlspecialchars($classroom['student_name'] ?? 'Student', ENT_QUOTES, 'UTF-8') ?>
+                            <?php if (!empty($classroom['students']) && count($classroom['students']) > 1): ?>
+                                Group Class (<?= count($classroom['students']) ?> Enrolled)
+                            <?php else: ?>
+                                <?= htmlspecialchars($classroom['student_name'] ?? 'Student', ENT_QUOTES, 'UTF-8') ?>
+                            <?php endif; ?>
                         </h2>
                         <p class="text-xs text-gray-400">Student Attendance</p>
                     </div>
@@ -165,7 +169,11 @@ $teacherAbsent  = (int)   ($summary['teacher_absent']  ?? 0);
 
                         <!-- Badge -->
                         <div class="flex-shrink-0">
-                            <?php if ($isStudentPresent): ?>
+                            <?php if ((int)($s['total_enrolled_students'] ?? 0) > 1): ?>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold <?= (int)$s['student_present_count'] > 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600' ?>">
+                                    <?= (int)$s['student_present_count'] ?> / <?= (int)$s['total_enrolled_students'] ?> Present
+                                </span>
+                            <?php elseif ($isStudentPresent): ?>
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                     Present
                                     <?php if (!empty($s['student_join_time'])): ?>
@@ -196,7 +204,11 @@ $teacherAbsent  = (int)   ($summary['teacher_absent']  ?? 0);
                     </span>
                     <div>
                         <h2 class="text-sm font-semibold text-gray-800">
-                            <?= htmlspecialchars($classroom['teacher_name'] ?? 'Teacher', ENT_QUOTES, 'UTF-8') ?>
+                            <?php if (!empty($classroom['teachers']) && count($classroom['teachers']) > 1): ?>
+                                <?= htmlspecialchars($classroom['teacher_name'] ?? 'Teacher', ENT_QUOTES, 'UTF-8') ?> (+<?= count($classroom['teachers']) - 1 ?> Co-teachers)
+                            <?php else: ?>
+                                <?= htmlspecialchars($classroom['teacher_name'] ?? 'Teacher', ENT_QUOTES, 'UTF-8') ?>
+                            <?php endif; ?>
                         </h2>
                         <p class="text-xs text-gray-400">Teacher Attendance</p>
                     </div>

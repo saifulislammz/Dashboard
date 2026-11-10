@@ -43,9 +43,9 @@ class TeacherAttendanceController
             return;
         }
 
-        // IDOR protection: verify teacher owns this classroom
+        // IDOR protection: verify teacher owns or teaches this classroom (single or group)
         $classroom = $this->classroomRepo->findById($classroomId);
-        if (!$classroom || (int) $classroom['teacher_id'] !== $teacherId) {
+        if (!$classroom || !$this->classroomRepo->isTeacherInClassroom($classroomId, (int) $teacherId)) {
             http_response_code(403);
             die('<h1>Access denied.</h1>');
         }

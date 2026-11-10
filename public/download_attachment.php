@@ -4,6 +4,7 @@ require_once __DIR__ . '/../src/config/database.php';
 require_once __DIR__ . '/../src/config/roles.php';
 require_once __DIR__ . '/../src/middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../src/Repositories/NoticeRepository.php';
+require_once __DIR__ . '/../src/Services/NoticeService.php';
 
 requireLogin();
 
@@ -15,6 +16,7 @@ if ($id <= 0) {
 }
 
 $repository = new \App\Repositories\NoticeRepository($db);
+$service    = new \App\Services\NoticeService($repository);
 $attachment = $repository->getAttachmentById($id);
 
 if (!$attachment) {
@@ -23,28 +25,20 @@ if (!$attachment) {
 }
 
 // Ensure the user has permission to view the parent notice.
-// If not admin, the notice must be active and target_audience match role.
+// If not admin, verify granular targeted access (Anti-IDOR)
 global $auth;
 if (!$auth->hasRole(ROLE_ADMIN)) {
-    $notice = $repository->findById((int) $attachment['notice_id']);
-    if (!$notice || $notice['status'] !== 'active') {
-        http_response_code(403);
-        die('Access denied.');
+    $userId = (int) $auth->getUserId();
+    $role = 'user';
+    if ($auth->hasRole(ROLE_STUDENT)) {
+        $role = 'student';
+    } elseif ($auth->hasRole(ROLE_TEACHER)) {
+        $role = 'teacher';
     }
 
-    $isStudent = $auth->hasRole(ROLE_STUDENT);
-    $isTeacher = $auth->hasRole(ROLE_TEACHER);
+    $isAllowed = $service->canUserAccessNotice($userId, (int) $attachment['notice_id'], $role);
 
-    $allowed = false;
-    if ($notice['target_audience'] === 'both') {
-        $allowed = true;
-    } elseif ($notice['target_audience'] === 'student' && $isStudent) {
-        $allowed = true;
-    } elseif ($notice['target_audience'] === 'teacher' && $isTeacher) {
-        $allowed = true;
-    }
-
-    if (!$allowed) {
+    if (!$isAllowed) {
         http_response_code(403);
         die('Access denied.');
     }

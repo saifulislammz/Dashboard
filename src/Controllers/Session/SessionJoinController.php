@@ -170,10 +170,14 @@ class SessionJoinController
         // -------------------------------------------------------
         // 4. Determine Redirection URL (Host vs Participant)
         // -------------------------------------------------------
-        // ONLY the assigned class teacher receives the host start_url (Zoom).
-        // Observers, students, and super admins receive join_url to prevent host session conflicts.
+        // In Multi-Teacher classrooms:
+        // ONLY the designated Primary Teacher receives the Zoom host start_url.
+        // Co-teachers, observers, students, and super admins receive join_url
+        // to prevent host session conflicts and concurrent host takeover errors.
+        $isPrimaryTeacher = $isTeacher && $this->sessionRepo->isPrimaryTeacherForSession($sessionId, $userId);
+
         $redirectUrl = $meeting['join_url'];
-        if ($isTeacher && !empty($meeting['start_url'])) {
+        if ($isPrimaryTeacher && !empty($meeting['start_url'])) {
             $redirectUrl = $meeting['start_url'];
         }
 

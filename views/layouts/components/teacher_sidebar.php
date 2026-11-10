@@ -48,6 +48,12 @@ global $auth, $db;
             <span class="text-sm">Classes</span>
         </a>
 
+        <a href="/teacher/resources/index.php"
+            class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors <?php echo in_array($activeMenu ?? '', ['teacher_resources', 'teacher_resources_create']) ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium'; ?>">
+            <i class="ph ph-folder-open text-xl"></i>
+            <span class="text-sm">Class Resources</span>
+        </a>
+
         <a href="/teacher/sessions.php"
             class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors <?php echo ($activeMenu ?? '') === 'teacher_sessions' ? 'text-primary font-bold bg-primary/5' : 'text-gray-600 hover:bg-gray-50 hover:text-primary font-medium'; ?>">
             <i class="ph ph-video-camera text-xl"></i>

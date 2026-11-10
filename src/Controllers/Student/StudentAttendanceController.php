@@ -45,9 +45,9 @@ class StudentAttendanceController
             return;
         }
 
-        // IDOR protection: verify student is enrolled in this classroom
+        // IDOR protection: verify student is enrolled in this classroom (single or group)
         $classroom = $this->classroomRepo->findById($classroomId);
-        if (!$classroom || (int) $classroom['student_id'] != $studentId) {
+        if (!$classroom || !$this->classroomRepo->isStudentInClassroom($classroomId, (int) $studentId)) {
             http_response_code(403);
             die('<h1>Access denied.</h1>');
         }

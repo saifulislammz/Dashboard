@@ -27,6 +27,7 @@ pnpm-debug.log
 check.php
 check_schema.php
 admin_dashboard.html
+/tests/
 
 # Database files
 *.sqlite
@@ -60,5 +61,27 @@ desktop.ini
 # Documentation (Client guides, screenshots, documentation portal)
 /documentation/
 /docs/
+/codebase doc/
+codebase doc/
 
+# Markdown, Text & Documentation Files
+*.md
+*.MD
+*.txt
+*.TXT
+*MD.txt
+*md.txt
+*.md.txt
+
+# Lock Files
+*.lock
+*.LOCK
+package-lock.json
+
+# Log Files
+*.log
+*.LOG
+*.log.*
+logs/
+/logs/
 

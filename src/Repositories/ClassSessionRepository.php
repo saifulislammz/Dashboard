@@ -47,7 +47,47 @@ class ClassSessionRepository
         ");
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        
+        if (!$row) {
+            return null;
+        }
+
+        // Fallback for teacher_name from classroom_teachers if c.teacher_id was NULL
+        if (empty($row['teacher_name']) && !empty($row['classroom_id'])) {
+            $stmtT = $this->db->prepare("
+                SELECT u.username, u.email 
+                FROM classroom_teachers ct 
+                JOIN users u ON u.id = ct.user_id 
+                WHERE ct.classroom_id = :cid 
+                ORDER BY ct.is_primary DESC 
+                LIMIT 1
+            ");
+            $stmtT->execute(['cid' => $row['classroom_id']]);
+            $t = $stmtT->fetch(PDO::FETCH_ASSOC);
+            if ($t) {
+                $row['teacher_name']  = $t['username'];
+                $row['teacher_email'] = $t['email'];
+            }
+        }
+
+        // Fallback for student_name from classroom_students if c.student_id was NULL
+        if (empty($row['student_name']) && !empty($row['classroom_id'])) {
+            $stmtS = $this->db->prepare("
+                SELECT u.username, u.email 
+                FROM classroom_students cs 
+                JOIN users u ON u.id = cs.user_id 
+                WHERE cs.classroom_id = :cid 
+                LIMIT 1
+            ");
+            $stmtS->execute(['cid' => $row['classroom_id']]);
+            $s = $stmtS->fetch(PDO::FETCH_ASSOC);
+            if ($s) {
+                $row['student_name']  = $s['username'];
+                $row['student_email'] = $s['email'];
+            }
+        }
+
+        return $row;
     }
 
     /**
@@ -107,7 +147,7 @@ class ClassSessionRepository
     }
 
     /**
-     * Upcoming sessions for a teacher (across all their classes)
+     * Upcoming sessions for a teacher (across all their assigned classes, single or group)
      */
     public function getUpcomingForTeacher(int $teacherId, int $limit = 10): array
     {
@@ -117,21 +157,29 @@ class ClassSessionRepository
                    sm.join_url, sm.start_url, sm.meet_link, sm.generation_status,
                    c.class_name, c.class_code
             FROM class_sessions cs
-            JOIN classrooms c       ON c.id = cs.classroom_id AND c.teacher_id = :teacher_id
+            JOIN classrooms c ON c.id = cs.classroom_id
             LEFT JOIN session_meetings sm ON sm.session_id = cs.id
             WHERE cs.session_date >= CURDATE()
               AND cs.status NOT IN ('cancelled', 'completed')
+              AND (
+                  c.teacher_id = :teacher_id
+                  OR EXISTS (
+                      SELECT 1 FROM classroom_teachers ct 
+                      WHERE ct.classroom_id = c.id AND ct.user_id = :teacher_id2
+                  )
+              )
             ORDER BY cs.session_date ASC, cs.start_time ASC
             LIMIT :limit
         ");
-        $stmt->bindValue(':teacher_id', $teacherId, PDO::PARAM_INT);
-        $stmt->bindValue(':limit',      $limit,     PDO::PARAM_INT);
+        $stmt->bindValue(':teacher_id',  $teacherId, PDO::PARAM_INT);
+        $stmt->bindValue(':teacher_id2', $teacherId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit',       $limit,     PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Upcoming sessions for a student (across their enrolled class)
+     * Upcoming sessions for a student (across all their enrolled classes, single or group)
      */
     public function getUpcomingForStudent(int $studentId, int $limit = 10): array
     {
@@ -140,19 +188,30 @@ class ClassSessionRepository
                    cs.timezone, cs.topic, cs.provider, cs.status,
                    sm.join_url, sm.meet_link, sm.generation_status,
                    c.class_name, c.class_code,
-                   t.username AS teacher_name
+                   COALESCE(
+                       (SELECT ut.username FROM classroom_teachers ct JOIN users ut ON ut.id = ct.user_id WHERE ct.classroom_id = c.id ORDER BY ct.is_primary DESC LIMIT 1),
+                       t.username
+                   ) AS teacher_name
             FROM class_sessions cs
-            JOIN classrooms c       ON c.id = cs.classroom_id AND c.student_id = :student_id
+            JOIN classrooms c ON c.id = cs.classroom_id
             LEFT JOIN session_meetings sm ON sm.session_id = cs.id
-            LEFT JOIN users t        ON t.id = c.teacher_id
+            LEFT JOIN users t ON t.id = c.teacher_id
             WHERE cs.session_date >= CURDATE()
               AND cs.status NOT IN ('cancelled', 'completed')
               AND sm.generation_status = 'success'
+              AND (
+                  c.student_id = :student_id
+                  OR EXISTS (
+                      SELECT 1 FROM classroom_students cstud 
+                      WHERE cstud.classroom_id = c.id AND cstud.user_id = :student_id2
+                  )
+              )
             ORDER BY cs.session_date ASC, cs.start_time ASC
             LIMIT :limit
         ");
-        $stmt->bindValue(':student_id', $studentId, PDO::PARAM_INT);
-        $stmt->bindValue(':limit',      $limit,     PDO::PARAM_INT);
+        $stmt->bindValue(':student_id',  $studentId, PDO::PARAM_INT);
+        $stmt->bindValue(':student_id2', $studentId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit',       $limit,     PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -166,35 +225,85 @@ class ClassSessionRepository
         $stmt = $this->db->prepare("
             SELECT COUNT(cs.id)
             FROM class_sessions cs
-            JOIN classrooms c ON c.id = cs.classroom_id AND c.student_id = :student_id
+            JOIN classrooms c ON c.id = cs.classroom_id
             WHERE cs.id = :session_id
+              AND (
+                  c.student_id = :student_id
+                  OR EXISTS (
+                      SELECT 1 FROM classroom_students cstud 
+                      WHERE cstud.classroom_id = c.id AND cstud.user_id = :student_id2
+                  )
+              )
         ");
-        $stmt->execute(['session_id' => $sessionId, 'student_id' => $studentId]);
+        $stmt->execute([
+            'session_id'   => $sessionId,
+            'student_id'   => $studentId,
+            'student_id2'  => $studentId,
+        ]);
         return (int) $stmt->fetchColumn() > 0;
     }
 
     /**
-     * Check if a teacher owns the classroom of a given session
+     * Check if a teacher owns/teaches the classroom of a given session
      */
     public function teacherBelongsToSession(int $sessionId, int $teacherId): bool
     {
         $stmt = $this->db->prepare("
             SELECT COUNT(cs.id)
             FROM class_sessions cs
-            JOIN classrooms c ON c.id = cs.classroom_id AND c.teacher_id = :teacher_id
+            JOIN classrooms c ON c.id = cs.classroom_id
             WHERE cs.id = :session_id
+              AND (
+                  c.teacher_id = :teacher_id
+                  OR EXISTS (
+                      SELECT 1 FROM classroom_teachers cteach 
+                      WHERE cteach.classroom_id = c.id AND cteach.user_id = :teacher_id2
+                  )
+              )
         ");
-        $stmt->execute(['session_id' => $sessionId, 'teacher_id' => $teacherId]);
+        $stmt->execute([
+            'session_id'   => $sessionId,
+            'teacher_id'   => $teacherId,
+            'teacher_id2'  => $teacherId,
+        ]);
         return (int) $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * Check if a teacher is the designated Primary Host Teacher for the session
+     * (Primary teacher gets Zoom start_url; co-teachers get join_url)
+     */
+    public function isPrimaryTeacherForSession(int $sessionId, int $teacherId): bool
+    {
+        $stmt = $this->db->prepare("
+            SELECT (
+                EXISTS (
+                    SELECT 1 FROM class_sessions cs
+                    JOIN classroom_teachers ct ON ct.classroom_id = cs.classroom_id
+                    WHERE cs.id = :session_id AND ct.user_id = :teacher_id AND ct.is_primary = 1
+                )
+                OR EXISTS (
+                    SELECT 1 FROM class_sessions cs
+                    JOIN classrooms c ON c.id = cs.classroom_id
+                    WHERE cs.id = :session_id2 AND c.teacher_id = :teacher_id2
+                )
+            ) AS is_primary
+        ");
+        $stmt->execute([
+            'session_id'   => $sessionId,
+            'teacher_id'   => $teacherId,
+            'session_id2'  => $sessionId,
+            'teacher_id2'  => $teacherId,
+        ]);
+        return (bool) $stmt->fetchColumn();
+    }
 
     // -------------------------------------------------------
     // SCHEDULE CONFLICT CHECKS
     // -------------------------------------------------------
 
     /**
-     * Checks if the teacher of a given classroom already has
+     * Checks if any teacher of a given classroom already has
      * an overlapping session in any OTHER classroom on the same day.
      *
      * Returns an array with [conflict_class_name, teacher_name] or null.
@@ -208,12 +317,23 @@ class ClassSessionRepository
                    c2.class_name AS conflict_class_name,
                    u.username    AS teacher_name
             FROM class_sessions cs
-            JOIN classrooms c1 ON c1.id = :classroom_id
             JOIN classrooms c2 ON c2.id = cs.classroom_id
-                               AND c2.teacher_id = c1.teacher_id
-                               AND c2.id != c1.id
-            JOIN users u       ON u.id = c1.teacher_id
-            WHERE cs.session_date = :date
+            JOIN users u ON (
+                u.id IN (
+                    SELECT user_id FROM classroom_teachers WHERE classroom_id = :classroom_id
+                    UNION
+                    SELECT teacher_id FROM classrooms WHERE id = :classroom_id2 AND teacher_id IS NOT NULL
+                )
+                AND (
+                    u.id = c2.teacher_id
+                    OR EXISTS (
+                        SELECT 1 FROM classroom_teachers ct2
+                        WHERE ct2.classroom_id = c2.id AND ct2.user_id = u.id
+                    )
+                )
+            )
+            WHERE cs.classroom_id != :classroom_id3
+              AND cs.session_date = :date
               AND cs.status NOT IN ('cancelled', 'failed')
               AND cs.start_time  < :end_time
               AND cs.end_time    > :start_time
@@ -222,10 +342,12 @@ class ClassSessionRepository
         ");
 
         $params = [
-            'classroom_id' => $classroomId,
-            'date'         => $date,
-            'start_time'   => $startTime,
-            'end_time'     => $endTime,
+            'classroom_id'  => $classroomId,
+            'classroom_id2' => $classroomId,
+            'classroom_id3' => $classroomId,
+            'date'          => $date,
+            'start_time'    => $startTime,
+            'end_time'      => $endTime,
         ];
         if ($excludeSessionId) {
             $params['exclude_session_id'] = $excludeSessionId;
@@ -237,7 +359,7 @@ class ClassSessionRepository
     }
 
     /**
-     * Checks if the student of a given classroom already has
+     * Checks if any student of a given classroom already has
      * an overlapping session in any OTHER classroom on the same day.
      *
      * Returns an array with [conflict_class_name, student_name] or null.
@@ -251,12 +373,23 @@ class ClassSessionRepository
                    c2.class_name AS conflict_class_name,
                    u.username    AS student_name
             FROM class_sessions cs
-            JOIN classrooms c1 ON c1.id = :classroom_id
             JOIN classrooms c2 ON c2.id = cs.classroom_id
-                               AND c2.student_id = c1.student_id
-                               AND c2.id != c1.id
-            JOIN users u       ON u.id = c1.student_id
-            WHERE cs.session_date = :date
+            JOIN users u ON (
+                u.id IN (
+                    SELECT user_id FROM classroom_students WHERE classroom_id = :classroom_id
+                    UNION
+                    SELECT student_id FROM classrooms WHERE id = :classroom_id2 AND student_id IS NOT NULL
+                )
+                AND (
+                    u.id = c2.student_id
+                    OR EXISTS (
+                        SELECT 1 FROM classroom_students cs2
+                        WHERE cs2.classroom_id = c2.id AND cs2.user_id = u.id
+                    )
+                )
+            )
+            WHERE cs.classroom_id != :classroom_id3
+              AND cs.session_date = :date
               AND cs.status NOT IN ('cancelled', 'failed')
               AND cs.start_time  < :end_time
               AND cs.end_time    > :start_time
@@ -265,10 +398,12 @@ class ClassSessionRepository
         ");
 
         $params = [
-            'classroom_id' => $classroomId,
-            'date'         => $date,
-            'start_time'   => $startTime,
-            'end_time'     => $endTime,
+            'classroom_id'  => $classroomId,
+            'classroom_id2' => $classroomId,
+            'classroom_id3' => $classroomId,
+            'date'          => $date,
+            'start_time'    => $startTime,
+            'end_time'      => $endTime,
         ];
         if ($excludeSessionId) {
             $params['exclude_session_id'] = $excludeSessionId;
@@ -282,7 +417,6 @@ class ClassSessionRepository
     // -------------------------------------------------------
     // WRITE
     // -------------------------------------------------------
-
 
     /**
      * Insert a single session row, returns new ID
@@ -298,18 +432,18 @@ class ClassSessionRepository
                  :topic, :agenda, :session_number, :provider, :provider_account_id, 'scheduled', :job_id, :created_by)
         ");
         $stmt->execute([
-            'classroom_id'   => $data['classroom_id'],
-            'session_date'   => $data['session_date'],
-            'start_time'     => $data['start_time'],
-            'end_time'       => $data['end_time'],
-            'timezone'       => $data['timezone'] ?? 'Asia/Dhaka',
-            'topic'          => $data['topic'] ?? null,
-            'agenda'         => $data['agenda'] ?? null,
-            'session_number' => $data['session_number'] ?? null,
-            'provider'       => $data['provider'],
+            'classroom_id'        => $data['classroom_id'],
+            'session_date'        => $data['session_date'],
+            'start_time'          => $data['start_time'],
+            'end_time'            => $data['end_time'],
+            'timezone'            => $data['timezone'] ?? 'Asia/Dhaka',
+            'topic'               => $data['topic'] ?? null,
+            'agenda'              => $data['agenda'] ?? null,
+            'session_number'      => $data['session_number'] ?? null,
+            'provider'            => $data['provider'],
             'provider_account_id' => $data['provider_account_id'] ?? null,
-            'job_id'         => $data['job_id'] ?? null,
-            'created_by'     => $data['created_by'],
+            'job_id'              => $data['job_id'] ?? null,
+            'created_by'          => $data['created_by'],
         ]);
         return (int) $this->db->lastInsertId();
     }
@@ -345,25 +479,24 @@ class ClassSessionRepository
             foreach ($sessions as $s) {
                 try {
                     $stmt->execute([
-                        'classroom_id'   => $s['classroom_id'],
-                        'session_date'   => $s['session_date'],
-                        'start_time'     => $s['start_time'],
-                        'end_time'       => $s['end_time'],
-                        'timezone'       => $s['timezone'] ?? 'Asia/Dhaka',
-                        'topic'          => $s['topic'] ?? null,
-                        'agenda'         => $s['agenda'] ?? null,
-                        'session_number' => $s['session_number'] ?? null,
-                        'provider'       => $s['provider'],
+                        'classroom_id'        => $s['classroom_id'],
+                        'session_date'        => $s['session_date'],
+                        'start_time'          => $s['start_time'],
+                        'end_time'            => $s['end_time'],
+                        'timezone'            => $s['timezone'] ?? 'Asia/Dhaka',
+                        'topic'               => $s['topic'] ?? null,
+                        'agenda'              => $s['agenda'] ?? null,
+                        'session_number'      => $s['session_number'] ?? null,
+                        'provider'            => $s['provider'],
                         'provider_account_id' => $s['provider_account_id'] ?? null,
-                        'job_id'         => $s['job_id'] ?? null,
-                        'created_by'     => $s['created_by'],
+                        'job_id'              => $s['job_id'] ?? null,
+                        'created_by'          => $s['created_by'],
                     ]);
                     
                     if ($stmt->rowCount() > 0) {
                         $ids[] = (int) $this->db->lastInsertId();
                     }
                 } catch (\PDOException $e) {
-                    // If it's a duplicate entry error, just skip it.
                     if ($e->getCode() == 23000 || strpos($e->getMessage(), 'Duplicate entry') !== false) {
                         continue;
                     }

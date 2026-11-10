@@ -135,6 +135,10 @@ class AdminClassroomController
         $activeMenu          = 'classrooms_manage';
         $error               = '';
         $success             = '';
+        $teachers            = $this->service->getUsersByRole(ROLE_TEACHER);
+        $students            = $this->service->getUsersByRole(ROLE_STUDENT);
+        $assignedTeacherIds  = $this->service->getAssignedTeacherIds($id);
+        $assignedStudentIds  = $this->service->getAssignedStudentIds($id);
         $eligibleObservers   = $this->service->getEligibleObservers();
         $assignedObserverIds = $this->service->getClassroomObserverIds($id);
 
@@ -149,6 +153,8 @@ class AdminClassroomController
                 $this->service->updateClassroom($id, $_POST, $userId);
                 $success             = 'Classroom updated successfully.';
                 $classroom           = $this->service->getClassroomDetails($id); // refresh
+                $assignedTeacherIds  = $this->service->getAssignedTeacherIds($id);
+                $assignedStudentIds  = $this->service->getAssignedStudentIds($id);
                 $assignedObserverIds = $this->service->getClassroomObserverIds($id);
             } catch (\Exception $e) {
                 $error = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');

@@ -34,9 +34,9 @@ class TeacherSessionController
         $offset = ($page - 1) * $limit;
 
         if ($classroomId > 0) {
-            // Verify teacher has access to this classroom
+            // Verify teacher has access to this classroom (single or group)
             $classroom = $this->classroomRepo->findById($classroomId);
-            if (!$classroom || (int) $classroom['teacher_id'] !== $teacherId) {
+            if (!$classroom || !$this->classroomRepo->isTeacherInClassroom($classroomId, (int) $teacherId)) {
                 http_response_code(403);
                 die('<h1>Access denied.</h1>');
             }
@@ -63,22 +63,24 @@ class TeacherSessionController
                 FROM class_sessions cs 
                 LEFT JOIN session_meetings sm ON sm.session_id = cs.id
                 JOIN classrooms c ON c.id = cs.classroom_id
-                WHERE c.teacher_id = :tid 
+                WHERE (c.teacher_id = :tid OR EXISTS (SELECT 1 FROM classroom_teachers ct WHERE ct.classroom_id = c.id AND ct.user_id = :tid2))
                   AND cs.session_date >= CURDATE()
                   AND cs.status NOT IN ('cancelled', 'completed')
                 ORDER BY cs.session_date ASC, cs.start_time ASC
                 LIMIT :limit OFFSET :offset
             ");
-            $stmt->bindValue(':tid', $teacherId, PDO::PARAM_INT);
+            $stmt->bindValue(':tid',  $teacherId, PDO::PARAM_INT);
+            $stmt->bindValue(':tid2', $teacherId, PDO::PARAM_INT);
             
             $countStmt = $this->db->prepare("
                 SELECT COUNT(*) FROM class_sessions cs
                 JOIN classrooms c ON c.id = cs.classroom_id
-                WHERE c.teacher_id = :tid 
+                WHERE (c.teacher_id = :tid OR EXISTS (SELECT 1 FROM classroom_teachers ct WHERE ct.classroom_id = c.id AND ct.user_id = :tid2))
                   AND cs.session_date >= CURDATE()
                   AND cs.status NOT IN ('cancelled', 'completed')
             ");
-            $countStmt->bindValue(':tid', $teacherId, PDO::PARAM_INT);
+            $countStmt->bindValue(':tid',  $teacherId, PDO::PARAM_INT);
+            $countStmt->bindValue(':tid2', $teacherId, PDO::PARAM_INT);
             
             $pageTitle = "My Upcoming Live Sessions";
         }

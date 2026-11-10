@@ -171,8 +171,9 @@ class AttendanceRepository
         $params = ['classroom_id' => $classroomId];
 
         if ($studentId !== null && $studentId > 0) {
-            $query .= " AND c.student_id = :student_id";
-            $params['student_id'] = $studentId;
+            $query .= " AND (c.student_id = :student_id OR EXISTS (SELECT 1 FROM classroom_students cstud WHERE cstud.classroom_id = c.id AND cstud.user_id = :student_id2))";
+            $params['student_id']  = $studentId;
+            $params['student_id2'] = $studentId;
         }
 
         $stmt = $this->db->prepare($query);
@@ -291,22 +292,24 @@ class AttendanceRepository
                 c.id          AS classroom_id,
                 c.class_name,
                 c.class_code,
-                t.id          AS teacher_id,
-                t.username    AS teacher_name,
-                s.id          AS student_id,
-                s.username    AS student_name,
+                c.teacher_id,
+                c.student_id,
+                COALESCE(t.username, (SELECT ut.username FROM classroom_teachers ct JOIN users ut ON ut.id = ct.user_id WHERE ct.classroom_id = c.id ORDER BY ct.is_primary DESC LIMIT 1), 'Unassigned') AS teacher_name,
+                COALESCE(s.username, (SELECT us.username FROM classroom_students cst JOIN users us ON us.id = cst.user_id WHERE cst.classroom_id = c.id LIMIT 1), 'Group Class') AS student_name,
+                (SELECT COUNT(*) FROM classroom_students cstud WHERE cstud.classroom_id = c.id) AS student_count,
+                (SELECT COUNT(*) FROM classroom_teachers cteach WHERE cteach.classroom_id = c.id) AS teacher_count,
                 COUNT(cs.id)  AS total_sessions
             FROM classrooms c
-            JOIN users t ON t.id = c.teacher_id
-            JOIN users s ON s.id = c.student_id
+            LEFT JOIN users t ON t.id = c.teacher_id
+            LEFT JOIN users s ON s.id = c.student_id
             LEFT JOIN class_sessions cs
                 ON cs.classroom_id = c.id
                AND cs.status NOT IN ('cancelled')
             {$whereClause}
             GROUP BY
                 c.id, c.class_name, c.class_code,
-                t.id, t.username,
-                s.id, s.username
+                c.teacher_id, c.student_id,
+                t.username, s.username
             ORDER BY c.id DESC
             LIMIT :limit OFFSET :offset
         ");
@@ -363,7 +366,9 @@ class AttendanceRepository
                 IF(sa_s.user_id IS NOT NULL, 1, 0) AS student_present,
                 IF(sa_t.user_id IS NOT NULL, 1, 0) AS teacher_present,
                 sa_s.join_time  AS student_join_time,
-                sa_t.join_time  AS teacher_join_time
+                sa_t.join_time  AS teacher_join_time,
+                (SELECT COUNT(DISTINCT sa_all.user_id) FROM session_attendance sa_all WHERE sa_all.session_id = cs.id AND sa_all.role = 'student') AS student_present_count,
+                (SELECT COUNT(*) FROM classroom_students cs_count WHERE cs_count.classroom_id = cs.classroom_id) AS total_enrolled_students
             FROM class_sessions cs
             LEFT JOIN session_attendance sa_s
                 ON sa_s.session_id = cs.id AND sa_s.user_id = :student_id

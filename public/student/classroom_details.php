@@ -12,8 +12,8 @@ $id         = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $repository = new \App\Repositories\ClassroomRepository($db);
 $classroom  = $repository->findById($id);
 
-// Security check: student can only view their own classrooms
-if (!$classroom || (int)$classroom['student_id'] !== $auth->getUserId()) {
+// Security check: student can only view their own classrooms (single or group)
+if (!$classroom || !$repository->isStudentInClassroom($id, (int) $auth->getUserId())) {
     http_response_code(403);
     die('<h1>403 Forbidden</h1><p>Classroom not found or unauthorized.</p>');
 }

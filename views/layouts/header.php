@@ -25,6 +25,9 @@ if (!function_exists('generateCsrfToken')) {
         body {
             font-family: 'Inter', sans-serif;
         }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
     <!-- Alpine.js for dynamic UI components (like quiz builder) -->
     <script nonce="<?php echo csp_nonce(); ?>" defer src="/js/alpine.min.js"></script>

@@ -37,13 +37,17 @@ class TeacherClassroomController
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $classroom = $this->service->getClassroomDetails($id);
 
-        // Security check: teacher can only view their own classrooms
-        if (!$classroom || $classroom['teacher_id'] != $auth->getUserId()) {
+        // Security check: teacher can only view their own classrooms (single or group)
+        if (!$classroom || !$this->service->isTeacherInClassroom($id, (int) $auth->getUserId())) {
+            http_response_code(403);
             die("Classroom not found or unauthorized.");
         }
 
         $pageTitle = 'Classroom Details';
         $activeMenu = 'classes';
+
+        $resourceRepo = new \App\Repositories\ClassroomResourceRepository($GLOBALS['db']);
+        $resources = $resourceRepo->getResourcesForClassroom($id, 'teachers');
 
         require __DIR__ . '/../../../views/teacher/classroom_details.php';
     }

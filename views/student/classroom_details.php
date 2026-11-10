@@ -4,63 +4,180 @@ require __DIR__ . '/../layouts/sidebar_student.php';
 ?>
 
 <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gray-50">
-    <div class="max-w-3xl mx-auto space-y-6">
+    <div class="max-w-4xl mx-auto space-y-6">
         
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Classroom Details</h1>
-            <a href="/student/classrooms.php" class="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+            <a href="/student/classrooms.php" class="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
                 &larr; Back to My Classes
             </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-xs border border-gray-200 overflow-hidden">
             <!-- Header Section with Banner -->
-            <div class="h-24 bg-gradient-to-r from-primary to-blue-500"></div>
+            <div class="h-28 bg-gradient-to-r from-emerald-600 via-primary to-teal-600"></div>
             
-            <div class="px-6 py-8 sm:p-10 -mt-12">
-                <div class="bg-white rounded-lg shadow-md p-6 border border-gray-100 inline-block mb-6 relative">
-                    <div class="text-2xl font-bold text-gray-900"><?= htmlspecialchars($classroom['class_name']) ?></div>
-                    <div class="text-md text-gray-500 mt-1"><?= htmlspecialchars($classroom['class_title']) ?></div>
-                </div>
-
-                <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Class Code</dt>
-                        <dd class="mt-1 text-sm text-gray-900 font-mono bg-gray-100 inline-block px-2 py-1 rounded"><?= htmlspecialchars($classroom['class_code']) ?></dd>
-                    </div>
-                    
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Status</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
+            <div class="px-6 py-8 sm:p-8 -mt-12">
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-bold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+                                <?= htmlspecialchars($classroom['class_code']) ?>
+                            </span>
                             <?php if ($classroom['status'] === 'Active'): ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Active</span>
                             <?php else: ?>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Inactive</span>
                             <?php endif; ?>
-                        </dd>
-                    </div>
-                    
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Assigned Teacher Name</dt>
-                        <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($classroom['teacher_name'] ?? 'N/A') ?></dd>
+                            <?php if (!empty($classroom['students']) && count($classroom['students']) > 1): ?>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                    Group Classroom (<?= count($classroom['students']) ?> Students)
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-2"><?= htmlspecialchars($classroom['class_name']) ?></h2>
+                        <p class="text-sm text-gray-500 mt-0.5"><?= htmlspecialchars($classroom['class_title']) ?></p>
                     </div>
 
-                    
-                    <div class="sm:col-span-1">
-                        <dt class="text-sm font-medium text-gray-500">Created Date</dt>
-                        <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars(date('F j, Y, g:i a', strtotime($classroom['created_at']))) ?></dd>
-                    </div>
-                </dl>
-                
-                <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <a href="/student/sessions.php?classroom_id=<?= $classroom['id'] ?>" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                    <a href="/student/sessions.php?classroom_id=<?= (int)$classroom['id'] ?>" class="inline-flex justify-center items-center py-2.5 px-5 border border-transparent shadow-xs text-sm font-bold rounded-lg text-white bg-primary hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors flex-shrink-0">
                         <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
                         View Live Sessions
                     </a>
-                    <p class="text-sm text-gray-500 italic">
-                        Note: Students can view classroom details but cannot modify assignments. Contact the Administrator for changes.
+                </div>
+
+                <!-- Assigned Teachers Section -->
+                <div class="mt-8">
+                    <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                        Assigned Teachers (<?= count($classroom['teachers'] ?? []) ?: 1 ?>)
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <?php if (!empty($classroom['teachers'])): ?>
+                            <?php foreach ($classroom['teachers'] as $t): ?>
+                                <div class="p-3.5 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                                            <?= strtoupper(substr($t['username'] ?? 'T', 0, 1)) ?>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-900"><?= htmlspecialchars($t['username']) ?></p>
+                                            <p class="text-xs text-gray-500"><?= htmlspecialchars($t['email']) ?></p>
+                                        </div>
+                                    </div>
+                                    <?php if (!empty($t['is_primary'])): ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            Primary Host
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-200 text-gray-700">
+                                            Co-Teacher
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="p-3.5 rounded-xl border border-gray-200 bg-gray-50 flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                                    <?= strtoupper(substr($classroom['teacher_name'] ?? 'T', 0, 1)) ?>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900"><?= htmlspecialchars($classroom['teacher_name'] ?? 'Unassigned') ?></p>
+                                    <p class="text-xs text-gray-500"><?= htmlspecialchars($classroom['teacher_email'] ?? '') ?></p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Enrolled Students (Peers) Section -->
+                <?php if (!empty($classroom['students'])): ?>
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                Enrolled Classmates (<?= count($classroom['students']) ?>)
+                            </h3>
+                            <span class="text-xs text-gray-500">Group Learning Cohort</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                            <?php foreach ($classroom['students'] as $s): ?>
+                                <div class="p-3 rounded-lg border border-gray-200 bg-white flex items-center gap-2.5 shadow-2xs">
+                                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-xs">
+                                        <?= strtoupper(substr($s['username'] ?? 'S', 0, 1)) ?>
+                                    </div>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-gray-900 truncate"><?= htmlspecialchars($s['username']) ?></p>
+                                        <p class="text-[11px] text-gray-400 truncate"><?= htmlspecialchars($s['email']) ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Class Resources & Study Materials Section -->
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                            <i class="ph ph-folder-open text-emerald-600 text-lg"></i>
+                            Class Resources & Study Materials (<?= count($resources ?? []) ?>)
+                        </h3>
+                        <a href="/student/resources.php?classroom_id=<?= (int)$classroom['id'] ?>" class="text-xs font-semibold text-primary hover:underline">
+                            View All Materials &rarr;
+                        </a>
+                    </div>
+
+                    <?php if (empty($resources)): ?>
+                        <div class="p-6 bg-gray-50 rounded-xl text-center border border-gray-100">
+                            <p class="text-xs text-gray-400">No resources or materials distributed to this classroom yet.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <?php foreach ($resources as $res): ?>
+                                <div class="p-4 rounded-xl border border-gray-200 bg-white hover:border-primary/50 transition-colors flex items-center justify-between shadow-2xs">
+                                    <div class="min-w-0 pr-3">
+                                        <p class="text-sm font-bold text-gray-900 truncate"><?= htmlspecialchars($res['title']) ?></p>
+                                        <div class="flex items-center gap-2 text-[11px] text-gray-400 mt-0.5">
+                                            <span class="capitalize font-medium text-emerald-700"><?= htmlspecialchars($res['resource_type']) ?></span>
+                                            <span>• <?= date('d M Y', strtotime($res['created_at'])) ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <?php if (!empty($res['file_path'])): ?>
+                                            <a href="/resource/download.php?id=<?= (int)$res['id'] ?>" class="inline-flex items-center px-3 py-1.5 bg-primary hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors">
+                                                Download
+                                            </a>
+                                        <?php elseif (!empty($res['external_url'])): ?>
+                                            <a href="<?= htmlspecialchars($res['external_url']) ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors">
+                                                Open
+                                            </a>
+                                        <?php elseif ($res['resource_type'] === 'quiz' && !empty($res['quiz_id'])): ?>
+                                            <a href="/quiz/play.php?quiz_id=<?= (int)$res['quiz_id'] ?>" class="inline-flex items-center px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors">
+                                                Quiz
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="/student/resources.php?classroom_id=<?= (int)$classroom['id'] ?>" class="inline-flex items-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg shadow-xs transition-colors">
+                                                View
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <p class="text-xs text-gray-400 italic">
+                        Note: Classroom assignments and schedules are managed by the school administrator.
                     </p>
                 </div>
             </div>

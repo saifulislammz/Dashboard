@@ -61,9 +61,16 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                         <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
                                             <?= htmlspecialchars(mb_strtoupper(mb_substr($row['teacher_name'] ?? 'T', 0, 1)), ENT_QUOTES, 'UTF-8') ?>
                                         </span>
-                                        <span class="text-sm text-gray-700 truncate max-w-[110px]">
-                                            <?= htmlspecialchars($row['teacher_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
-                                        </span>
+                                        <div class="truncate max-w-[130px]">
+                                            <p class="text-sm text-gray-700 font-medium truncate">
+                                                <?= htmlspecialchars($row['teacher_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                            </p>
+                                            <?php if ((int)($row['teacher_count'] ?? 0) > 1): ?>
+                                                <span class="inline-flex text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded font-semibold">
+                                                    +<?= (int)$row['teacher_count'] - 1 ?> co-teachers
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </td>
 
@@ -73,9 +80,20 @@ require __DIR__ . '/../../layouts/sidebar_admin.php';
                                         <span class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700">
                                             <?= htmlspecialchars(mb_strtoupper(mb_substr($row['student_name'] ?? 'S', 0, 1)), ENT_QUOTES, 'UTF-8') ?>
                                         </span>
-                                        <span class="text-sm text-gray-700 truncate max-w-[110px]">
-                                            <?= htmlspecialchars($row['student_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
-                                        </span>
+                                        <div class="truncate max-w-[130px]">
+                                            <?php if ((int)($row['student_count'] ?? 0) > 1): ?>
+                                                <p class="text-sm text-blue-700 font-semibold truncate">
+                                                    Group Class
+                                                </p>
+                                                <span class="inline-flex text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.2 rounded font-medium">
+                                                    <?= (int)$row['student_count'] ?> Students
+                                                </span>
+                                            <?php else: ?>
+                                                <p class="text-sm text-gray-700 font-medium truncate">
+                                                    <?= htmlspecialchars($row['student_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </td>
 

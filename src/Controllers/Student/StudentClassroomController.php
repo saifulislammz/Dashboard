@@ -37,13 +37,17 @@ class StudentClassroomController
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $classroom = $this->service->getClassroomDetails($id);
 
-        // Security check: student can only view their own classrooms
-        if (!$classroom || $classroom['student_id'] != $auth->getUserId()) {
+        // Security check: student can only view their own classrooms (single or group)
+        if (!$classroom || !$this->service->isStudentInClassroom($id, (int) $auth->getUserId())) {
+            http_response_code(403);
             die("Classroom not found or unauthorized.");
         }
 
         $pageTitle = 'Classroom Details';
         $activeMenu = 'classes';
+
+        $resourceRepo = new \App\Repositories\ClassroomResourceRepository($GLOBALS['db']);
+        $resources = $resourceRepo->getResourcesForClassroom($id, 'students');
 
         require __DIR__ . '/../../../views/student/classroom_details.php';
     }

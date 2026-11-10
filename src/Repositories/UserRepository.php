@@ -266,4 +266,104 @@ class UserRepository
             throw $e;
         }
     }
+
+    /**
+     * Search active users by username or email with optional role filtering (for async autocomplete).
+     *
+     * @param string $term Search query (username or email)
+     * @param string|null $role Role filter ('student', 'teacher', 'admin', or null for all)
+     * @param int $limit Max results to return (default 20, max 100)
+     * @return array
+     */
+    public function searchActiveUsers(string $term = '', ?string $role = null, int $limit = 20): array
+    {
+        $where = ["u.status = 0"];
+        $params = [];
+
+        if (!empty($term)) {
+            $where[] = "(u.username LIKE :term1 OR u.email LIKE :term2)";
+            $params['term1'] = '%' . $term . '%';
+            $params['term2'] = '%' . $term . '%';
+        }
+
+        if ($role === 'student' || $role === 'Student') {
+            $where[] = "(u.roles_mask & 4) > 0";
+        } elseif ($role === 'teacher' || $role === 'Teacher') {
+            $where[] = "(u.roles_mask & 2) > 0";
+        } elseif ($role === 'admin' || $role === 'Admin') {
+            $where[] = "(u.roles_mask & 1) > 0";
+        }
+
+        $whereSql = implode(' AND ', $where);
+        $limit = max(1, min(100, $limit));
+
+        $sql = "
+            SELECT u.id, u.username, u.email, u.roles_mask, u.profile_picture
+            FROM users u
+            WHERE {$whereSql}
+            ORDER BY u.username ASC
+            LIMIT {$limit}
+        ";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(':' . $k, $v);
+        }
+        $stmt->execute();
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($users as &$u) {
+            $mask = (int) $u['roles_mask'];
+            if (($mask & 4) > 0) {
+                $u['role_name'] = 'Student';
+            } elseif (($mask & 2) > 0) {
+                $u['role_name'] = 'Teacher';
+            } elseif (($mask & 1) > 0) {
+                $u['role_name'] = 'Admin';
+            } else {
+                $u['role_name'] = 'User';
+            }
+        }
+
+        return $users;
+    }
+
+    /**
+     * Batch fetch active user summaries by IDs (for loading preselected targets in edit mode).
+     *
+     * @param array $userIds
+     * @return array
+     */
+    public function getUsersByIds(array $userIds): array
+    {
+        $cleanIds = array_values(array_unique(array_filter(array_map('intval', $userIds))));
+        if (empty($cleanIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($cleanIds), '?'));
+        $stmt = $this->db->prepare("
+            SELECT u.id, u.username, u.email, u.roles_mask, u.profile_picture
+            FROM users u
+            WHERE u.id IN ($placeholders)
+            ORDER BY u.username ASC
+        ");
+        $stmt->execute($cleanIds);
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($users as &$u) {
+            $mask = (int) $u['roles_mask'];
+            if (($mask & 4) > 0) {
+                $u['role_name'] = 'Student';
+            } elseif (($mask & 2) > 0) {
+                $u['role_name'] = 'Teacher';
+            } elseif (($mask & 1) > 0) {
+                $u['role_name'] = 'Admin';
+            } else {
+                $u['role_name'] = 'User';
+            }
+        }
+
+        return $users;
+    }
 }
